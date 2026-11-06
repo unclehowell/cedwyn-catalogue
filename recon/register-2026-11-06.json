@@ -1,0 +1,1311 @@
+{
+ "_about": "Records that should, did or may exist but are not held: one deduped list (existing MR/EV ids reused; new items MR-0069 to MR-0083). Each new record carries the record, a neutral description and a separately labelled interpretation. Sketches are pencil reconstructions captioned \"tab.bot artist reconstruction\"; they show no real document. Sketches for existing records are proposed in catalogue-change PRs. Built 6 Nov 2026 — Tab agent",
+ "built": "2026-11-06",
+ "counts": {
+  "total": 141,
+  "with_sketch_live_or_proposed": 26
+ },
+ "new_records": [
+  {
+   "id": "MR-0069",
+   "title": "Survey and valuation of Llandough manor, 1824 (Bute estate papers)",
+   "date": "1824",
+   "expected_holder": "National Library of Wales (Bute papers, entry \"LLANDOUGH MANOR, survey and valuation, with other manors\")",
+   "status": "should exist (not located)",
+   "why_we_believe_it_exists": "The National Library of Wales catalogue of the Bute papers lists a survey and valuation of Llandough manor with other manors. A manorial survey of that date would list each holding, its occupier and its value. No copy has been seen.",
+   "source": "NLW Bute papers catalogue entry; map-1824 research report; related plan EV-0211 (Glamorgan Archives DB/E/1 plan 19, partly held)",
+   "linked": [
+    "EV-0211"
+   ],
+   "description": "A bound or loose estate survey of 1824 listing the holdings in Llandough manor with acreages, occupiers and valuations, probably with a reference plan.",
+   "interpretation": "If it survives, the survey would show how the Tŷ Mawr holding was described and valued in 1824, and could be read against the 1824 plan already partly held.",
+   "image": "recon/MR-0069.webp",
+   "caption": "tab.bot artist reconstruction"
+  },
+  {
+   "id": "MR-0070",
+   "title": "HM Land Registry first-registration application and application plan, title WA231076 (1982)",
+   "date": "1982",
+   "expected_holder": "HM Land Registry (Wales office)",
+   "status": "sought",
+   "why_we_believe_it_exists": "Title WA231076 was first registered on an application lodged in 1982. A first-registration application is made on a prescribed form with the deeds and a plan identifying the land. The register is held; the application form and its plan are not.",
+   "source": "Title register WA231076; related records MR-0020 (Form A13 and requisitions), EV-0059, EV-0063",
+   "linked": [
+    "MR-0020",
+    "EV-0059",
+    "EV-0063"
+   ],
+   "description": "A Land Registry application form of 1982 with an attached plan marking the land applied for, lodged with the title deeds relied on.",
+   "interpretation": "The application plan would show exactly which land was claimed in 1982 and how it was drawn, before the titles were merged in 1987.",
+   "image": "recon/MR-0070.webp",
+   "caption": "tab.bot artist reconstruction"
+  },
+  {
+   "id": "MR-0071",
+   "title": "South Wales Police internal review 1188/26 (of FOI 719/26): outcome document",
+   "date": "26 October 2026",
+   "expected_holder": "South Wales Police (Information Compliance)",
+   "status": "sought",
+   "why_we_believe_it_exists": "The force sent its internal-review response on time on 26 October 2026 as a password-protected PDF. No password was sent, so the content has not been read.",
+   "source": "Email from South Wales Police, 26 October 2026 (email ingest)",
+   "linked": [],
+   "description": "A police information-rights letter giving the outcome of an internal review of an earlier freedom of information request.",
+   "interpretation": "Until it can be opened, it is not known whether the review released more material or upheld the original response.",
+   "image": "recon/MR-0071.webp",
+   "caption": "tab.bot artist reconstruction"
+  },
+  {
+   "id": "MR-0072",
+   "title": "Llandough Community Council: original and revised agendas for the meeting of 22 October 2026, with publication dates",
+   "date": "October 2026",
+   "expected_holder": "Llandough Community Council (clerk; council website)",
+   "status": "sought",
+   "why_we_believe_it_exists": "The council's reply (item 5) states the agenda \"was amended in good time to provide for the three clear day's notice\". An amended agenda implies an earlier version and a date for each publication. Neither version with its date is held.",
+   "source": "Llandough Community Council reply, October 2026, item 5 (email ingest cycle 27 Oct 2026)",
+   "linked": [],
+   "description": "Two versions of a one-page parish meeting agenda, each with a date of publication.",
+   "interpretation": "The two versions, with their dates, would show what was added or changed and whether notice rules were met.",
+   "image": "recon/MR-0072.webp",
+   "caption": "tab.bot artist reconstruction"
+  },
+  {
+   "id": "MR-0073",
+   "title": "Llandough Community Council: record of the decision to hold the 22 October 2026 meeting remotely",
+   "date": "October 2026",
+   "expected_holder": "Llandough Community Council (clerk)",
+   "status": "sought",
+   "why_we_believe_it_exists": "The meeting was held remotely. A council decision on the form of a meeting would normally be recorded with who made it, when and under what authority. No such record has been supplied.",
+   "source": "Llandough Community Council correspondence, October 2026 (email ingest cycle 27 Oct 2026)",
+   "linked": [],
+   "description": "A short minute, email or clerk's note recording who decided the meeting would be remote and on what date.",
+   "interpretation": "The record would show whether the decision was taken by the council, a chair or the clerk, and under which standing order.",
+   "image": "recon/MR-0073.webp",
+   "caption": "tab.bot artist reconstruction"
+  },
+  {
+   "id": "MR-0074",
+   "title": "Llandough Community Council records about Tŷ Mawr / Great House Farm beyond the minute books deposited in 2002",
+   "date": "1974–2026",
+   "expected_holder": "Llandough Community Council",
+   "status": "sought",
+   "why_we_believe_it_exists": "The council's reply (item 2) describes its holdings as \"Uncertain at this stage pending the outcome of the internal review\". Correspondence and files outside the deposited minute books would normally be kept by the clerk.",
+   "source": "Llandough Community Council reply, October 2026, items 2 and 8",
+   "linked": [],
+   "description": "Clerk's correspondence files and papers about the farm, kept separately from the minute books deposited at the record office in 2002.",
+   "interpretation": "Such files could hold letters to and from the council about the farm that the minutes only summarise.",
+   "image": "recon/MR-0074.webp",
+   "caption": "tab.bot artist reconstruction"
+  },
+  {
+   "id": "MR-0075",
+   "title": "Known signatures of John Williams of Great House Farm (born c.1867), c.1911–1950",
+   "date": "c.1911–1950",
+   "expected_holder": "The National Archives (census RG 14 / RG 15; National Farm Survey MAF 32); Probate Service; estate papers",
+   "status": "should exist (not located)",
+   "why_we_believe_it_exists": "A householder signed the 1911 and 1921 census schedules. A 1916 tenancy counterpart (MR-0003) and the 1949 surrender papers (MR-0007) would carry his signature, as would a will if one was made.",
+   "source": "Legal ticklist row T28; MR-0003; MR-0007; MR-0047",
+   "linked": [
+    "MR-0003",
+    "MR-0007",
+    "MR-0047"
+   ],
+   "description": "Census household schedules and other documents of 1911–1950 bearing the signature of the farm's tenant.",
+   "interpretation": "A set of known signatures would allow a handwriting comparison with the signature on the May 1939 agreement (EV-0023).",
+   "image": "recon/MR-0075.webp",
+   "caption": "tab.bot artist reconstruction"
+  },
+  {
+   "id": "MR-0076",
+   "title": "Bank staff record for the attesting witness to the May 1939 agreement",
+   "date": "1939",
+   "expected_holder": "Lloyds Banking Group Archives (whether 1939 staff registers survive: not checked)",
+   "status": "should exist (not located)",
+   "why_we_believe_it_exists": "The May 1939 agreement (EV-0023) is witnessed by a person described as a cashier at Lloyds Bank; the reading of the name is uncertain. Banks kept staff registers.",
+   "source": "Legal ticklist row T28; EV-0023",
+   "linked": [
+    "EV-0023"
+   ],
+   "description": "A bank staff register or service card for a branch cashier employed in 1939.",
+   "interpretation": "A staff record would confirm whether the witness was a real local cashier at the stated date.",
+   "image": "recon/MR-0076.webp",
+   "caption": "tab.bot artist reconstruction"
+  },
+  {
+   "id": "MR-0077",
+   "title": "Petition for leave to appeal to the House of Lords, 1987 (Parliamentary Archives HL/PO/JO/10/11/2536 item 19)",
+   "date": "1987",
+   "expected_holder": "Parliamentary Archives",
+   "status": "sought",
+   "why_we_believe_it_exists": "The Court of Appeal order refused leave and granted a stay pending a petition. The Parliamentary Archives catalogue lists the item. It has not been read.",
+   "source": "Court of Appeal order, 1987; Parliamentary Archives catalogue HL/PO/JO/10/11/2536 item 19; legal ticklist row T25",
+   "linked": [],
+   "description": "A printed or typed petition to the House of Lords Appeal Committee seeking leave to appeal a 1987 Court of Appeal decision.",
+   "interpretation": "The petition would show which grounds were put forward in 1987, including whether dishonesty was raised before 1989.",
+   "image": "recon/MR-0077.webp",
+   "caption": "tab.bot artist reconstruction"
+  },
+  {
+   "id": "MR-0078",
+   "title": "Court of Appeal registry papers for the notice of appeal of 30 October 1974",
+   "date": "30 October 1974",
+   "expected_holder": "Civil Appeals Office; The National Archives (J series) — not checked",
+   "status": "should exist (not located)",
+   "why_we_believe_it_exists": "The Court of Appeal judgment records that a notice of appeal was issued on 30 October 1974. Appeal registry records may survive separately from the county court file, which Cardiff County Court no longer holds (MR-0012, MR-0014).",
+   "source": "Court of Appeal judgment (1987); legal ticklist rows T08; MR-0012; MR-0014",
+   "linked": [
+    "MR-0012",
+    "MR-0014"
+   ],
+   "description": "A court registry file or entry book recording an appeal lodged in October 1974, with the notice of appeal.",
+   "interpretation": "The registry papers could supply the 1974 grounds of appeal that the lost county court file would otherwise have held.",
+   "image": "recon/MR-0078.webp",
+   "caption": "tab.bot artist reconstruction"
+  },
+  {
+   "id": "MR-0079",
+   "title": "Contract or memorandum of sale, BP Pension Trust Ltd to BP Properties Ltd, on or before 31 October 1974 (farmhouse and garden)",
+   "date": "on or before 31 October 1974",
+   "expected_holder": "BP group legal records; solicitors acting in 1974–75",
+   "status": "should exist (not located)",
+   "why_we_believe_it_exists": "The farmhouse and garden were conveyed in May 1975 (MR-0050). A sale between companies is usually preceded by a contract, and the 31 October 1974 letters suggest the arrangement predated them.",
+   "source": "Legal ticklist; MR-0041; MR-0050; MR-0052",
+   "linked": [
+    "MR-0041",
+    "MR-0050",
+    "MR-0052"
+   ],
+   "description": "A short contract between two group companies agreeing the sale of a farmhouse and garden, signed for each company.",
+   "interpretation": "Its date would fix when the transfer was agreed relative to the October 1974 letters.",
+   "image": "recon/MR-0079.webp",
+   "caption": "tab.bot artist reconstruction"
+  },
+  {
+   "id": "MR-0080",
+   "title": "Written rejection of the 31 October 1974 letters by Mary (Nancy) Williams or her solicitors (November 1974 – March 1983)",
+   "date": "November 1974 – March 1983",
+   "expected_holder": "BP group records; solicitors acting for either side",
+   "status": "should exist (not located)",
+   "why_we_believe_it_exists": "If the offer in the 31 October 1974 letters was declined, a reply would normally be in writing and kept on the recipient's file. None has been produced.",
+   "source": "Legal ticklist; letters of 31 October 1974",
+   "linked": [],
+   "description": "A solicitor's letter or handwritten reply declining the terms set out in October 1974.",
+   "interpretation": "Its existence or absence bears on whether the 1974 offer was refused or left unanswered.",
+   "image": "recon/MR-0080.webp",
+   "caption": "tab.bot artist reconstruction"
+  },
+  {
+   "id": "MR-0081",
+   "title": "ITV/HTV Report Wales film items on the Llandough cottage protests, 11 April and 1 November 1974 (CAN 2775 item 4; CAN 2904 item 8)",
+   "date": "1974",
+   "expected_holder": "National Library of Wales (National Screen and Sound Archive)",
+   "status": "sought",
+   "why_we_believe_it_exists": "The film catalogue lists both items. The underlying film or preservation copies were requested under FOI/2026/15; a reply is due 25 November 2026.",
+   "source": "NLW FOI/2026/15 (email ingest cycle 29 Oct 2026)",
+   "linked": [],
+   "description": "Two short regional television news films from 1974 held as film cans or preservation copies.",
+   "interpretation": "The footage would show the farmhouse and the protests as filmed in 1974.",
+   "image": "recon/MR-0081.webp",
+   "caption": "tab.bot artist reconstruction"
+  },
+  {
+   "id": "MR-0082",
+   "title": "GGAT 1989–90 consultee and evaluation file for Great House Farm (incl. 1990 evaluation, S387 file, 1 Oct 1982 letter)",
+   "date": "1982–1990",
+   "expected_holder": "Heneb (holds the Glamorgan-Gwent Archaeological Trust records)",
+   "status": "sought",
+   "why_we_believe_it_exists": "The trust commented as consultee on outline application 89/01396/OUT and carried out an evaluation in 1990. The complaint of 28 October 2026 closed without a search or a not-held statement.",
+   "source": "Heneb complaint outcome, 28 October 2026 (email ingest cycle 29 Oct 2026)",
+   "linked": [],
+   "description": "An archaeological trust project file with consultee letters, an evaluation report and site notes.",
+   "interpretation": "The file would show what the trust recorded about the farmhouse when development was proposed.",
+   "image": "recon/MR-0082.webp",
+   "caption": "tab.bot artist reconstruction"
+  },
+  {
+   "id": "MR-0083",
+   "title": "Owner/occupier notification lists for SSSI 0524, 1972 and 1985",
+   "date": "1972; 1985",
+   "expected_holder": "Natural Resources Wales (successor to the Nature Conservancy Council)",
+   "status": "sought",
+   "why_we_believe_it_exists": "Notification of a Site of Special Scientific Interest is served on each owner and occupier, and a list of those served is kept. Requested under EIR CAS-322825-L6S1; response due 17 November 2026.",
+   "source": "NRW EIR CAS-322825-L6S1 acknowledgement (email ingest cycle 27 Oct 2026)",
+   "linked": [],
+   "description": "Typed schedules of the owners and occupiers served with notice of the site designation in 1972 and 1985.",
+   "interpretation": "The lists would show whom the authority treated as owner and occupier of the land at each date.",
+   "image": "recon/MR-0083.webp",
+   "caption": "tab.bot artist reconstruction"
+  }
+ ],
+ "list": [
+  {
+   "id": "MR-0001",
+   "title": "Instrument recording the 1667 acquisition of Tŷ Mawr by the Williams family",
+   "status_class": "should exist (not located)",
+   "catalogue_status": "NOT YET FOUND",
+   "source": "missing-records register",
+   "sketch": "recon/MR-0001.webp"
+  },
+  {
+   "id": "MR-0002",
+   "title": "1877 agreement between the Bute trustees and Daniel Thomas & Son (sale or quarry lease), with plan",
+   "status_class": "should exist (not located)",
+   "catalogue_status": "NOT FOUND",
+   "source": "missing-records register",
+   "sketch": null
+  },
+  {
+   "id": "MR-0003",
+   "title": "February 1916 Bute estate tenancy document naming John Williams, with plan (the contested item)",
+   "status_class": "should exist (not located)",
+   "catalogue_status": "NOT FOUND",
+   "source": "missing-records register",
+   "sketch": "recon/MR-0003.webp"
+  },
+  {
+   "id": "MR-0004",
+   "title": "1928 last rent receipt for the house parcel",
+   "status_class": "should exist (not located)",
+   "catalogue_status": "NOT FOUND",
+   "source": "missing-records register",
+   "sketch": null
+  },
+  {
+   "id": "MR-0005",
+   "title": "Conveyance on sale of 25 December 1938 (Mountjoy / Bute to Western Ground Rents Ltd), with plan and land schedules",
+   "status_class": "should exist (not located)",
+   "catalogue_status": "NOT FOUND",
+   "source": "missing-records register",
+   "sketch": "recon/MR-0005.webp"
+  },
+  {
+   "id": "MR-0006",
+   "title": "Mountjoy mortgage over Western Ground Rents property and its discharge (register of charges)",
+   "status_class": "sought",
+   "catalogue_status": "LOCATED, NOT YET OBTAINED",
+   "source": "missing-records register",
+   "sketch": null
+  },
+  {
+   "id": "MR-0007",
+   "title": "Estate-side surrender and re-grant paperwork of 2 February 1949 naming Frederick Buckler (contested)",
+   "status_class": "should exist (not located)",
+   "catalogue_status": "NOT FOUND",
+   "source": "missing-records register",
+   "sketch": "recon/MR-0007.webp"
+  },
+  {
+   "id": "MR-0008",
+   "title": "1955 High Court possession order (Order 14), writ of possession and the officer's execution return of 4 July 1955",
+   "status_class": "should exist (not located)",
+   "catalogue_status": "NOT FOUND",
+   "source": "missing-records register",
+   "sketch": "recon/MR-0008.webp"
+  },
+  {
+   "id": "MR-0009",
+   "title": "Water undertaker records of the supply to the farmhouse being cut off (c.1949–1958)",
+   "status_class": "should exist (not located)",
+   "catalogue_status": "NOT FOUND",
+   "source": "missing-records register",
+   "sketch": null
+  },
+  {
+   "id": "MR-0010",
+   "title": "Plan to the deed of 29 March 1961 (WGR, South Western Brick & Tile and Cardiff) — the woodland",
+   "status_class": "sought",
+   "catalogue_status": "NOT YET OBTAINED",
+   "source": "missing-records register",
+   "sketch": null
+  },
+  {
+   "id": "MR-0011",
+   "title": "Cardiff County Court possession order of 11 December 1962 (farmhouse and garden), plaint and plan",
+   "status_class": "should exist (not located)",
+   "catalogue_status": "NOT FOUND",
+   "source": "missing-records register",
+   "sketch": null
+  },
+  {
+   "id": "MR-0012",
+   "title": "September 1974 application for leave to enforce the 1962 order, its supporting sworn statement, the warrant and the 31 October 1974 withdrawal",
+   "status_class": "should exist (not located)",
+   "catalogue_status": "NOT FOUND",
+   "source": "missing-records register",
+   "sketch": "recon/MR-0012.webp"
+  },
+  {
+   "id": "MR-0013",
+   "title": "1974 county court possession action: pleadings, the 3 July 1974 defence relying on the Limitation Act 1939, and the adjournment record",
+   "status_class": "should exist (not located)",
+   "catalogue_status": "NOT FOUND",
+   "source": "missing-records register",
+   "sketch": null
+  },
+  {
+   "id": "MR-0014",
+   "title": "Retention or destruction record for the Cardiff County Court files of 1962 and 1974",
+   "status_class": "reported destroyed",
+   "catalogue_status": "NOT FOUND",
+   "source": "missing-records register",
+   "sketch": null
+  },
+  {
+   "id": "MR-0015",
+   "title": "Conveyance of 31 December 1969 with plan (WGR to BP Pension Trust), recited as root of title",
+   "status_class": "should exist (not located)",
+   "catalogue_status": "NOT FOUND",
+   "source": "missing-records register",
+   "sketch": "recon/MR-0015.webp"
+  },
+  {
+   "id": "MR-0016",
+   "title": "Stamp-office \"particulars delivered\" forms for the 1938, 1969 and 1975 conveyances",
+   "status_class": "sought",
+   "catalogue_status": "REQUESTED, NO ANSWER YET",
+   "source": "missing-records register",
+   "sketch": null
+  },
+  {
+   "id": "MR-0017",
+   "title": "VG41 village-green registration file (16 June 1970): application, statutory declaration, map, objections and provisional/final registration notices",
+   "status_class": "sought",
+   "catalogue_status": "REQUESTED, NOT ADDRESSED",
+   "source": "missing-records register",
+   "sketch": null
+  },
+  {
+   "id": "MR-0018",
+   "title": "1971 Abstract of Title (BP Pension Trust), lodged at first registration",
+   "status_class": "sought",
+   "catalogue_status": "NOT YET OBTAINED",
+   "source": "missing-records register",
+   "sketch": null
+  },
+  {
+   "id": "MR-0019",
+   "title": "Ordnance Survey revision record for the 1971 change to sheet XLVII.6 at Tŷ Mawr",
+   "status_class": "sought",
+   "catalogue_status": "REQUESTED, NO SUBSTANTIVE REPLY",
+   "source": "missing-records register",
+   "sketch": null
+  },
+  {
+   "id": "MR-0020",
+   "title": "HM Land Registry Form A13 (list of documents lodged), examiner's requisitions and any inspection note for WA231076 and WA240304 (1982–83)",
+   "status_class": "sought",
+   "catalogue_status": "REQUESTED, PENDING (SAR paused: identity documents requested 27 Oct 2026)",
+   "source": "missing-records register",
+   "sketch": "recon/MR-0020.webp"
+  },
+  {
+   "id": "MR-0021",
+   "title": "HM Land Registry notification sent to the occupier after the 1983 registration",
+   "status_class": "sought",
+   "catalogue_status": "REQUESTED, PENDING",
+   "source": "missing-records register",
+   "sketch": null
+  },
+  {
+   "id": "MR-0022",
+   "title": "Death registration entry for Mary Doreen (Nancy) Williams (died 26 March 1983)",
+   "status_class": "should exist (not located)",
+   "catalogue_status": "NOT FOUND",
+   "source": "missing-records register",
+   "sketch": null
+  },
+  {
+   "id": "MR-0023",
+   "title": "Grant of probate or letters of administration for Mary (Nancy) Williams",
+   "status_class": "should exist (not located)",
+   "catalogue_status": "BLOCKED (death certificate)",
+   "source": "missing-records register",
+   "sketch": null
+  },
+  {
+   "id": "MR-0024",
+   "title": "Litigation files for BP Properties Ltd v Buckler, 1986–87 (High Court trial and appeal bundles)",
+   "status_class": "sought",
+   "catalogue_status": "NOT YET OBTAINED",
+   "source": "missing-records register",
+   "sketch": null
+  },
+  {
+   "id": "MR-0025",
+   "title": "2 February 1987 application and plan merging WA240304 into WA231076",
+   "status_class": "sought",
+   "catalogue_status": "REQUESTED, PENDING",
+   "source": "missing-records register",
+   "sketch": null
+  },
+  {
+   "id": "MR-0026",
+   "title": "1988 spot-listing assessment of the farmhouse (Welsh Office / Cadw), with the transfer or destruction docket",
+   "status_class": "reported destroyed",
+   "catalogue_status": "NOT FOUND",
+   "source": "missing-records register",
+   "sketch": null
+  },
+  {
+   "id": "MR-0027",
+   "title": "Notice of intended demolition of the farmhouse given to the council (December 1988), and any counter-notice",
+   "status_class": "sought",
+   "catalogue_status": "REQUESTED, NOT ADDRESSED",
+   "source": "missing-records register",
+   "sketch": null
+  },
+  {
+   "id": "MR-0028",
+   "title": "RCAHMW correspondence between C.N. Johns and the occupiers of Great House Farm, 1986–87",
+   "status_class": "reported destroyed",
+   "catalogue_status": "NOT FOUND (holder records loss)",
+   "source": "missing-records register",
+   "sketch": null
+  },
+  {
+   "id": "MR-0029",
+   "title": "Licences or orders for the removal of human remains from the site (burials found 1989–1995)",
+   "status_class": "sought",
+   "catalogue_status": "REQUESTED, NOT ADDRESSED",
+   "source": "missing-records register",
+   "sketch": null
+  },
+  {
+   "id": "MR-0030",
+   "title": "Planning file for outline permission 3/8996/3337 (about 13 houses, 1972)",
+   "status_class": "should exist (not located)",
+   "catalogue_status": "NOT FOUND",
+   "source": "missing-records register",
+   "sketch": null
+  },
+  {
+   "id": "MR-0031",
+   "title": "Appeal or call-in papers for 89/01396/OUT and 92/00671 (if any)",
+   "status_class": "should exist (not located)",
+   "catalogue_status": "NOT FOUND",
+   "source": "missing-records register",
+   "sketch": null
+  },
+  {
+   "id": "MR-0032",
+   "title": "Valuation report on the land (Vale of Glamorgan Council request 00211027)",
+   "status_class": "should exist (not located)",
+   "catalogue_status": "NOT FOUND",
+   "source": "missing-records register",
+   "sketch": null
+  },
+  {
+   "id": "MR-0033",
+   "title": "Land Authority for Wales board papers, 21 October–25 November 1988 (TNA WA 9/49)",
+   "status_class": "sought",
+   "catalogue_status": "LOCATED, NOT YET OBTAINED",
+   "source": "missing-records register",
+   "sketch": null
+  },
+  {
+   "id": "MR-0034",
+   "title": "Search record of The National Archives' FOI search CAS-347296 (terms beyond the four used)",
+   "status_class": "should exist (not located)",
+   "catalogue_status": "SEARCH INCOMPLETE",
+   "source": "missing-records register",
+   "sketch": null
+  },
+  {
+   "id": "MR-0035",
+   "title": "Amgueddfa Cymru search log for FOI 2026-024 / 032 / 036 (which results were excluded and why)",
+   "status_class": "should exist (not located)",
+   "catalogue_status": "NOT HELD (holder states)",
+   "source": "missing-records register",
+   "sketch": null
+  },
+  {
+   "id": "MR-0036",
+   "title": "Bute conveyance of 23 February 1905 referred to on the WA231076 file",
+   "status_class": "sought",
+   "catalogue_status": "NOT YET OBTAINED",
+   "source": "missing-records register",
+   "sketch": null
+  },
+  {
+   "id": "MR-0037",
+   "title": "Drain agreement and plan between John, Marquis of Bute and James Pelham Stuart Corbett",
+   "status_class": "sought",
+   "catalogue_status": "NOT YET OBTAINED",
+   "source": "missing-records register",
+   "sketch": null
+  },
+  {
+   "id": "MR-0038",
+   "title": "Mary (Nancy) Williams’s “previous statement” on the 1955 and 1962 applications (missing)",
+   "status_class": "sought",
+   "catalogue_status": "NOT YET OBTAINED",
+   "source": "missing-records register",
+   "sketch": null
+  },
+  {
+   "id": "MR-0039",
+   "title": "WGR Tenancy Offers Concerning Remaining House and Garden (1959 and 1965)",
+   "status_class": "sought",
+   "catalogue_status": "NOT YET OBTAINED",
+   "source": "missing-records register",
+   "sketch": null
+  },
+  {
+   "id": "MR-0040",
+   "title": "H. J. Thomas architectural survey and floor plan of the house (RCAHMW / NMR)",
+   "status_class": "sought",
+   "catalogue_status": "NOT YET OBTAINED",
+   "source": "missing-records register",
+   "sketch": null
+  },
+  {
+   "id": "MR-0041",
+   "title": "Conveyance and plan, BP Pension Trust to BP Properties (farmhouse and garden)",
+   "status_class": "sought",
+   "catalogue_status": "NOT YET OBTAINED",
+   "source": "missing-records register",
+   "sketch": null
+  },
+  {
+   "id": "MR-0042",
+   "title": "GGAT letter or note warning of archaeological sensitivity at Great House Farm",
+   "status_class": "sought",
+   "catalogue_status": "NOT YET OBTAINED",
+   "source": "missing-records register",
+   "sketch": null
+  },
+  {
+   "id": "MR-0043",
+   "title": "Title WA231076 Items 15, 16, 18, 19, 23: 1983–84 registration activity",
+   "status_class": "sought",
+   "catalogue_status": "NOT YET OBTAINED",
+   "source": "missing-records register",
+   "sketch": null
+  },
+  {
+   "id": "MR-0044",
+   "title": "East Vale Local Plan (February 1987): buildings on site to be retained",
+   "status_class": "sought",
+   "catalogue_status": "NOT YET OBTAINED",
+   "source": "missing-records register",
+   "sketch": null
+  },
+  {
+   "id": "MR-0045",
+   "title": "Land at Great House Farm, Llandough: An Archaeological Assessment (GGAT, 1990)",
+   "status_class": "sought",
+   "catalogue_status": "NOT YET OBTAINED",
+   "source": "missing-records register",
+   "sketch": null
+  },
+  {
+   "id": "MR-0046",
+   "title": "Transfer of the woodland to Forest of Cardiff (title WA735527), with plan",
+   "status_class": "sought",
+   "catalogue_status": "NOT YET OBTAINED",
+   "source": "missing-records register",
+   "sketch": null
+  },
+  {
+   "id": "MR-0047",
+   "title": "National Farm Survey farm record and map for Tŷ Mawr / Great House Farm, Llandough (1941–43)",
+   "status_class": "sought",
+   "catalogue_status": "REQUESTED, NOT ADDRESSED",
+   "source": "missing-records register",
+   "sketch": "recon/MR-0047.webp"
+  },
+  {
+   "id": "MR-0048",
+   "title": "1910 Valuation Office field book entry for Great House, Llandough (sheet Glamorgan XLVII.6)",
+   "status_class": "sought",
+   "catalogue_status": "LOCATED, NOT YET OBTAINED",
+   "source": "missing-records register",
+   "sketch": null
+  },
+  {
+   "id": "MR-0049",
+   "title": "Itemised list of the RCHME microfiche section sent from Historic England to RCAHMW on 12 January 2018",
+   "status_class": "reported destroyed",
+   "catalogue_status": "NOT HELD (holder states)",
+   "source": "missing-records register",
+   "sketch": null
+  },
+  {
+   "id": "MR-0050",
+   "title": "Conveyance of May 1975: farmhouse and garden, BP Pension Trust Ltd to BP Properties Ltd",
+   "status_class": "should exist (not located)",
+   "catalogue_status": "NOT FOUND",
+   "source": "missing-records register",
+   "sketch": null
+  },
+  {
+   "id": "MR-0051",
+   "title": "Agreement of 1974 by which BP Properties Ltd agreed to buy the farmhouse and garden from BP Pension Trust Ltd",
+   "status_class": "should exist (not located)",
+   "catalogue_status": "NOT FOUND",
+   "source": "missing-records register",
+   "sketch": null
+  },
+  {
+   "id": "MR-0052",
+   "title": "Directors' minutes of BP Pension Trust Ltd and BP Properties Ltd approving the 31 October 1974 letters and the withdrawal of the possession warrant",
+   "status_class": "should exist (not located)",
+   "catalogue_status": "NOT FOUND",
+   "source": "missing-records register",
+   "sketch": null
+  },
+  {
+   "id": "MR-0053",
+   "title": "Commissioning file for the 1990 archaeological evaluation at Great House Farm: brief or specification, priced quotation and the client's instruction",
+   "status_class": "sought",
+   "catalogue_status": "REQUESTED, WITHHELD IN PART (holder cites personal data)",
+   "source": "missing-records register",
+   "sketch": null
+  },
+  {
+   "id": "MR-0054",
+   "title": "Will of Mary Williams of Great House Farm, Llandough (died 23 December 1915), proved at Llandaff on 3 February 1916, with the registry copy and grant",
+   "status_class": "sought",
+   "catalogue_status": "LOCATED, NOT YET OBTAINED",
+   "source": "missing-records register",
+   "sketch": null
+  },
+  {
+   "id": "MR-0055",
+   "title": "Rapporteur's Rule 40 report on Application No. 14464/88 to the European Commission of Human Rights (1989)",
+   "status_class": "sought",
+   "catalogue_status": "NOT YET REQUESTED",
+   "source": "missing-records register",
+   "sketch": null
+  },
+  {
+   "id": "MR-0056",
+   "title": "Loss and fire records of the March 1983 Trust warehouse fire",
+   "status_class": "reported destroyed",
+   "catalogue_status": "NOT HELD (Heneb); OTHER HOLDERS NOT YET ASKED",
+   "source": "missing-records register",
+   "sketch": null
+  },
+  {
+   "id": "MR-0057",
+   "title": "Western Ground Rents Ltd directors: annual returns 1951-1954",
+   "status_class": "sought",
+   "catalogue_status": "ASKED, NOT ANSWERED: company identity queried with the Registrar (10, 20 and 29 Oct 2026, ref COH2382411X); the returns not yet asked for by name",
+   "source": "missing-records register",
+   "sketch": null
+  },
+  {
+   "id": "MR-0058",
+   "title": "Glamorgan Archives items catalogued but not yet viewed: 1975 County Treasures survey, East Vale Local Plan, civic society files and 1971 aerial photographs",
+   "status_class": "sought",
+   "catalogue_status": "CATALOGUED, NOT YET VIEWED",
+   "source": "missing-records register",
+   "sketch": null
+  },
+  {
+   "id": "MR-0059",
+   "title": "Ownership of the 0.74 ha Leckwith Road objection site beside the former quarry (open question)",
+   "status_class": "should exist (not located)",
+   "catalogue_status": "OPEN QUESTION",
+   "source": "missing-records register",
+   "sketch": null
+  },
+  {
+   "id": "MR-0060",
+   "title": "Measured drawings of Great House Farm beyond the 1974 ground plan: first floor, roof, heights, the farm ranges and the yard (open question)",
+   "status_class": "should exist (not located)",
+   "catalogue_status": "OPEN QUESTION",
+   "source": "missing-records register",
+   "sketch": null
+  },
+  {
+   "id": "MR-0061",
+   "title": "Thomas v Hurst (1812-1813): the Chancery decree, the Master's report naming the buyers, and the sale particulars with their lot plan for the Llandough-juxta-Penarth freeholds",
+   "status_class": "sought",
+   "catalogue_status": "CATALOGUED, NOT YET VIEWED",
+   "source": "missing-records register",
+   "sketch": null
+  },
+  {
+   "id": "MR-0062",
+   "title": "Richards estate survey, 1777-1785: the Llandough page missing from the bound volume",
+   "status_class": "should exist (not located)",
+   "catalogue_status": "NOT HELD: PAGES MISSING FROM THE VOLUME",
+   "source": "missing-records register",
+   "sketch": "recon/MR-0062.webp"
+  },
+  {
+   "id": "MR-0063",
+   "title": "Tithe redemption annuity records for the holding's tithe plots, 1936-1977: whom the Crown treated as fee-simple owner",
+   "status_class": "sought",
+   "catalogue_status": "CATALOGUED, NOT YET VIEWED",
+   "source": "missing-records register",
+   "sketch": null
+  },
+  {
+   "id": "MR-0064",
+   "title": "Deposited plans and books of reference for the railway and waterworks schemes over Llandough, 1876-1901: owner, lessee and occupier of each plot",
+   "status_class": "sought",
+   "catalogue_status": "CATALOGUED, NOT YET VIEWED",
+   "source": "missing-records register",
+   "sketch": null
+  },
+  {
+   "id": "MR-0065",
+   "title": "Superfluous-land records for land taken in Llandough under the Lands Clauses Acts: to whom any surplus was offered back, and when",
+   "status_class": "should exist (not located)",
+   "catalogue_status": "NOT YET SEARCHED",
+   "source": "missing-records register",
+   "sketch": null
+  },
+  {
+   "id": "MR-0066",
+   "title": "Building preservation notice for the farmhouse in 1988, or the council's record of deciding not to serve one",
+   "status_class": "should exist (not located)",
+   "catalogue_status": "NOT YET SEARCHED",
+   "source": "missing-records register",
+   "sketch": null
+  },
+  {
+   "id": "MR-0067",
+   "title": "Schedule and plans to the Bute deed of exchange of 27 September 1893 (Glamorgan Archives DB/33/1-2)",
+   "status_class": "sought",
+   "catalogue_status": "CATALOGUED, NOT YET VIEWED",
+   "source": "missing-records register",
+   "sketch": null
+  },
+  {
+   "id": "MR-0068",
+   "title": "Mountjoy Ltd's surviving title papers in the Crown's 2011 bona vacantia file (T S ref BV21111179), including its 25 December 1938 conveyance",
+   "status_class": "should exist (not located)",
+   "catalogue_status": "NOT YET SEARCHED",
+   "source": "missing-records register",
+   "sketch": null
+  },
+  {
+   "id": "EV-0001",
+   "status_class": "sought",
+   "catalogue_status": "PENDING",
+   "source": "evidence register",
+   "sketch": null
+  },
+  {
+   "id": "EV-0002",
+   "status_class": "sought",
+   "catalogue_status": "PENDING",
+   "source": "evidence register",
+   "sketch": null
+  },
+  {
+   "id": "EV-0003",
+   "status_class": "sought",
+   "catalogue_status": "PENDING",
+   "source": "evidence register",
+   "sketch": null
+  },
+  {
+   "id": "EV-0009",
+   "status_class": "sought",
+   "catalogue_status": "PENDING",
+   "source": "evidence register",
+   "sketch": null
+  },
+  {
+   "id": "EV-0012",
+   "status_class": "sought",
+   "catalogue_status": "PENDING",
+   "source": "evidence register",
+   "sketch": null
+  },
+  {
+   "id": "EV-0017",
+   "status_class": "sought",
+   "catalogue_status": "PENDING",
+   "source": "evidence register",
+   "sketch": null
+  },
+  {
+   "id": "EV-0020",
+   "status_class": "sought",
+   "catalogue_status": "PENDING",
+   "source": "evidence register",
+   "sketch": null
+  },
+  {
+   "id": "EV-0021",
+   "status_class": "sought",
+   "catalogue_status": "PENDING",
+   "source": "evidence register",
+   "sketch": null
+  },
+  {
+   "id": "EV-0022",
+   "status_class": "sought",
+   "catalogue_status": "PENDING",
+   "source": "evidence register",
+   "sketch": null
+  },
+  {
+   "id": "EV-0023",
+   "status_class": "sought",
+   "catalogue_status": "PARTLY HELD",
+   "source": "evidence register",
+   "sketch": null
+  },
+  {
+   "id": "EV-0024",
+   "status_class": "sought",
+   "catalogue_status": "PENDING",
+   "source": "evidence register",
+   "sketch": null
+  },
+  {
+   "id": "EV-0027",
+   "status_class": "sought",
+   "catalogue_status": "PENDING",
+   "source": "evidence register",
+   "sketch": null
+  },
+  {
+   "id": "EV-0028",
+   "status_class": "sought",
+   "catalogue_status": "PENDING",
+   "source": "evidence register",
+   "sketch": null
+  },
+  {
+   "id": "EV-0029",
+   "status_class": "sought",
+   "catalogue_status": "PENDING",
+   "source": "evidence register",
+   "sketch": null
+  },
+  {
+   "id": "EV-0030",
+   "status_class": "sought",
+   "catalogue_status": "PENDING",
+   "source": "evidence register",
+   "sketch": null
+  },
+  {
+   "id": "EV-0031",
+   "status_class": "sought",
+   "catalogue_status": "PENDING",
+   "source": "evidence register",
+   "sketch": null
+  },
+  {
+   "id": "EV-0035",
+   "status_class": "sought",
+   "catalogue_status": "PENDING",
+   "source": "evidence register",
+   "sketch": null
+  },
+  {
+   "id": "EV-0036",
+   "status_class": "sought",
+   "catalogue_status": "PENDING",
+   "source": "evidence register",
+   "sketch": null
+  },
+  {
+   "id": "EV-0072",
+   "status_class": "sought",
+   "catalogue_status": "PENDING",
+   "source": "evidence register",
+   "sketch": null
+  },
+  {
+   "id": "EV-0075",
+   "status_class": "sought",
+   "catalogue_status": "PENDING",
+   "source": "evidence register",
+   "sketch": null
+  },
+  {
+   "id": "EV-0079",
+   "status_class": "sought",
+   "catalogue_status": "PENDING",
+   "source": "evidence register",
+   "sketch": null
+  },
+  {
+   "id": "EV-0082",
+   "status_class": "sought",
+   "catalogue_status": "PENDING",
+   "source": "evidence register",
+   "sketch": null
+  },
+  {
+   "id": "EV-0083",
+   "status_class": "sought",
+   "catalogue_status": "PENDING",
+   "source": "evidence register",
+   "sketch": null
+  },
+  {
+   "id": "EV-0085",
+   "status_class": "sought",
+   "catalogue_status": "PENDING",
+   "source": "evidence register",
+   "sketch": null
+  },
+  {
+   "id": "EV-0087",
+   "status_class": "sought",
+   "catalogue_status": "PENDING",
+   "source": "evidence register",
+   "sketch": null
+  },
+  {
+   "id": "EV-0091",
+   "status_class": "sought",
+   "catalogue_status": "PENDING",
+   "source": "evidence register",
+   "sketch": null
+  },
+  {
+   "id": "EV-0100",
+   "status_class": "sought",
+   "catalogue_status": "PENDING",
+   "source": "evidence register",
+   "sketch": null
+  },
+  {
+   "id": "EV-0130",
+   "status_class": "sought",
+   "catalogue_status": "PENDING",
+   "source": "evidence register",
+   "sketch": null
+  },
+  {
+   "id": "EV-0137",
+   "status_class": "sought",
+   "catalogue_status": "PENDING",
+   "source": "evidence register",
+   "sketch": null
+  },
+  {
+   "id": "EV-0139",
+   "status_class": "sought",
+   "catalogue_status": "PENDING",
+   "source": "evidence register",
+   "sketch": null
+  },
+  {
+   "id": "EV-0141",
+   "status_class": "sought",
+   "catalogue_status": "PENDING",
+   "source": "evidence register",
+   "sketch": null
+  },
+  {
+   "id": "EV-0142",
+   "status_class": "sought",
+   "catalogue_status": "PENDING",
+   "source": "evidence register",
+   "sketch": null
+  },
+  {
+   "id": "EV-0145",
+   "status_class": "sought",
+   "catalogue_status": "PENDING",
+   "source": "evidence register",
+   "sketch": null
+  },
+  {
+   "id": "EV-0152",
+   "status_class": "sought",
+   "catalogue_status": "PENDING",
+   "source": "evidence register",
+   "sketch": null
+  },
+  {
+   "id": "EV-0165",
+   "status_class": "sought",
+   "catalogue_status": "PENDING",
+   "source": "evidence register",
+   "sketch": null
+  },
+  {
+   "id": "EV-0175",
+   "status_class": "sought",
+   "catalogue_status": "PENDING",
+   "source": "evidence register",
+   "sketch": null
+  },
+  {
+   "id": "EV-0176",
+   "status_class": "sought",
+   "catalogue_status": "PENDING",
+   "source": "evidence register",
+   "sketch": null
+  },
+  {
+   "id": "EV-0177",
+   "status_class": "sought",
+   "catalogue_status": "PENDING",
+   "source": "evidence register",
+   "sketch": null
+  },
+  {
+   "id": "EV-0179",
+   "status_class": "reported destroyed",
+   "catalogue_status": "PENDING",
+   "source": "evidence register",
+   "sketch": null
+  },
+  {
+   "id": "EV-0180",
+   "status_class": "sought",
+   "catalogue_status": "PENDING",
+   "source": "evidence register",
+   "sketch": null
+  },
+  {
+   "id": "EV-0181",
+   "status_class": "sought",
+   "catalogue_status": "PENDING",
+   "source": "evidence register",
+   "sketch": null
+  },
+  {
+   "id": "EV-0182",
+   "status_class": "reported destroyed",
+   "catalogue_status": "PENDING",
+   "source": "evidence register",
+   "sketch": null
+  },
+  {
+   "id": "EV-0184",
+   "status_class": "sought",
+   "catalogue_status": "PENDING",
+   "source": "evidence register",
+   "sketch": null
+  },
+  {
+   "id": "EV-0187",
+   "status_class": "sought",
+   "catalogue_status": "PENDING",
+   "source": "evidence register",
+   "sketch": null
+  },
+  {
+   "id": "EV-0189",
+   "status_class": "sought",
+   "catalogue_status": "PENDING",
+   "source": "evidence register",
+   "sketch": null
+  },
+  {
+   "id": "EV-0192",
+   "status_class": "sought",
+   "catalogue_status": "PENDING",
+   "source": "evidence register",
+   "sketch": "recon/EV-0192.webp"
+  },
+  {
+   "id": "EV-0193",
+   "status_class": "sought",
+   "catalogue_status": "PENDING",
+   "source": "evidence register",
+   "sketch": null
+  },
+  {
+   "id": "EV-0195",
+   "status_class": "sought",
+   "catalogue_status": "PENDING",
+   "source": "evidence register",
+   "sketch": null
+  },
+  {
+   "id": "EV-0198",
+   "status_class": "sought",
+   "catalogue_status": "PENDING",
+   "source": "evidence register",
+   "sketch": null
+  },
+  {
+   "id": "EV-0200",
+   "status_class": "sought",
+   "catalogue_status": "PENDING",
+   "source": "evidence register",
+   "sketch": null
+  },
+  {
+   "id": "EV-0202",
+   "status_class": "sought",
+   "catalogue_status": "PENDING",
+   "source": "evidence register",
+   "sketch": null
+  },
+  {
+   "id": "EV-0203",
+   "status_class": "sought",
+   "catalogue_status": "PENDING",
+   "source": "evidence register",
+   "sketch": null
+  },
+  {
+   "id": "EV-0204",
+   "status_class": "sought",
+   "catalogue_status": "PENDING",
+   "source": "evidence register",
+   "sketch": null
+  },
+  {
+   "id": "EV-0205",
+   "status_class": "sought",
+   "catalogue_status": "PENDING",
+   "source": "evidence register",
+   "sketch": null
+  },
+  {
+   "id": "EV-0206",
+   "status_class": "sought",
+   "catalogue_status": "PENDING",
+   "source": "evidence register",
+   "sketch": null
+  },
+  {
+   "id": "EV-0210",
+   "status_class": "sought",
+   "catalogue_status": "PENDING",
+   "source": "evidence register",
+   "sketch": null
+  },
+  {
+   "id": "EV-0211",
+   "status_class": "sought",
+   "catalogue_status": "PARTLY HELD",
+   "source": "evidence register",
+   "sketch": null
+  },
+  {
+   "id": "EV-0221",
+   "status_class": "sought",
+   "catalogue_status": "PENDING",
+   "source": "evidence register",
+   "sketch": null
+  },
+  {
+   "id": "MR-0069",
+   "title": "Survey and valuation of Llandough manor, 1824 (Bute estate papers)",
+   "status_class": "should exist (not located)",
+   "catalogue_status": "SHOULD EXIST (NOT LOCATED)",
+   "source": "new 6 Nov 2026",
+   "sketch": "recon/MR-0069.webp"
+  },
+  {
+   "id": "MR-0070",
+   "title": "HM Land Registry first-registration application and application plan, title WA231076 (1982)",
+   "status_class": "sought",
+   "catalogue_status": "SOUGHT",
+   "source": "new 6 Nov 2026",
+   "sketch": "recon/MR-0070.webp"
+  },
+  {
+   "id": "MR-0071",
+   "title": "South Wales Police internal review 1188/26 (of FOI 719/26): outcome document",
+   "status_class": "sought",
+   "catalogue_status": "SOUGHT",
+   "source": "new 6 Nov 2026",
+   "sketch": "recon/MR-0071.webp"
+  },
+  {
+   "id": "MR-0072",
+   "title": "Llandough Community Council: original and revised agendas for the meeting of 22 October 2026, with publication dates",
+   "status_class": "sought",
+   "catalogue_status": "SOUGHT",
+   "source": "new 6 Nov 2026",
+   "sketch": "recon/MR-0072.webp"
+  },
+  {
+   "id": "MR-0073",
+   "title": "Llandough Community Council: record of the decision to hold the 22 October 2026 meeting remotely",
+   "status_class": "sought",
+   "catalogue_status": "SOUGHT",
+   "source": "new 6 Nov 2026",
+   "sketch": "recon/MR-0073.webp"
+  },
+  {
+   "id": "MR-0074",
+   "title": "Llandough Community Council records about Tŷ Mawr / Great House Farm beyond the minute books deposited in 2002",
+   "status_class": "sought",
+   "catalogue_status": "SOUGHT",
+   "source": "new 6 Nov 2026",
+   "sketch": "recon/MR-0074.webp"
+  },
+  {
+   "id": "MR-0075",
+   "title": "Known signatures of John Williams of Great House Farm (born c.1867), c.1911–1950",
+   "status_class": "should exist (not located)",
+   "catalogue_status": "SHOULD EXIST (NOT LOCATED)",
+   "source": "new 6 Nov 2026",
+   "sketch": "recon/MR-0075.webp"
+  },
+  {
+   "id": "MR-0076",
+   "title": "Bank staff record for the attesting witness to the May 1939 agreement",
+   "status_class": "should exist (not located)",
+   "catalogue_status": "SHOULD EXIST (NOT LOCATED)",
+   "source": "new 6 Nov 2026",
+   "sketch": "recon/MR-0076.webp"
+  },
+  {
+   "id": "MR-0077",
+   "title": "Petition for leave to appeal to the House of Lords, 1987 (Parliamentary Archives HL/PO/JO/10/11/2536 item 19)",
+   "status_class": "sought",
+   "catalogue_status": "SOUGHT",
+   "source": "new 6 Nov 2026",
+   "sketch": "recon/MR-0077.webp"
+  },
+  {
+   "id": "MR-0078",
+   "title": "Court of Appeal registry papers for the notice of appeal of 30 October 1974",
+   "status_class": "should exist (not located)",
+   "catalogue_status": "SHOULD EXIST (NOT LOCATED)",
+   "source": "new 6 Nov 2026",
+   "sketch": "recon/MR-0078.webp"
+  },
+  {
+   "id": "MR-0079",
+   "title": "Contract or memorandum of sale, BP Pension Trust Ltd to BP Properties Ltd, on or before 31 October 1974 (farmhouse and garden)",
+   "status_class": "should exist (not located)",
+   "catalogue_status": "SHOULD EXIST (NOT LOCATED)",
+   "source": "new 6 Nov 2026",
+   "sketch": "recon/MR-0079.webp"
+  },
+  {
+   "id": "MR-0080",
+   "title": "Written rejection of the 31 October 1974 letters by Mary (Nancy) Williams or her solicitors (November 1974 – March 1983)",
+   "status_class": "should exist (not located)",
+   "catalogue_status": "SHOULD EXIST (NOT LOCATED)",
+   "source": "new 6 Nov 2026",
+   "sketch": "recon/MR-0080.webp"
+  },
+  {
+   "id": "MR-0081",
+   "title": "ITV/HTV Report Wales film items on the Llandough cottage protests, 11 April and 1 November 1974 (CAN 2775 item 4; CAN 2904 item 8)",
+   "status_class": "sought",
+   "catalogue_status": "SOUGHT",
+   "source": "new 6 Nov 2026",
+   "sketch": "recon/MR-0081.webp"
+  },
+  {
+   "id": "MR-0082",
+   "title": "GGAT 1989–90 consultee and evaluation file for Great House Farm (incl. 1990 evaluation, S387 file, 1 Oct 1982 letter)",
+   "status_class": "sought",
+   "catalogue_status": "SOUGHT",
+   "source": "new 6 Nov 2026",
+   "sketch": "recon/MR-0082.webp"
+  },
+  {
+   "id": "MR-0083",
+   "title": "Owner/occupier notification lists for SSSI 0524, 1972 and 1985",
+   "status_class": "sought",
+   "catalogue_status": "SOUGHT",
+   "source": "new 6 Nov 2026",
+   "sketch": "recon/MR-0083.webp"
+  }
+ ]
+}
