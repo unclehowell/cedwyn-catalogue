@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Catalogue · Cedwyn</title>
+<meta name="description" content="The Cedwyn catalogue: every evidence record, artifact and missing record in one place, read live from the central catalogue.">
+<meta name="theme-color" content="#f7f5ef" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#16161d" media="(prefers-color-scheme: dark)">
+<style>
+:root{--bg:#f7f5ef;--fg:#1d1d24;--mut:#5d5d6b;--card:#fff;--line:#d9d5c8;--acc:#7a3b12;--th:#efebe0;--box:#fff8e6;--boxl:#d9a441}
+@media (prefers-color-scheme:dark){:root{--bg:#16161d;--fg:#e9e9f0;--mut:#a3a3b5;--card:#1f1f29;--line:#33333f;--acc:#f0b27a;--th:#262632;--box:#2a2416;--boxl:#b8862b}}
+*{box-sizing:border-box}html{-webkit-text-size-adjust:100%}
+body{margin:0;font:16px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--fg);overflow-wrap:anywhere}
+a{color:var(--acc)}header{border-bottom:2px solid var(--acc);padding:12px 16px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+header a.home{font-weight:700;font-size:18px;text-decoration:none;color:var(--acc)}header nav a{font-size:14px;margin-right:12px;color:var(--mut)}
+main{max-width:52rem;margin:0 auto;padding:16px}h1{font-size:1.35rem;line-height:1.3;margin:.2em 0 .5em}h2{font-size:1.05rem;margin:1.4em 0 .5em}
+.muted{color:var(--mut);font-size:14px}
+input[type=search],select{font:inherit;width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--fg)}
+.controls{display:grid;grid-template-columns:1fr;gap:8px;margin:8px 0 12px}@media(min-width:560px){.controls{grid-template-columns:2fr 1fr 1fr}}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 10px}.chip{font:inherit;font-size:13px;padding:4px 10px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--fg);cursor:pointer}
+.chip[aria-pressed=true]{background:var(--acc);color:var(--bg);border-color:var(--acc)}
+.rec{display:block;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin:8px 0;text-decoration:none;color:var(--fg)}
+.rec .id{font-weight:700;color:var(--acc);font-size:14px}.rec .t{display:block;margin:2px 0}.rec .m{font-size:13px;color:var(--mut)}
+.badge{display:inline-block;font-size:12px;padding:1px 8px;border-radius:999px;border:1px solid var(--line);margin-left:6px;color:var(--mut)}
+button.more{font:inherit;width:100%;padding:10px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--fg);cursor:pointer;margin:8px 0}
+.artifact{border:2px dashed var(--line);border-radius:12px;padding:18px 16px;text-align:center;background:var(--card)}
+.artifact .ic{font-size:34px;line-height:1}.artifact strong{display:block;margin:6px 0 2px}
+table.ghf-ev-table{width:100%;border-collapse:collapse;font-size:14px;margin:8px 0;background:var(--card)}
+table.ghf-ev-table th,table.ghf-ev-table td{border:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}
+table.ghf-ev-table th{background:var(--th);width:34%;font-weight:600}
+blockquote.verbatim{margin:8px 0;padding:10px 14px;border-left:4px solid var(--acc);background:var(--card);font-style:italic;white-space:pre-wrap}
+.interp{border:2px solid var(--boxl);background:var(--box);border-radius:12px;padding:12px 14px;margin:10px 0}
+.interp .lab{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--mut)}
+.interp h3{font-size:1rem;margin:.9em 0 .3em}.interp p,.interp li{font-size:15px}
+.err{border:1px solid #c44;border-radius:10px;padding:10px 12px}
+footer{max-width:52rem;margin:24px auto;padding:0 16px 24px;font-size:13px;color:var(--mut)}
+</style>
+</head>
+<body>
+<header><a class="home" href="./">Cedwyn · Catalogue</a><nav><a href="./">All records</a><a href="https://cedwyn.bucklerfamily.estate/">Cedwyn</a></nav></header>
+<main id="app"><p class="muted">Loading the catalogue…</p><noscript><p>This catalogue reads the central record live and needs JavaScript. The raw records are at <a href="https://cedwyn.bucklerfamily.estate/api/catalogue">/api/catalogue</a>.</p></noscript></main>
+<footer>Every record here is read live from the central Cedwyn catalogue, so a record added there appears here with no extra step. Interpretation boxes are our reading of the evidence, not findings of any court or authority.</footer>
+<script src="app.js?v=0.1.0"></script>
+</body>
+</html>
