@@ -108,6 +108,9 @@
     if (it.updated) h += '<p class="muted">Interpretation written ' + esc(it.updated) + (it.version ? ' · v' + esc(it.version) : '') + '. It reads the record; it does not change it.</p>';
     return h + '</section>';
   }
+  function reconFig(r) {
+    return '<figure class="recon"><img src="recon/' + encodeURIComponent(r.id) + '.webp" alt="Pencil sketch: an artist reconstruction of ' + esc(r.title) + '. It is not the document." loading="lazy" onerror="this.parentNode.remove()"><figcaption>tab.bot artist reconstruction</figcaption></figure>';
+  }
   function renderRecord(id) {
     app.innerHTML = '<p class="muted">Loading ' + esc(id) + '…</p>';
     Promise.all([SRC.get(id), pagesP]).then(function (a) {
@@ -117,7 +120,7 @@
       var rel = {}; (links || []).forEach(function (l) { var t = l.target || l.to || l.id || l.dst; if (t && t !== r.id) rel[t] = 1; });
       (JSON.stringify(r).match(IDRE) || []).forEach(function (m) { if (m !== r.id) rel[m] = 1; });
       var h = '<p class="muted"><a href="./">← All records</a></p><h1>' + esc(r.id) + ': ' + esc(r.title) + '</h1>';
-      h += '<h2>Artifact</h2>' + artifactCard(r);
+      h += '<h2>Artifact</h2>' + artifactCard(r) + reconFig(r);
       h += '<h2>Description</h2>';
       if (r.summary) h += '<p>' + txt(r.summary, r.id) + '</p>';
       if (d.provenance) h += '<p>' + txt(d.provenance, r.id) + '</p>';
@@ -129,7 +132,7 @@
       h += '<table class="ghf-ev-table"><tbody>' + row('ID', r.id + (r.alias ? ' (' + r.alias + ')' : ''), r.id) + row('Kind', KINDS[r.kind] || r.kind) + row('Title', r.title, r.id) +
         row('Date', r.date_display) + row('Status', r.status) + row('Type', d.type) + row('Evidence label', d.label) + row('Holder', r.holder || d.repository, r.id) +
         row('Reference', d.their_ref || d.reference) + row('Artifact', d.artifact) + row('Evidence grade', d.evidence_grade ? d.evidence_grade + (d.grade_note ? ' — ' + d.grade_note : '') : '') +
-        row('How to obtain', d.obtain, r.id) + row('Source', typeof d.source === 'string' ? d.source : '', r.id) +
+        row('Why we believe it exists', d.why_we_believe_it_exists, r.id) + row('How to obtain', d.obtain, r.id) + row('Source', typeof d.source === 'string' ? d.source : '', r.id) +
         (Object.keys(rel).length ? '<tr><th>Linked records</th><td>' + Object.keys(rel).sort().map(function (x) { return '<a href="?id=' + x + '">' + x + '</a>'; }).join(' · ') + '</td></tr>' : '') +
         row('Catalogue entry', 'revision ' + (r.rev || 1) + (r.updated ? ', updated ' + r.updated.slice(0, 10) : '')) + '</tbody></table>';
       h += '<h2>Interpretation</h2>' + interpBlock(r, extra);
