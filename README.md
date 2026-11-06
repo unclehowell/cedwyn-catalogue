@@ -2,8 +2,8 @@
 
 One front end for every record in the central Cedwyn catalogue (evidence, artifacts, missing records, people, candidates).
 
-- **Live:** https://catalogue.bucklerfamily.estate/ (GitHub Pages from this repo, branch `main`, folder `/`; custom domain in `CNAME`).
-- **A record:** `https://catalogue.bucklerfamily.estate/?id=EV-0680`
+- **Live:** https://bucklerfamily.estate/catalogue/ (served from this repo's `main` by the Cloudflare Worker `bfe-catalogue`, source in `worker/bfe-catalogue.js`; a push to `main` is live within about 2 minutes). The old address https://catalogue.bucklerfamily.estate/ 301-redirects there, path and query kept. Every webapp lives at a path of bucklerfamily.estate (`/<app>/`), never a subdomain.
+- **A record:** `https://bucklerfamily.estate/catalogue/?id=EV-0680`
 - **Search:** `?q=ministry+of+defence`, `?kind=evidence`, `?sort=new`
 
 ## Where the data comes from
