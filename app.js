@@ -5,8 +5,8 @@
   'use strict';
   var CONFIG = {
     source: 'rest',                                            // 'rest' | 'graphql'
-    rest: 'https://cedwyn.bucklerfamily.estate/api/catalogue',  // GET ?limit&offset[&kind] -> {total,items}; GET /<id> -> {item,links}
-    graphql: null,                                             // e.g. 'https://cedwyn.bucklerfamily.estate/api/graphql' once it exists
+    rest: 'https://bucklerfamily.estate/api/catalogue',  // GET ?limit&offset[&kind] -> {total,items}; GET /<id> -> {item,links}
+    graphql: null,                                             // e.g. 'https://bucklerfamily.estate/api/graphql' once it exists
     pages: 'pages.json'                                        // page-only extras (interpretation text, public-safe extracts); never record data
   };
   var P = new URLSearchParams(location.search);
@@ -133,7 +133,7 @@
         (Object.keys(rel).length ? '<tr><th>Linked records</th><td>' + Object.keys(rel).sort().map(function (x) { return '<a href="?id=' + x + '">' + x + '</a>'; }).join(' · ') + '</td></tr>' : '') +
         row('Catalogue entry', 'revision ' + (r.rev || 1) + (r.updated ? ', updated ' + r.updated.slice(0, 10) : '')) + '</tbody></table>';
       h += '<h2>Interpretation</h2>' + interpBlock(r, extra);
-      h += '<p class="muted">Raw record: <a href="' + esc(CONFIG.rest + '/' + r.id) + '">JSON</a>' + (r.page && r.page.charAt(0) === '/' ? ' · Earlier page: <a href="https://cedwyn.bucklerfamily.estate' + esc(r.page) + '">' + esc(r.page) + '</a>' : '') + '</p>';
+      h += '<p class="muted">Raw record: <a href="' + esc(CONFIG.rest + '/' + r.id) + '">JSON</a>' + (r.page && r.page.charAt(0) === '/' ? ' · Earlier page: <a href="https://bucklerfamily.estate' + esc(r.page) + '">' + esc(r.page) + '</a>' : '') + '</p>';
       app.innerHTML = h; window.scrollTo(0, 0);
     }).catch(function (e) { app.innerHTML = '<p class="muted"><a href="./">← All records</a></p><div class="err">Record ' + esc(id) + ' could not be read (' + esc(e.message) + '). It may not be in the catalogue yet.</div>'; });
   }
