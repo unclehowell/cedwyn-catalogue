@@ -57,7 +57,6 @@
   /* ---- search (v0.5.0): Google-style home, tabs, galleries, real thumbnails ---- */
   var all = null, shown = 30;
   var TABS = [['all', 'All'], ['web', 'Web'], ['images', 'Images'], ['videos', 'Videos'], ['pdf', 'PDF'], ['books', 'Books'], ['blog', 'Blog']];
-  var ICON = { web: '🌐', pdf: '📄', images: '🖼️', videos: '▶️', blog: '✍️', books: '📚', book: '📖', all: '📁', person: '👤', missing_record: '📭', evidence: '📄', artifact: '🖼️', catalogue_candidate: '🗂️' };
   var IMGRE = /image|photo|map|plan\b|drawing|aerial|postcard|sketch|png|jpe?g/i, BOOKRE = /book|trade directory|library item/i, WEBRE = /web page|press|website|newspaper/i, PDFRE = /\bpdf\b/i;
   var VQ = '?v=0.5.0-' + Math.floor(Date.now() / 300000);
   var extraP = Promise.all([getJSON('sources.json' + VQ).catch(function () { return { items: [], cat: {}, recon: [] }; }),
@@ -129,8 +128,7 @@
     return out;
   }
   function card(it) {                                        // typed placeholder: never an empty box
-    var ic = it.priv ? '🔒' : (ICON[it.ic] || ICON[it.tab] || '📁');
-    return '<span class="pc"><span class="pci" aria-hidden="true">' + ic + '</span><span class="pct">' + esc(String(it.priv ? 'Held privately' : it.ty || '').slice(0, 40)) + '</span>' + (it.id ? '<span class="pcid">' + esc(it.id) + '</span>' : '') + '</span>';
+    return '<span class="pc"><span class="pct">' + esc(String(it.priv ? 'Held privately' : it.ty || '').slice(0, 40)) + '</span>' + (it.id ? '<span class="pcid">' + esc(it.id) + '</span>' : '') + '</span>';
   }
   function pic(it, cls) {
     var c = card(it).replace(/"/g, '&quot;');
@@ -157,16 +155,15 @@
     var it = q ? hits[0] : hits[Math.floor(Math.random() * hits.length)];
     if (it.u.charAt(0) === '?') { history.pushState(null, '', it.u); route(); window.scrollTo(0, 0); } else location.href = it.u;
   }
-  var LOGO = '<span class="lg"><span>C</span><span>e</span><span>d</span><span>w</span><span>y</span><span>n</span></span>';
+  var LOGO = '<span class="lg">Cedwyn Estate</span>';
+  function foot(on) { var f = document.getElementById('cfoot'); if (f) f.hidden = !on; }   // v0.5.1: the record-reading note sits on results and record pages, not on the home page
   function homePage() {
-    window.__cs = './'; document.title = 'Catalogue search · Cedwyn';
-    var n = { rec: 0, web: 0, images: 0, videos: 0, pdf: 0 }; all.forEach(function (it) { if (it.id) n.rec++; if (n[it.tab] != null) n[it.tab]++; });
-    app.innerHTML = '<div class="gh"><a class="glogo" href="./" aria-label="Cedwyn catalogue home">' + LOGO + '<small>Catalogue</small></a>' +
+    window.__cs = './'; document.title = 'Search · Cedwyn Estate'; foot(false);
+    app.innerHTML = '<div class="gh"><a class="glogo" href="./" aria-label="Cedwyn Estate search home">' + LOGO + '</a>' +
       '<form class="gform" role="search" id="sf" action="./"><div class="gbox"><span class="mag" aria-hidden="true">⌕</span><input type="search" name="q" id="q" placeholder="Search records, archived pages, images, films and PDFs" aria-label="Search the catalogue" autocomplete="off" enterkeyhint="search"></div>' +
       '<p class="lucky"><a href="#" id="lucky">I\'m feeling lucky</a></p>' +
       '<div class="gbtns"><button type="submit" class="gbtn">Search</button></div></form>' +
-      '<nav class="gquick" aria-label="Browse by type">' + TABS.slice(1, 5).map(function (t) { return '<a href="?tab=' + t[0] + '">' + ICON[t[0]] + ' ' + t[1] + '</a>'; }).join('') + '</nav>' +
-      '<p class="gnote">' + n.rec + ' catalogue records · ' + n.web + ' archived web pages · ' + n.images + ' images · ' + n.videos + ' videos · ' + n.pdf + ' PDFs</p></div>';
+      '</div>';
     var qi = document.getElementById('q');
     document.getElementById('sf').addEventListener('submit', function (e) { e.preventDefault(); P = new URLSearchParams(); if (qi.value.trim()) P.set('q', qi.value.trim()); history.pushState(null, '', '?' + P.toString()); shown = 30; renderList(); });
     document.getElementById('lucky').addEventListener('click', function (e) { e.preventDefault(); lucky(qi.value.trim()); });
@@ -175,8 +172,8 @@
     var q = (P.get('q') || '').trim(), sort = P.get('sort') || 'rel', tab = P.get('tab') || 'all';
     if (!q && !P.get('tab')) return homePage();
     if (!TABS.some(function (t) { return t[0] === tab; })) tab = 'all';
-    window.__cs = location.search || './';
-    document.title = (q ? q + ' · ' : '') + 'Catalogue search · Cedwyn';
+    window.__cs = location.search || './'; foot(true);
+    document.title = (q ? q + ' · ' : '') + 'Search · Cedwyn Estate';
     var hits = search(q);
     var counts = { all: hits.length }; hits.forEach(function (it) { if (it.tab !== 'all') counts[it.tab] = (counts[it.tab] || 0) + 1; });
     var rows = tab === 'all' ? hits : hits.filter(function (it) { return it.tab === tab; });
@@ -190,11 +187,11 @@
       if (a.id && b.id) return a.id.localeCompare(b.id, 'en', { numeric: true });
       return a.id ? -1 : b.id ? 1 : 0;
     });
-    var h = '<div class="sx"><div class="sbar"><a class="logo" href="./" aria-label="Catalogue home">' + LOGO + '</a>';
+    var h = '<div class="sx"><div class="sbar"><a class="logo" href="./" aria-label="Cedwyn Estate search home">' + LOGO + '</a>';
     h += '<form class="sbox" role="search" id="sf"><span class="mag" aria-hidden="true">⌕</span><input type="search" id="q" placeholder="Search the catalogue" value="' + esc(q) + '" aria-label="Search" autocomplete="off" enterkeyhint="search"><button type="submit" class="sbtn" aria-label="Search">Search</button></form></div>';
     h += '<nav class="tabs" aria-label="Result type">' + TABS.map(function (t) {
       var on = t[0] === tab, href = '?' + qs({ tab: t[0] === 'all' ? '' : t[0] });
-      return '<a href="' + esc(href) + '"' + (on ? ' aria-current="page" class="on"' : '') + '>' + t[1] + '<small>' + (counts[t[0]] || 0) + '</small></a>';
+      return '<a href="' + esc(href) + '"' + (on ? ' aria-current="page" class="on"' : '') + '>' + t[1] + '</a>';
     }).join('') + '</nav>';
     h += '<div class="meta"><span>About ' + rows.length + ' result' + (rows.length === 1 ? '' : 's') + (q ? ' for <b>' + esc(q) + '</b>' : '') + '</span><select id="sort" aria-label="Sort"><option value="rel">Sort: relevance</option><option value="id">Sort: catalogue number</option><option value="new">Sort: recently added</option><option value="date">Sort: date (oldest)</option><option value="date-desc">Sort: date (newest)</option></select></div></div>';
     if (!rows.length) h += '<p class="none">No results' + (q ? ' for <b>' + esc(q) + '</b>' : '') + (tab !== 'all' ? ' in ' + TABS.filter(function (t) { return t[0] === tab; })[0][1] + '. Try <a href="?' + esc(qs({ tab: '' })) + '">All</a>.' : '.') + '</p>';
@@ -241,9 +238,9 @@
   }
   function artifactCard(r) {
     var d = r.data || {}, st = String(r.status || '');
-    if (isPrivate(r)) return '<div class="artifact"><div class="ic" aria-hidden="true">🔒</div><strong>Document held privately — personal data</strong><span class="muted">The original is kept privately in the evidence repository and is not published here. The description and extract below are the public record of it.</span></div>';
-    if (/not (yet )?(held|found|obtained)|requested|pending|blocked/i.test(st)) return '<div class="artifact"><div class="ic" aria-hidden="true">📭</div><strong>Artifact not yet held</strong><span class="muted">' + esc(st) + '. This entry records the document and where it should be; the original is not in the repository yet.</span></div>';
-    return '<div class="artifact"><div class="ic" aria-hidden="true">📄</div><strong>' + esc(d.label || 'Artifact') + '</strong><span class="muted">' + esc(d.type || r.kind) + ' · ' + esc(st) + '. The artifact itself is shown on its holder\'s or the archive\'s own page; this catalogue shows the record of it.</span></div>';
+    if (isPrivate(r)) return '<div class="artifact"><strong>Document held privately — personal data</strong><span class="muted">The original is kept privately in the evidence repository and is not published here. The description and extract below are the public record of it.</span></div>';
+    if (/not (yet )?(held|found|obtained)|requested|pending|blocked/i.test(st)) return '<div class="artifact"><strong>Artifact not yet held</strong><span class="muted">' + esc(st) + '. This entry records the document and where it should be; the original is not in the repository yet.</span></div>';
+    return '<div class="artifact"><strong>' + esc(d.label || 'Artifact') + '</strong><span class="muted">' + esc(d.type || r.kind) + ' · ' + esc(st) + '. The artifact itself is shown on its holder\'s or the archive\'s own page; this catalogue shows the record of it.</span></div>';
   }
   function row(k, v, self) { return v ? '<tr><th>' + esc(k) + '</th><td>' + txt(v, self) + '</td></tr>' : ''; }
   function interpBlock(r, extra) {
@@ -262,11 +259,11 @@
     return '<figure class="recon"><img src="recon/' + encodeURIComponent(r.id) + '.webp" alt="Pencil sketch: an artist reconstruction of ' + esc(r.title) + '. It is not the document." loading="lazy" onerror="this.parentNode.remove()"><figcaption>tab.bot artist reconstruction</figcaption></figure>';
   }
   function renderRecord(id) {
-    app.innerHTML = '<p class="muted">Loading ' + esc(id) + '…</p>';
+    foot(true); app.innerHTML = '<p class="muted">Loading ' + esc(id) + '…</p>';
     Promise.all([SRC.get(id), pagesP, thumbsP]).then(function (a) {
       var r = a[0].item, links = a[0].links, extra = (a[1] || {})[id] || null;
       if (!r) throw new Error('not found');
-      var d = r.data || {}; document.title = r.id + ' · Catalogue · Cedwyn';
+      var d = r.data || {}; document.title = r.id + ' · Cedwyn Estate';
       var rel = {}; (links || []).forEach(function (l) { var t = l.target || l.to || l.id || l.dst; if (t && t !== r.id) rel[t] = 1; });
       (JSON.stringify(r).match(IDRE) || []).forEach(function (m) { if (m !== r.id) rel[m] = 1; });
       var h = '<p class="muted"><a href="' + esc(window.__cs || './') + '">← Back to search</a></p><h1>' + esc(r.id) + ': ' + esc(r.title) + '</h1>';

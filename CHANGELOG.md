@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.5.1 — 2026-11-07
+- The home page is just the header, the wordmark, the search box, the Search button and "I'm feeling lucky". The browse-by-type links, the counts line and the two-sentence note under them are gone from the home page.
+- The wordmark reads "Cedwyn Estate" in one plain colour, in the standard header's type, with no subtitle beneath it, on the home page and above the results.
+- Result tabs are plain words (All · Web · Images · Videos · PDF · Books · Blog) with no counts. No emoji anywhere in the interface: typed cards show the record type and number in text, and artifact boxes carry no icon.
+- The note that records are read live and that interpretation boxes are our reading stays on results and record pages; interpretation boxes keep their own label.
+
 ## 0.5.0 — 2026-11-07
 - The standard site header (the same ghf-boot header every other webapp loads), placed with the Research Library.
 - A Google-style home: the Cedwyn logo, one large search box, an "I'm feeling lucky" link under it (opens the best-matching record, or a random record with a picture when the box is empty) and a Search button.
