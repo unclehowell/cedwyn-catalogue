@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.5.0 — 2026-11-07
+- The standard site header (the same ghf-boot header every other webapp loads), placed with the Research Library.
+- A Google-style home: the Cedwyn logo, one large search box, an "I'm feeling lucky" link under it (opens the best-matching record, or a random record with a picture when the box is empty) and a Search button.
+- Results open under tabs: All · Web · Images · Videos · PDF · Books · Blog, each with its own count. Web is the archived copies of pages that cite the farm. Images is a picture gallery with the catalogue record linked under each picture. Videos is a video gallery (16:9 poster, play mark, running time, title, source and date). PDF is a gallery of front pages, each linked to its record or to the file.
+- Real preview thumbnails: 153 catalogue records and 72 archived PDFs now carry a small preview made from their own original (a downscaled image, the first page of the PDF, or the picture on the record's page). They are derived copies in thumbs/ (index.json plus shards of WebP data), loaded only when shown. Book results use the Internet Archive's own cover image; web captures and videos keep their existing pictures.
+- Wherever no picture exists or may be shown, a typed card stands in (the record type, its icon and its number), never an empty box. Records held privately or containing subject-access or personal material get no picture at all.
+- Relevance sort is now the default (title matches first); sort by catalogue number is still in the menu.
+- Record pages show the preview (linked to the original it was made from) in the Artifact slot. Record data is read live and is unchanged; nothing in this release edits a record.
+
 ## 0.3.0 — 2026-11-06
 - The catalogue list is now a minimal search page: one centred search box with tabs beneath it — All · Web · Images · Videos · Blog · Books — each tab showing its own count for the current search.
 - Every result carries a preview image (lazy-loaded; a small icon stands in when no picture exists or an image fails to load). Images opens as a picture grid.
