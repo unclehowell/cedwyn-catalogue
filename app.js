@@ -158,8 +158,13 @@
     if (it.updated) h += '<p class="muted">Interpretation written ' + esc(it.updated) + (it.version ? ' · v' + esc(it.version) : '') + '. It reads the record; it does not change it.</p>';
     return h + '</section>';
   }
+  /* v0.4.0 (PR): records whose evidence is missing get a generic "tab.spot sketch" when no record-specific sketch exists.
+     It is labelled as a placeholder in the image and the caption; it is never presented as the document. */
+  var MISSING = /not (yet )?(held|found|obtained|located|extracted|seen)|held in gmail|requested|pending|blocked|sought|should exist|may exist|locked|password|awaited|withheld|not traced/i;
+  function evidenceMissing(r) { var d = r.data || {}; return MISSING.test([r.status, d.label].join(' ')) && !isPrivate(r); }
   function reconFig(r) {
-    return '<figure class="recon"><img src="recon/' + encodeURIComponent(r.id) + '.webp" alt="Pencil sketch: an artist reconstruction of ' + esc(r.title) + '. It is not the document." loading="lazy" onerror="this.parentNode.remove()"><figcaption>tab.bot artist reconstruction</figcaption></figure>';
+    var ph = evidenceMissing(r) ? 'this.onerror=null;this.src=\'recon/_placeholder.webp\';this.alt=\'Illustrative placeholder sketch: evidence awaited. It is not the document.\';this.nextSibling.textContent=\'tab.spot sketch: illustrative placeholder until the evidence is catalogued\'' : 'this.parentNode.remove()';
+    return '<figure class="recon"><img src="recon/' + encodeURIComponent(r.id) + '.webp" alt="Pencil sketch: an artist reconstruction of ' + esc(r.title) + '. It is not the document." loading="lazy" onerror="' + ph + '"><figcaption>tab.bot artist reconstruction</figcaption></figure>';
   }
   function renderRecord(id) {
     app.innerHTML = '<p class="muted">Loading ' + esc(id) + '…</p>';

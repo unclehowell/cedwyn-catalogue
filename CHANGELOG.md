@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.4.0 — proposed 2026-11-07 (pull request, not merged)
+- Record pages whose evidence is missing (status not held, pending, requested, sought, should exist, locked, or held in the mail and not yet extracted) now show a generic "tab.spot sketch" when the record has no sketch of its own: recon/_placeholder.webp, a pencil line drawing of a document labelled "Illustrative placeholder — evidence awaited" in the image and in the caption.
+- Records with their own sketch (recon/<id>.webp) are unchanged. Records held privately keep the lock card and get no sketch. Held records get no placeholder.
+- No catalogue record is edited; this changes the page template only.
+
 ## 0.3.0 — 2026-11-06
 - The catalogue list is now a minimal search page: one centred search box with tabs beneath it — All · Web · Images · Videos · Blog · Books — each tab showing its own count for the current search.
 - Every result carries a preview image (lazy-loaded; a small icon stands in when no picture exists or an image fails to load). Images opens as a picture grid.
