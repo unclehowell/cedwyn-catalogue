@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.6.0 — 2026-11-07
+- The search webapp is now Records. The wordmark reads "Great House, Cedwyn Estate" in English and "Tŷ Mawr, Ystâd Cedwyn" in Welsh (the site's own forms: "Tŷ Mawr" for Great House, "Ystâd Cedwyn" for Cedwyn Estate), in the same one-colour type; it follows the site language switch.
+- The header title above "N of 59" reads Records (Cofnodion in Welsh, Registros in Spanish). Page titles read "Records · Great House, Cedwyn Estate". Interface wording says records, not catalogue. Addresses (/catalogue/) and record numbers are unchanged.
+- "I'm feeling lucky" is gone. Under the search box a Trending row of tappable topics runs that search: Llandough, Great House Farm, Tŷ Mawr, Land Registry, Bute, BP Properties, Leckwith Common, Tithe. This webapp keeps no log of searches, so the row is the topics the most catalogue records mention, plus Leckwith Common.
+
 ## 0.5.1 — 2026-11-07
 - The home page is just the header, the wordmark, the search box, the Search button and "I'm feeling lucky". The browse-by-type links, the counts line and the two-sentence note under them are gone from the home page.
 - The wordmark reads "Cedwyn Estate" in one plain colour, in the standard header's type, with no subtitle beneath it, on the home page and above the results.

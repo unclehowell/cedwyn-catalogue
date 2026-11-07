@@ -1,8 +1,8 @@
-/* Cedwyn catalogue browser v0.5.0 — one front end for every record in the central catalogue.
+/* Cedwyn records browser v0.6.0 (was the catalogue browser) — one front end for every record in the central catalogue.
    Records are read live (REST /api/catalogue today; a GraphQL endpoint can be switched in via CONFIG or ?source=graphql&endpoint=...).
    Record pages: artifact placeholder -> description / transcript -> interpretation box. Nothing here edits a record.
    v0.3.0: Google-style search with tabs (All · Web · Images · Videos · Blog · Books) and a preview image per result; sources.json is a display/classification map only.
-   v0.5.0: the standard site header; a Google-style home (logo, search box, Search button, "I'm feeling lucky"); tabs All · Web · Images · Videos · PDF · Books · Blog
+   v0.5.0: the standard site header; a Google-style home (logo, search box, Search button; v0.6.0 drops "I'm feeling lucky" for a Trending row); tabs All · Web · Images · Videos · PDF · Books · Blog
    with galleries for Images, Videos and PDF front pages; real preview thumbnails (thumbs/index.json + thumbs/tN.json, derived WebP copies, never record data);
    a typed card wherever no picture exists. Records are still read live and never edited here. — Tab agent */
 (function () {
@@ -105,7 +105,7 @@
   function hasRecon(id, x) { return (x.recon || []).indexOf(id) >= 0 || RC.indexOf(id) >= 0; }
   function fromRecord(r, x) {
     var d = r.data || {}, ti = TI[r.id] || {}, priv = isPrivate(r);
-    var it = { tab: recTab(r, x), id: r.id, rt: r.title, t: r.id + ': ' + r.title, u: '?id=' + r.id, s: 'Catalogue · ' + (KINDS[r.kind] || r.kind) + (d.type ? ' · ' + d.type : ''),
+    var it = { tab: recTab(r, x), id: r.id, rt: r.title, t: r.id + ': ' + r.title, u: '?id=' + r.id, s: 'Records · ' + (KINDS[r.kind] || r.kind) + (d.type ? ' · ' + d.type : ''),
       d: r.summary || r.status || '', dt: r.updated || '', ic: r.kind, ty: d.type || KINDS[r.kind] || r.kind, priv: priv,
       h: [r.id, r.alias, r.title, r.holder, r.summary, r.status, r.date_display, d.type, d.label, d.their_ref, d.reference].join(' ').toLowerCase(), ds: r.date_sort || '' };
     if (!priv && ti.s != null) it.tk = r.id;
@@ -147,33 +147,63 @@
       it.sc = sc; return it;
     }).filter(Boolean);
   }
-  function lucky(q) {
-    var hits = search(q || '').filter(function (it) { return it.u; });
-    if (!q) hits = hits.filter(function (it) { return it.id && it.tk; });
-    if (!hits.length) return setParam('q', q);
-    hits.sort(function (a, b) { return q ? b.sc - a.sc : 0; });
-    var it = q ? hits[0] : hits[Math.floor(Math.random() * hits.length)];
-    if (it.u.charAt(0) === '?') { history.pushState(null, '', it.u); route(); window.scrollTo(0, 0); } else location.href = it.u;
+
+
+  // v0.6.0 (7 Nov 2026): the search webapp is now Records. Wordmark "Great House, Cedwyn Estate" (Welsh "Tŷ Mawr, Ystâd Cedwyn",
+  // the site's own forms: basecamp sub "Tŷ Mawr", estate "Ystâd Cedwyn"); the header title above "N of 59" reads Records;
+  // a Trending row under the box. The site language is <html lang> (set by ghf-lang.js); these few strings follow it.
+  var TX = {
+    en: { w1: 'Great House,', w2: 'Cedwyn Estate', rec: 'Records', trend: 'Trending', home: 'Great House, Cedwyn Estate records home' },
+    cy: { w1: 'Tŷ Mawr,', w2: 'Ystâd Cedwyn', rec: 'Cofnodion', trend: 'Poblogaidd', home: 'Hafan cofnodion Tŷ Mawr, Ystâd Cedwyn' },
+    es: { w1: 'Great House,', w2: 'Finca Cedwyn', rec: 'Registros', trend: 'Tendencias', home: 'Inicio de los registros de Great House, Finca Cedwyn' }
+  };
+  function lang() { var l = (document.documentElement.getAttribute('lang') || 'en').slice(0, 2).toLowerCase(); return TX[l] ? l : 'en'; }
+  function T(k) { return TX[lang()][k]; }
+  // Trending: this webapp keeps no log of what people type, so the row is the record topics that the most catalogue records
+  // mention (counted over all 563 records on 7 Nov 2026), plus Leckwith Common. Label is the shown word; q is the search run.
+  var TREND = [
+    { q: 'Llandough', cy: 'Llandochau' }, { q: 'Great House Farm', cy: 'Fferm Tŷ Mawr' }, { q: 'Tŷ Mawr' },
+    { q: 'Land Registry', cy: 'Cofrestrfa Tir' }, { q: 'Bute' }, { q: 'BP Properties' }, { q: 'Leckwith Common', cy: 'Comin Lecwydd' }, { q: 'Tithe', cy: 'Degwm' }
+  ];
+  var tpre = '';
+  function ttl(pre) { tpre = pre || ''; document.title = tpre + T('rec') + ' · ' + T('w1') + ' ' + T('w2'); }
+  function trendRow() {
+    return '<div class="trend" data-no-translate translate="no"><span class="trl" data-t="trend">' + T('trend') + '</span>' +
+      TREND.map(function (t) { return '<a class="trc" href="?q=' + encodeURIComponent(t.q) + '" data-q="' + t.q + '"' + (t.cy ? ' data-cy="' + t.cy + '"' : '') + '>' + ((lang() === 'cy' && t.cy) || t.q) + '</a>'; }).join('') + '</div>';
   }
-  var LOGO = '<span class="lg">Cedwyn Estate</span>';
+  function relabel() {   // wordmark, trending labels, title and the header's webapp name, in the current language
+    [].forEach.call(document.querySelectorAll('[data-t]'), function (e) { var v = T(e.getAttribute('data-t')); if (v && e.textContent !== v) e.textContent = v; });
+    [].forEach.call(document.querySelectorAll('.trc'), function (a) { var v = (lang() === 'cy' && a.getAttribute('data-cy')) || a.getAttribute('data-q'); if (a.textContent !== v) a.textContent = v; });
+    [].forEach.call(document.querySelectorAll('.glogo,.logo'), function (a) { a.setAttribute('aria-label', T('home')); });
+    var b = document.querySelector('.ghf-v2-name b'); if (b && b.textContent !== T('rec')) b.textContent = T('rec');
+    var cb = b && b.closest('[aria-label]'); if (cb && cb.getAttribute('aria-label') !== T('rec') && cb.querySelector('.ghf-v2-name')) cb.setAttribute('aria-label', T('rec'));
+    var want = tpre + T('rec') + ' · ' + T('w1') + ' ' + T('w2'); if (document.title !== want) document.title = want;
+  }
+  new MutationObserver(function () { relabel(); }).observe(document.documentElement, { attributes: true, attributeFilter: ['lang'] });
+  (function hook(n) {   // the shared header is drawn by basecamp.js after this file runs, and redrawn on a language change
+    var w = document.querySelector('.ghf-v2');
+    if (w) { relabel(); new MutationObserver(function () { relabel(); }).observe(w, { childList: true, subtree: true, characterData: true }); return; }
+    if (n < 60) setTimeout(function () { hook(n + 1); }, 250);
+  })(0);
+  function LOGOH() { return '<span class="lg" data-no-translate translate="no"><span class="lw" data-t="w1">' + T('w1') + '</span> <span class="lw" data-t="w2">' + T('w2') + '</span></span>'; }
   function foot(on) { var f = document.getElementById('cfoot'); if (f) f.hidden = !on; }   // v0.5.1: the record-reading note sits on results and record pages, not on the home page
   function homePage() {
-    window.__cs = './'; document.title = 'Search · Cedwyn Estate'; foot(false);
-    app.innerHTML = '<div class="gh"><a class="glogo" href="./" aria-label="Cedwyn Estate search home">' + LOGO + '</a>' +
-      '<form class="gform" role="search" id="sf" action="./"><div class="gbox"><span class="mag" aria-hidden="true">⌕</span><input type="search" name="q" id="q" placeholder="Search records, archived pages, images, films and PDFs" aria-label="Search the catalogue" autocomplete="off" enterkeyhint="search"></div>' +
-      '<p class="lucky"><a href="#" id="lucky">I\'m feeling lucky</a></p>' +
+    window.__cs = './'; ttl(''); foot(false);
+    app.innerHTML = '<div class="gh"><a class="glogo" href="./" aria-label="' + T('home') + '">' + LOGOH() + '</a>' +
+      '<form class="gform" role="search" id="sf" action="./"><div class="gbox"><span class="mag" aria-hidden="true">⌕</span><input type="search" name="q" id="q" placeholder="Search records, archived pages, images, films and PDFs" aria-label="Search the records" autocomplete="off" enterkeyhint="search"></div>' +
+      trendRow() +
       '<div class="gbtns"><button type="submit" class="gbtn">Search</button></div></form>' +
       '</div>';
     var qi = document.getElementById('q');
     document.getElementById('sf').addEventListener('submit', function (e) { e.preventDefault(); P = new URLSearchParams(); if (qi.value.trim()) P.set('q', qi.value.trim()); history.pushState(null, '', '?' + P.toString()); shown = 30; renderList(); });
-    document.getElementById('lucky').addEventListener('click', function (e) { e.preventDefault(); lucky(qi.value.trim()); });
+    relabel();
   }
   function renderList() {
     var q = (P.get('q') || '').trim(), sort = P.get('sort') || 'rel', tab = P.get('tab') || 'all';
     if (!q && !P.get('tab')) return homePage();
     if (!TABS.some(function (t) { return t[0] === tab; })) tab = 'all';
     window.__cs = location.search || './'; foot(true);
-    document.title = (q ? q + ' · ' : '') + 'Search · Cedwyn Estate';
+    ttl(q ? q + ' · ' : '');
     var hits = search(q);
     var counts = { all: hits.length }; hits.forEach(function (it) { if (it.tab !== 'all') counts[it.tab] = (counts[it.tab] || 0) + 1; });
     var rows = tab === 'all' ? hits : hits.filter(function (it) { return it.tab === tab; });
@@ -187,16 +217,16 @@
       if (a.id && b.id) return a.id.localeCompare(b.id, 'en', { numeric: true });
       return a.id ? -1 : b.id ? 1 : 0;
     });
-    var h = '<div class="sx"><div class="sbar"><a class="logo" href="./" aria-label="Cedwyn Estate search home">' + LOGO + '</a>';
-    h += '<form class="sbox" role="search" id="sf"><span class="mag" aria-hidden="true">⌕</span><input type="search" id="q" placeholder="Search the catalogue" value="' + esc(q) + '" aria-label="Search" autocomplete="off" enterkeyhint="search"><button type="submit" class="sbtn" aria-label="Search">Search</button></form></div>';
+    var h = '<div class="sx"><div class="sbar"><a class="logo" href="./" aria-label="' + T('home') + '">' + LOGOH() + '</a>';
+    h += '<form class="sbox" role="search" id="sf"><span class="mag" aria-hidden="true">⌕</span><input type="search" id="q" placeholder="Search the records" value="' + esc(q) + '" aria-label="Search" autocomplete="off" enterkeyhint="search"><button type="submit" class="sbtn" aria-label="Search">Search</button></form></div>';
     h += '<nav class="tabs" aria-label="Result type">' + TABS.map(function (t) {
       var on = t[0] === tab, href = '?' + qs({ tab: t[0] === 'all' ? '' : t[0] });
       return '<a href="' + esc(href) + '"' + (on ? ' aria-current="page" class="on"' : '') + '>' + t[1] + '</a>';
     }).join('') + '</nav>';
-    h += '<div class="meta"><span>About ' + rows.length + ' result' + (rows.length === 1 ? '' : 's') + (q ? ' for <b>' + esc(q) + '</b>' : '') + '</span><select id="sort" aria-label="Sort"><option value="rel">Sort: relevance</option><option value="id">Sort: catalogue number</option><option value="new">Sort: recently added</option><option value="date">Sort: date (oldest)</option><option value="date-desc">Sort: date (newest)</option></select></div></div>';
+    h += '<div class="meta"><span>About ' + rows.length + ' result' + (rows.length === 1 ? '' : 's') + (q ? ' for <b>' + esc(q) + '</b>' : '') + '</span><select id="sort" aria-label="Sort"><option value="rel">Sort: relevance</option><option value="id">Sort: record number</option><option value="new">Sort: recently added</option><option value="date">Sort: date (oldest)</option><option value="date-desc">Sort: date (newest)</option></select></div></div>';
     if (!rows.length) h += '<p class="none">No results' + (q ? ' for <b>' + esc(q) + '</b>' : '') + (tab !== 'all' ? ' in ' + TABS.filter(function (t) { return t[0] === tab; })[0][1] + '. Try <a href="?' + esc(qs({ tab: '' })) + '">All</a>.' : '.') + '</p>';
     var page = rows.slice(0, shown);
-    function recLink(it) { return it.id ? '<a class="rl" href="?id=' + esc(it.id) + '">' + esc(it.id) + ' · catalogue record</a>' : (it.u ? '<a class="rl" href="' + esc(it.u) + '" rel="noopener">' + esc(host(it.u)) + '</a>' : ''); }
+    function recLink(it) { return it.id ? '<a class="rl" href="?id=' + esc(it.id) + '">' + esc(it.id) + ' · record</a>' : (it.u ? '<a class="rl" href="' + esc(it.u) + '" rel="noopener">' + esc(host(it.u)) + '</a>' : ''); }
     if (tab === 'images') {
       h += '<div class="gal">' + page.map(function (it) { return '<figure class="gi"><a href="' + esc(it.u || '#') + '"' + ext(it) + '>' + pic(it, 'gim') + '</a><figcaption><span class="gt">' + esc(it.rt || it.t) + '</span>' + recLink(it) + '</figcaption></figure>'; }).join('') + '</div>';
     } else if (tab === 'videos') {
@@ -240,7 +270,7 @@
     var d = r.data || {}, st = String(r.status || '');
     if (isPrivate(r)) return '<div class="artifact"><strong>Document held privately — personal data</strong><span class="muted">The original is kept privately in the evidence repository and is not published here. The description and extract below are the public record of it.</span></div>';
     if (/not (yet )?(held|found|obtained)|requested|pending|blocked/i.test(st)) return '<div class="artifact"><strong>Artifact not yet held</strong><span class="muted">' + esc(st) + '. This entry records the document and where it should be; the original is not in the repository yet.</span></div>';
-    return '<div class="artifact"><strong>' + esc(d.label || 'Artifact') + '</strong><span class="muted">' + esc(d.type || r.kind) + ' · ' + esc(st) + '. The artifact itself is shown on its holder\'s or the archive\'s own page; this catalogue shows the record of it.</span></div>';
+    return '<div class="artifact"><strong>' + esc(d.label || 'Artifact') + '</strong><span class="muted">' + esc(d.type || r.kind) + ' · ' + esc(st) + '. The artifact itself is shown on its holder\'s or the archive\'s own page; this page shows the record of it.</span></div>';
   }
   function row(k, v, self) { return v ? '<tr><th>' + esc(k) + '</th><td>' + txt(v, self) + '</td></tr>' : ''; }
   function interpBlock(r, extra) {
@@ -263,7 +293,7 @@
     Promise.all([SRC.get(id), pagesP, thumbsP]).then(function (a) {
       var r = a[0].item, links = a[0].links, extra = (a[1] || {})[id] || null;
       if (!r) throw new Error('not found');
-      var d = r.data || {}; document.title = r.id + ' · Cedwyn Estate';
+      var d = r.data || {}; ttl(r.id + ' · ');
       var rel = {}; (links || []).forEach(function (l) { var t = l.target || l.to || l.id || l.dst; if (t && t !== r.id) rel[t] = 1; });
       (JSON.stringify(r).match(IDRE) || []).forEach(function (m) { if (m !== r.id) rel[m] = 1; });
       var h = '<p class="muted"><a href="' + esc(window.__cs || './') + '">← Back to search</a></p><h1>' + esc(r.id) + ': ' + esc(r.title) + '</h1>';
@@ -272,28 +302,28 @@
       h += '<h2>Description</h2>';
       if (r.summary) h += '<p>' + txt(r.summary, r.id) + '</p>';
       if (d.provenance) h += '<p>' + txt(d.provenance, r.id) + '</p>';
-      if (!r.summary && !d.provenance) h += '<p class="muted">No description in the catalogue record.</p>';
+      if (!r.summary && !d.provenance) h += '<p class="muted">No description in the record.</p>';
       h += '<h2>Transcript</h2>';
       if (r.body) h += '<blockquote class="verbatim">' + txt(r.body, r.id) + '</blockquote>';
       else if (extra && extra.extract) h += '<p class="muted">' + esc(extra.extract_label || 'Extract (public-safe, verbatim)') + '</p><blockquote class="verbatim">' + txt(extra.extract, r.id) + '</blockquote>';
-      else h += '<p class="muted">No transcript in the catalogue record.</p>';
+      else h += '<p class="muted">No transcript in the record.</p>';
       h += '<table class="ghf-ev-table"><tbody>' + row('ID', r.id + (r.alias ? ' (' + r.alias + ')' : ''), r.id) + row('Kind', KINDS[r.kind] || r.kind) + row('Title', r.title, r.id) +
         row('Date', r.date_display) + row('Status', r.status) + row('Type', d.type) + row('Evidence label', d.label) + row('Holder', r.holder || d.repository, r.id) +
         row('Reference', d.their_ref || d.reference) + row('Artifact', d.artifact) + row('Evidence grade', d.evidence_grade ? d.evidence_grade + (d.grade_note ? ' — ' + d.grade_note : '') : '') +
         row('Why we believe it exists', d.why_we_believe_it_exists, r.id) + row('How to obtain', d.obtain, r.id) + row('Source', typeof d.source === 'string' ? d.source : '', r.id) +
         (Object.keys(rel).length ? '<tr><th>Linked records</th><td>' + Object.keys(rel).sort().map(function (x) { return '<a href="?id=' + x + '">' + x + '</a>'; }).join(' · ') + '</td></tr>' : '') +
-        row('Catalogue entry', 'revision ' + (r.rev || 1) + (r.updated ? ', updated ' + r.updated.slice(0, 10) : '')) + '</tbody></table>';
+        row('Record entry', 'revision ' + (r.rev || 1) + (r.updated ? ', updated ' + r.updated.slice(0, 10) : '')) + '</tbody></table>';
       h += '<h2>Interpretation</h2>' + interpBlock(r, extra);
       h += '<p class="muted">Raw record: <a href="' + esc(CONFIG.rest + '/' + r.id) + '">JSON</a>' + (r.page && r.page.charAt(0) === '/' ? ' · Earlier page: <a href="https://bucklerfamily.estate' + esc(r.page) + '">' + esc(r.page) + '</a>' : '') + '</p>';
       app.innerHTML = h; hydrate(app); window.scrollTo(0, 0);
-    }).catch(function (e) { app.innerHTML = '<p class="muted"><a href="' + esc(window.__cs || './') + '">← Back to search</a></p><div class="err">Record ' + esc(id) + ' could not be read (' + esc(e.message) + '). It may not be in the catalogue yet.</div>'; });
+    }).catch(function (e) { app.innerHTML = '<p class="muted"><a href="' + esc(window.__cs || './') + '">← Back to search</a></p><div class="err">Record ' + esc(id) + ' could not be read (' + esc(e.message) + '). It may not be in the records yet.</div>'; });
   }
 
   function route() {
     P = new URLSearchParams(location.search); var id = (P.get('id') || '').trim().toUpperCase();
     if (id) return renderRecord(id);
     if (all) return renderList();
-    Promise.all([SRC.list(), extraP, thumbsP]).then(function (x) { all = build(x[0], x[1]); renderList(); }).catch(function (e) { app.innerHTML = '<div class="err">The catalogue could not be read (' + esc(e.message) + '). Try again in a moment.</div>'; });
+    Promise.all([SRC.list(), extraP, thumbsP]).then(function (x) { all = build(x[0], x[1]); renderList(); }).catch(function (e) { app.innerHTML = '<div class="err">The records could not be read (' + esc(e.message) + '). Try again in a moment.</div>'; });
   }
   document.addEventListener('click', function (e) {
     var a = e.target.closest && e.target.closest('a[href^="?"]'); if (!a || e.metaKey || e.ctrlKey) return;
