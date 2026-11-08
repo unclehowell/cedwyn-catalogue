@@ -1,10 +1,14 @@
-/* Cedwyn records browser v0.7.0 (was the catalogue browser) — one front end for every record in the central catalogue.
+/* Cedwyn records browser v0.8.0 (was the catalogue browser) — one front end for every record in the central catalogue.
    Records are read live (REST /api/catalogue today; a GraphQL endpoint can be switched in via CONFIG or ?source=graphql&endpoint=...).
    Record pages: artifact placeholder -> description / transcript -> interpretation box. Nothing here edits a record.
    v0.3.0: Google-style search with tabs (All · Web · Images · Videos · Blog · Books) and a preview image per result; sources.json is a display/classification map only.
    v0.5.0: the standard site header; a Google-style home (logo, search box, Search button; v0.6.0 drops "I'm feeling lucky" for a Trending row); tabs All · Web · Images · Videos · PDF · Books · Blog
    with galleries for Images, Videos and PDF front pages; real preview thumbnails (thumbs/index.json + thumbs/tN.json, derived WebP copies, never record data);
    a typed card wherever no picture exists. Records are still read live and never edited here. — Tab agent
+   v0.8.0 (8 Nov 2026): every filler is a scene composed from the site's own photographs (the Great House, Mary Williams, the Williams plan),
+   drawn as one black-and-white graphite pencil sketch and labelled "Artist's impression — not the original"; the two footage records show TV-news
+   frames (1974: a reporter interviewing Mary Williams in front of the Great House; 1988: the farmhouse as reported); real thumbnails carry the same
+   pencil look through the SVG filter #pencil applied by CSS. Full-size originals and opened PDFs stay unfiltered.
    v0.7.0 (8 Nov 2026): Videos shows catalogued footage records only (social clips removed), each with a 4:3 pencil-sketch TV frame
    (scanlines, grain, a PLACEHOLDER tag, a lower third from the record's own title and date); a record with no file gets a graphite
    artist's impression whose words come only from its own fields, labelled as reconstructed; every result opens a page whose
@@ -64,7 +68,7 @@
   var all = null, shown = 30;
   var TABS = [['all', 'All'], ['web', 'Web'], ['images', 'Images'], ['videos', 'Videos'], ['pdf', 'PDF'], ['books', 'Books'], ['blog', 'Blog']];
   var IMGRE = /image|photo|map|plan\b|drawing|aerial|postcard|sketch|png|jpe?g/i, BOOKRE = /book|trade directory|library item/i, WEBRE = /web page|press|website|newspaper/i, PDFRE = /\bpdf\b/i;
-  var VQ = '?v=0.7.0-' + Math.floor(Date.now() / 300000);
+  var VQ = '?v=0.8.0-' + Math.floor(Date.now() / 300000);
   var extraP = Promise.all([getJSON('sources.json' + VQ).catch(function () { return { items: [], cat: {}, recon: [] }; }),
     getJSON('sources-books.json' + VQ).catch(function () { return { items: [] }; })]).then(function (a) { a[0].items = (a[0].items || []).concat(a[1].items || []); return a[0]; });
   /* thumbnails: a small index (key -> shard, source type, original URL, video duration) and shards of WebP data URIs, fetched only when shown */
@@ -112,8 +116,13 @@
   // Records with no file get a greyscale graphite artist's impression in inline SVG. Every word drawn on it comes from the
   // record's own fields (title, date, issuer named in the title, reference numbers, description); where those run out the
   // sketch draws pencil strokes, never filler text. The record itself is never changed.
-  var SKN = 0, SKLAB = "Artist's impression \u2014 text reconstructed, not the original document",
-      SKLABF = "Artist's impression \u2014 text reconstructed, not the original footage",
+  var SKN = 0, SKLAB = "Artist's impression \u2014 not the original",
+      SKLABF = "Artist's impression \u2014 not the original",
+      SKV = '?v=0.8.0', SKD = 'sketch/',
+      // the footage records: a TV-news frame composed from the site's photographs, pre-drawn as a pencil sketch (lower third from the record's title and date)
+      FOOTIMG = { 'MR-0081': { f: 'tv-1974.webp', from: 'the site\'s photographs of Mary Williams and of the Great House (the white-walls picture, AR-REC-0001)' },
+                  'EV-0083': { f: 'tv-1988.webp', from: 'Cadw\'s survey photograph of the farmhouse, 29 July 1988 (EV-0095)' } },
+      SCENES = { house: 'the Great House (AR-REC-0001)', plan: 'the Williams plan held on this site', side: 'the farmhouse from the side', mary: 'the photograph of Mary Williams' },
       SKFONT = "'Segoe Print','Bradley Hand','Patrick Hand','Comic Neue','Chalkboard SE','Comic Sans MS',cursive";
   var ISSUERS = /^(HM Land Registry|Ministry of Justice|Welsh Government(?:\/Cadw)?|Cadw(?: \/ Welsh Government)?|Wales Office(?: FOI Team)?|Department for Culture, Media and Sport|DCMS|Information Commissioner's Office|Post Office Limited|Glamorgan-Gwent Archaeological Trust|GGAT|RCAHMW|Amgueddfa Cymru(?: \u2013 Museum Wales)?|Museum Wales|Vale of Glamorgan(?: Council)?|Cardiff Corporation|Cardiff and Vale University Health Board|Llandough Community Council|South Wales Police|National Library of Wales|Glamorgan Archives|Companies House|Cotswold Archaeolog\w*(?: Trust)?|Ideal Homes Wales|South Wales Echo|London Gazette|Board of Trade Journal|Court of Appeal|BP)\b/;
   function wrapT(s, n, max) {
@@ -141,13 +150,21 @@
     for (var i = 1; i <= n; i++) p += ' Q' + (x + (i - .5) * w / n).toFixed(1) + ' ' + (y - 2.2 + ((i * 5 + id) % 3) * 1.4).toFixed(1) + ' ' + (x + i * w / n).toFixed(1) + ' ' + y;
     return '<path d="' + p + '" fill="none" stroke="#777" stroke-width=".85" stroke-linecap="round" opacity=".7"/>';
   }
-  function docSketch(r) {                                   // portrait sheet, 300 x 400
+  function sceneOf(r) {                                    // which real photograph the sheet is laid over
+    var d = r.data || {}, all = [r.title, d.type, d.description, r.summary].join(' ');
+    if (/Mary (Doreen )?Williams|Mrs\.? Williams|Nancy/i.test(all)) return 'mary';
+    if (/\b(deed|conveyance|plan|map|tithe|parcel|title|registr|boundary|survey|lease|indenture|tenancy|common)\b/i.test(all)) return 'plan';
+    if (/press|newspaper|gazette|journal|echo|western mail/i.test(all)) return 'side';
+    return 'house';
+  }
+  function docSketch(r) {                                   // portrait sheet, 300 x 400, laid over a pencil sketch of a real photograph
     var id = ++SKN, d = r.data || {}, ty = String(d.type || ''), tall = ty + ' ' + String(r.title || ''), dt = shortDate(r), refs = refsOf(r), iss = issuerOf(r);
     var letter = /letter|email|reply|response|correspondence|acknowledg|FOI|SAR/i.test(tall), deed = /\b(deed|conveyance|lease|indenture|tenancy|agreement)\b/i.test(tall),
         press = /press|newspaper/i.test(ty), notice = /gazette|notice/i.test(ty);
     var desc = r.kind === 'evidence' || r.kind === 'artifact' ? [r.summary, d.description].filter(Boolean)[0] || '' : '';   // a missing record's note is about the search, not the document's text
     var h = '<svg class="sk" viewBox="0 0 300 400" role="img" aria-label="' + esc(SKLAB + ': ' + r.title) + '" xmlns="http://www.w3.org/2000/svg">' + skDefs(id) +
-      '<rect width="300" height="400" fill="#ecebe6"/><rect width="300" height="400" filter="url(#pp' + id + ')"/>' +
+      '<rect width="300" height="400" fill="#ecebe6"/><image href="' + SKD + 'bg-' + sceneOf(r) + '.webp' + SKV + '" width="300" height="400" preserveAspectRatio="xMidYMid slice"/>' +
+      '<g transform="translate(98 118) rotate(4 93 124) scale(.62)"><path d="M30 28 L290 26 L294 392 L28 396 Z" fill="#000" opacity=".28"/>' +
       '<g filter="url(#pn' + id + ')" fill="#3b3b3b" font-family="' + SKFONT + '">' +
       '<path d="M24 20 L278 17 L281 380 L21 383 Z" fill="#f7f6f2" stroke="#4d4d4d" stroke-width="1.1"/>' +
       '<path d="M281 24 L289 29 L288 389 L28 391 L21 383 L281 380 Z" fill="url(#ph' + id + ')" stroke="#8a8a8a" stroke-width=".7"/>';
@@ -167,20 +184,19 @@
     var k = 0; if (desc) y += 6;
     while (y < 320) { h += stroke(36 + (k % 5 === 0 ? 14 : 0), y, (k % 4 === 3 ? 140 : 226) - (k % 5 === 0 ? 14 : 0), id + k); y += 14; k++; if (k % 5 === 4) y += 7; }
     if (letter && !press) h += tx(36, 342, 'Yours faithfully,', 10.5) + '<path d="M40 362 q10 -15 20 0 t18 -4 t24 2" fill="none" stroke="#444" stroke-width="1.1"/>' + (iss ? tx(36, 374, iss, 9) : '');
-    return h + '</g><rect x="0" y="388" width="300" height="12" fill="#262626" opacity=".85"/>' +
+    return h + '</g></g><rect x="0" y="388" width="300" height="12" fill="#262626" opacity=".85"/>' +
       '<text x="150" y="397" font-size="7.4" fill="#fff" text-anchor="middle" font-family="system-ui,sans-serif">' + esc(SKLAB) + '</text></svg>';
   }
   function filmSketch(r) {                                  // 4:3 pencil-sketch TV frame, 320 x 240: scanlines, grain, a lower third from the record's title and date
+    var fi = FOOTIMG[r.id];
+    if (fi) return '<img class="skimg" src="' + SKD + fi.f + SKV + '" alt="' + esc(SKLABF + ': ' + r.title) + '" width="640" height="480" loading="lazy" decoding="async">';
     var id = ++SKN, dt = shortDate(r), lines = wrapT(r.title, 44, 2), lh = lines.length > 1 ? 50 : 36, top = 222 - lh;
     return '<svg class="sk skf" viewBox="0 0 320 240" role="img" aria-label="' + esc(SKLABF + ': ' + r.title) + '" xmlns="http://www.w3.org/2000/svg">' + skDefs(id) +
       '<defs><pattern id="sl' + id + '" width="4" height="3" patternUnits="userSpaceOnUse"><path d="M0 .5 H4" stroke="#6d6d6d" stroke-width=".5" opacity=".5"/></pattern></defs>' +
       '<rect width="320" height="240" fill="#e7e5df"/><rect width="320" height="240" filter="url(#pp' + id + ')"/>' +
       '<g filter="url(#pn' + id + ')" fill="none" stroke="#444" stroke-linecap="round">' +
       '<rect x="10" y="9" width="300" height="214" rx="20" stroke-width="1.5"/><rect x="10" y="9" width="300" height="214" rx="20" fill="url(#ph' + id + ')" stroke="none" opacity=".35"/>' +
-      '<path d="M10 140 C70 120 120 132 168 118 S262 110 310 124" stroke-width="1"/>' +
-      '<path d="M118 132 V92 L148 70 L178 92 V128 M126 100 h12 v12 h-12z M158 100 h12 v12 h-12z M142 132 v-18 h12 v18 M166 80 v-12 h6 v16" stroke-width="1.1"/>' +
-      '<path d="M44 152 l5 -16 l5 16 M64 154 l4 -14 l4 14 M232 150 l5 -16 l5 16 M252 152 l4 -13 l4 13 M90 150 l3 -9 l3 9" stroke-width=".9"/>' +
-      '<path d="M32 52 q14 -9 28 0 M250 42 q15 -9 30 0" stroke-width=".8" opacity=".7"/></g>' +
+      '</g><image href="' + SKD + 'bg-house.webp' + SKV + '" x="11" y="10" width="298" height="212" preserveAspectRatio="xMidYMid slice"/>' +
       '<rect x="10" y="9" width="300" height="214" rx="20" fill="url(#sl' + id + ')"/>' +
       '<g filter="url(#pn' + id + ')" font-family="' + SKFONT + '"><path d="M18 ' + top + ' H302 V' + (top + lh) + ' H18 Z" fill="#3a3a3a" opacity=".82" stroke="#222"/>' +
       lines.map(function (l, i) { return tx(26, top + 15 + i * 14, l, 11, '', 700, '#f2f0ea'); }).join('') +
@@ -243,7 +259,7 @@
   function pic(it, cls) {
     var c = card(it).replace(/"/g, '&quot;');
     if (it.tk) return '<span class="th ' + cls + '"><img data-tk="' + esc(it.tk) + '" src="data:image/gif;base64,R0lGODlhAQABAAAAACw=" alt="" decoding="async">' + (it.sk ? '<b class="bdg">sketch</b>' : '') + '</span>';
-    if (it.img) return '<span class="th ' + cls + '"><img src="' + esc(it.img) + '" alt="" loading="lazy" decoding="async" onerror="this.outerHTML=\'' + c + '\'">' + (it.sk ? '<b class="bdg">sketch</b>' : '') + '</span>';
+    if (it.img) return '<span class="th ' + cls + '"><img' + (it.sk ? ' class="skimg"' : '') + ' src="' + esc(it.img) + '" alt="" loading="lazy" decoding="async" onerror="this.outerHTML=\'' + c + '\'">' + (it.sk ? '<b class="bdg">sketch</b>' : '') + '</span>';
     if (it.r && !it.priv) return '<span class="th ' + cls + ' thsk">' + sketchOf(it.r) + '</span>';
     return '<span class="th ' + cls + '">' + card(it) + '</span>';
   }
@@ -389,7 +405,8 @@
   }
   function placeholderFrame(r) {                           // no file is held here: a graphite artist's impression, labelled as such
     var f = isFootage(r);
-    return '<figure class="skfig' + (f ? ' skfilm' : '') + '">' + (f ? filmSketch(r) : docSketch(r)) + '<figcaption>' + esc(f ? SKLABF : SKLAB) + '. Every word on it comes from this record\'s own title, date, references and description; no file of this item is held here yet.</figcaption></figure>';
+    var fi = FOOTIMG[r.id], from = f ? (fi ? fi.from : SCENES.house) : SCENES[sceneOf(r)];
+    return '<figure class="skfig' + (f ? ' skfilm' : '') + '">' + (f ? filmSketch(r) : docSketch(r)) + '<figcaption>' + esc(f ? SKLABF : SKLAB) + '. A pencil sketch composed from ' + esc(from) + '; every word on it comes from this record\'s own title, date, references and description. No file of this item is held here yet.</figcaption></figure>';
   }
   function statusNote(r) {
     var d = r.data || {}, st = String(r.status || '');
@@ -413,7 +430,7 @@
     return h + '</section>';
   }
   function reconFig(r) {
-    return '<figure class="recon"><img src="recon/' + encodeURIComponent(r.id) + '.webp" alt="Pencil sketch: an artist reconstruction of ' + esc(r.title) + '. It is not the document." loading="lazy"><figcaption>tab.bot artist reconstruction</figcaption></figure>';
+    return '<figure class="recon"><img class="skimg" src="recon/' + encodeURIComponent(r.id) + '.webp" alt="Pencil sketch: an artist reconstruction of ' + esc(r.title) + '. It is not the document." loading="lazy"><figcaption>tab.bot artist reconstruction</figcaption></figure>';
   }
   function srcsFor(id, x) { var out = []; Object.keys((x && x.rec) || {}).forEach(function (u) { if (x.rec[u] === id) { var t = ((x.items || []).filter(function (i) { return i.u === u; })[0] || {}).t; out.push({ u: u.split(' (')[0], k: skey(u), t: t || u }); } }); return out; }
   function uidLine(id, lab) { var url = 'https://bucklerfamily.estate/catalogue/?' + (lab === 'src' ? 'src=' : 'id=') + id; return '<p class="uid">' + (lab === 'src' ? 'Source key' : 'Record UID') + ' <b>' + esc(id) + '</b> · <a href="' + esc(url) + '">' + esc(url.replace('https://', '')) + '</a></p>'; }
