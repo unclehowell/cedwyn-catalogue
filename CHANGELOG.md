@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.8.0 — 2026-11-08
+- Fillers are now scenes composed from the site's own photographs, drawn as one black-and-white graphite pencil sketch and labelled "Artist's impression — not the original". The 1974 footage record (MR-0081) shows a TV-news frame of a reporter interviewing Mary Williams in front of the Great House, built from the site's photograph of her and the white-walls picture of the house (AR-REC-0001), with a lower third from the record's title and dates. The 1988 footage record (EV-0083) shows the farmhouse as reported, built from Cadw's survey photograph of 29 July 1988 (EV-0095).
+- A record with no file shows its reconstructed sheet (words only from the record's own fields) laid over a pencil sketch of a real photograph: the Great House, the Williams plan (deeds, plans, title and registry records), the farmhouse from the side (press) or Mary Williams (records naming her). Six small WebP files under sketch/.
+- Real thumbnails (result cards, the image, PDF and video galleries, record-page previews) carry the same pencil look through one SVG filter (#pencil: greyscale, colour-dodge sketch, paper grain) applied by CSS; full-size originals and opened PDFs are unchanged. Pre-drawn reconstructions are not filtered twice.
+- No record data changed. Cache-busters 0.8.0.
+
 ## 0.7.0 — 2026-11-08
 - Videos shows catalogued footage records only: records whose type or medium is film, video or broadcast footage, or whose title names a film or broadcaster (today EV-0083, the 1988 ITV/HTV Wales report, and MR-0081, the 1974 HTV Report Wales film items). Channel uploads, Shorts and other social clips are no longer listed; analysis entries about footage are not footage.
 - No footage file is held here yet, so each footage record shows a 4:3 pencil-sketch TV frame: scanlines, grain, a PLACEHOLDER tag and a lower third built from the record's own title and date. It opens the record.
