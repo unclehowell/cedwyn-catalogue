@@ -3,9 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="app-version" content="0.3.0">
-<title>Catalogue · Cedwyn</title>
-<meta name="description" content="Search the Cedwyn catalogue, web archive, films, blog and books in one place, with a preview for every result.">
+<meta name="app-version" content="0.6.0">
+<title>Records · Great House, Cedwyn Estate</title>
+<meta name="description" content="Search the Great House, Cedwyn Estate records: the record catalogue, web archive, films, PDFs, blog and books in one place, with a preview for every result.">
+<script>window.__cedwynLP="/research/"</script><script src="/_cedwyn/ghf/ghf-boot.js?v=2.1.26"></script>
 <meta name="theme-color" content="#f7f5ef" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#16161d" media="(prefers-color-scheme: dark)">
 <style>
@@ -26,7 +27,7 @@ input[type=search],select{font:inherit;width:100%;padding:10px 12px;border:1px s
 .badge{display:inline-block;font-size:12px;padding:1px 8px;border-radius:999px;border:1px solid var(--line);margin-left:6px;color:var(--mut)}
 button.more{font:inherit;width:100%;padding:10px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--fg);cursor:pointer;margin:8px 0}
 .artifact{border:2px dashed var(--line);border-radius:12px;padding:18px 16px;text-align:center;background:var(--card)}.recon{margin:12px 0 0;text-align:center}.recon img{max-width:100%;height:auto;border-radius:10px;border:1px solid var(--line)}.recon figcaption{font-size:13px;color:#666;margin-top:4px}
-.artifact .ic{font-size:34px;line-height:1}.artifact strong{display:block;margin:6px 0 2px}
+.artifact strong{display:block;margin:6px 0 2px}
 table.ghf-ev-table{width:100%;border-collapse:collapse;font-size:14px;margin:8px 0;background:var(--card)}
 table.ghf-ev-table th,table.ghf-ev-table td{border:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}
 table.ghf-ev-table th{background:var(--th);width:34%;font-weight:600}
@@ -61,12 +62,50 @@ footer{max-width:52rem;margin:24px auto;padding:0 16px 24px;font-size:13px;color
 .cell{text-decoration:none;color:var(--fg);display:block}.th.big{width:100%;height:auto;aspect-ratio:1/1}.cap{display:block;font-size:12px;line-height:1.3;margin-top:4px;color:var(--mut);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .none{text-align:center;color:var(--mut);margin:24px 0}
 @media(max-width:480px){.tabs{gap:0}.tabs a{padding:8px 6px;font-size:13px}.tabs small{margin-left:2px;font-size:10px}.r .tt{font-size:16px}.th{width:72px;height:72px}.grid{grid-template-columns:repeat(2,1fr)}.sx.home{padding-top:6vh}.logo{font-size:24px}}
+
+/* v0.5.0 — Google-style home, results bar, galleries, typed cards */
+.gh{max-width:40rem;margin:0 auto;padding:9vh 0 24px;text-align:center}
+.glogo{display:inline-block;text-decoration:none;margin:0 0 22px}.glogo small{display:block;color:var(--mut);font-size:15px;letter-spacing:.18em;text-transform:uppercase;margin-top:2px}
+/* v0.5.1: one plain wordmark in the standard header's type (Barlow, medium, spaced capitals) and one colour */
+.lg{display:inline-block;font:500 40px/1.1 var(--ghf-font,"Barlow"),"Barlow","Helvetica Neue",Arial,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:var(--fg);white-space:nowrap}
+.gbox{position:relative;max-width:36rem;margin:0 auto}.gbox .mag{position:absolute;left:18px;top:50%;transform:translateY(-50%);color:var(--mut);font-size:20px;pointer-events:none}
+.gbox input[type=search]{padding:14px 20px 14px 48px;border-radius:999px;font-size:17px;box-shadow:0 1px 6px rgba(32,33,36,.18)}
+.gbox input[type=search]:focus,.gbox input[type=search]:hover{outline:none;box-shadow:0 1px 10px rgba(32,33,36,.28);border-color:transparent}
+.lg{white-space:normal}.lg .lw{display:inline-block;white-space:nowrap} .trend{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:6px 8px;max-width:36rem;margin:14px auto 0;font-size:14px}.trend .trl{color:var(--mut);margin-right:2px}.trend .trc{color:var(--fg);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:5px 12px;background:var(--card)}.trend .trc:hover,.trend .trc:focus-visible{border-color:var(--acc);color:var(--acc)}
+.gbtns{display:flex;justify-content:center;gap:12px;margin:16px 0 0}
+.gbtn,.sbtn{font:inherit;font-size:15px;padding:9px 22px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--fg);cursor:pointer}
+.gbtn:hover,.sbtn:hover{border-color:var(--acc);box-shadow:0 1px 3px rgba(0,0,0,.15)}
+.gquick{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin:26px 0 0}.gquick a{font-size:14px;padding:6px 12px;border:1px solid var(--line);border-radius:999px;text-decoration:none;color:var(--fg);background:var(--card)}
+.gnote{font-size:13px;color:var(--mut);margin:18px 0 0}
+.logo .lg,.glogo .lg{color:var(--fg);font-weight:500;margin:0}
+.sbar{display:flex;align-items:center;gap:14px}.sbar .logo{margin:0;flex:0 0 auto}.sbar .lg{font-size:18px;letter-spacing:.06em}
+.sbox{flex:1;min-width:0;display:flex;gap:8px;align-items:center}.sbox input[type=search]{flex:1;min-width:0}
+.sbox .sbtn{flex:0 0 auto;padding:10px 16px;border-radius:999px}
+.th{position:relative}.bdg,.pdfb{position:absolute;left:6px;top:6px;font:700 10px/1 Arial,sans-serif;letter-spacing:.06em;text-transform:uppercase;background:rgba(0,0,0,.66);color:#fff;padding:3px 6px;border-radius:4px}
+.pdfb{background:#C8102E;left:auto;right:6px}
+.pc{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;width:100%;height:100%;padding:6px;text-align:center;background:linear-gradient(160deg,var(--th),var(--card))}
+.pct{font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;line-height:1.2;color:var(--mut);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.pcid{font:700 11px/1 ui-monospace,Menlo,monospace;color:var(--acc)}
+.th.lim{width:92px;height:92px}
+.gal{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:14px 10px;margin:14px 0}
+.gi,.pi{margin:0;min-width:0}.gi>a,.pi>a{display:block;position:relative;text-decoration:none}
+.th.gim{width:100%;height:150px;border-radius:10px}.th.gim img{object-fit:cover}
+.gi figcaption,.pi figcaption{padding:5px 2px 0}.gt{display:block;font-size:13px;line-height:1.3;color:var(--fg);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.rl{display:block;font-size:12px;margin-top:2px;color:var(--acc);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.vgal{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:18px 14px;margin:14px 0}
+.vi{min-width:0}.vth{display:block;position:relative;text-decoration:none}.th.vim{width:100%;height:auto;aspect-ratio:16/9;border-radius:12px}.th.vim img{object-fit:cover}
+.play{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:46px;height:46px;border-radius:50%;background:rgba(0,0,0,.6);color:#fff;font-size:20px;line-height:46px;text-align:center;padding-left:3px}
+.dur{position:absolute;right:8px;bottom:8px;background:rgba(0,0,0,.8);color:#fff;font:600 12px/1 Arial,sans-serif;padding:3px 6px;border-radius:4px}
+.vtx{padding:8px 2px 0}.vt{display:block;font-size:15px;line-height:1.3;color:var(--acc);text-decoration:none;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.vs{display:block;font-size:12px;color:var(--mut);margin-top:3px}
+.pgal{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:16px 12px;margin:14px 0}
+.th.pim{width:100%;height:auto;aspect-ratio:3/4;border-radius:6px;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.18)}.th.pim img{object-fit:cover;object-position:top}
+.prev{margin:8px 0;text-align:center}.prev img{max-width:100%;max-height:420px;border-radius:10px;border:1px solid var(--line);background:#fff}.prev figcaption{font-size:13px;color:var(--mut);margin-top:4px}
+@media(max-width:480px){.gh{padding-top:5vh}.lg{font-size:28px}.sbar{flex-wrap:wrap;gap:6px}.sbar .logo{width:100%;text-align:center}.sbar .lg{font-size:17px}.sbox .sbtn{padding:9px 12px;font-size:14px}
+ .gal{grid-template-columns:repeat(2,1fr)}.th.gim{height:130px}.pgal{grid-template-columns:repeat(2,1fr)}.vgal{grid-template-columns:1fr}.th.lim{width:72px;height:72px}}
 </style>
 </head>
 <body>
-<header><a class="home" href="./">Cedwyn · Catalogue</a><nav><a href="./">All records</a><a href="https://bucklerfamily.estate/">Cedwyn</a></nav></header>
-<main id="app"><p class="muted" style="text-align:center">Loading the catalogue…</p><noscript><p>This catalogue reads the central record live and needs JavaScript. The raw records are at <a href="https://bucklerfamily.estate/api/catalogue">/api/catalogue</a>.</p></noscript></main>
-<footer>Every record here is read live from the central Cedwyn catalogue, so a record added there appears here with no extra step. Interpretation boxes are our reading of the evidence, not findings of any court or authority.</footer>
-<script src="app.js?v=0.3.0"></script>
+<main id="app"><p class="muted" style="text-align:center">Loading the records…</p><noscript><p>These records are read live from the central record, which needs JavaScript. The raw records are at <a href="https://bucklerfamily.estate/api/catalogue">/api/catalogue</a>.</p></noscript></main>
+<footer id="cfoot" hidden>Every record here is read live from the central Cedwyn records, so a record added there appears here with no extra step. Interpretation boxes are our reading of the evidence, not findings of any court or authority.</footer>
+<script src="app.js?v=0.6.0"></script>
 </body>
 </html>
