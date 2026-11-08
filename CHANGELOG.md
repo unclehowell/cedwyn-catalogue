@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.7.0 — 2026-11-08
+- Videos shows catalogued footage records only: records whose type or medium is film, video or broadcast footage, or whose title names a film or broadcaster (today EV-0083, the 1988 ITV/HTV Wales report, and MR-0081, the 1974 HTV Report Wales film items). Channel uploads, Shorts and other social clips are no longer listed; analysis entries about footage are not footage.
+- No footage file is held here yet, so each footage record shows a 4:3 pencil-sketch TV frame: scanlines, grain, a PLACEHOLDER tag and a lower third built from the record's own title and date. It opens the record.
+- A record with no file now shows a greyscale graphite artist's impression of the document, labelled "Artist's impression — text reconstructed, not the original document". Every word drawn on it comes from the record's own fields (title, date, issuer named in the title, reference numbers, description); where those run out it draws pencil strokes, never filler text. The record data is unchanged. All drawn in inline SVG; no new image files.
+- On a searched Videos tab, footage records that do not match the words are listed under "Other catalogued footage".
+- Every result opens a page whose address carries its UID (?id=EV-0113). Record pages run top to bottom: UID and title, Preview (first page, image or artist's impression), Description, Transcript, Interpretation, then the record details table. Empty sections read "Description not yet added", "Transcript not yet added" or "Interpretation not yet added".
+- A source file that a record already describes now folds into that record: one result, the record's, with a "Source file:" line (35 wayback PDFs; index in sources.json "rec", display only). Searching the file name finds the record.
+- Other sources (archived pages, PDFs, books, blog posts) are labelled "Uncatalogued source" and open their own page at ?src=<key> with a preview and empty sections. They are not records and no record is made for them here.
+
 ## 0.6.0 — 2026-11-07
 - The search webapp is now Records. The wordmark reads "Great House, Cedwyn Estate" in English and "Tŷ Mawr, Ystâd Cedwyn" in Welsh (the site's own forms: "Tŷ Mawr" for Great House, "Ystâd Cedwyn" for Cedwyn Estate), in the same one-colour type; it follows the site language switch.
 - The header title above "N of 59" reads Records (Cofnodion in Welsh, Registros in Spanish). Page titles read "Records · Great House, Cedwyn Estate". Interface wording uses "records", not "catalogue". Addresses (/catalogue/) and record numbers are unchanged.
