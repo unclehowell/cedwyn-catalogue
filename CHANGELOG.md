@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.8.1 — 2026-11-08
+- One central catalogue: 359 records moved in from the older evidence lists: 230 correspondence and evidence records under their existing EV numbers (EV-0226 to EV-0606), EV-0899 (the 1990 and 1994 GGAT archaeology record, formerly numbered EV-0900), and 128 newspaper, archive and web items from the media register as kind "Media item" (MED-xxxx, each carrying its register number as an alias). Media items are labelled and their ids link like other records.
+
 ## 0.8.0 — 2026-11-08
 - Fillers are now scenes composed from the site's own photographs, drawn as one black-and-white graphite pencil sketch and labelled "Artist's impression — not the original". The 1974 footage record (MR-0081) shows a TV-news frame of a reporter interviewing Mary Williams in front of the Great House, built from the site's photograph of her and the white-walls picture of the house (AR-REC-0001), with a lower third from the record's title and dates. The 1988 footage record (EV-0083) shows the farmhouse as reported, built from Cadw's survey photograph of 29 July 1988 (EV-0095).
 - A record with no file shows its reconstructed sheet (words only from the record's own fields) laid over a pencil sketch of a real photograph: the Great House, the Williams plan (deeds, plans, title and registry records), the farmhouse from the side (press) or Mary Williams (records naming her). Six small WebP files under sketch/.
