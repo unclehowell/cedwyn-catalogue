@@ -1,10 +1,16 @@
-/* Cedwyn records browser v0.6.0 (was the catalogue browser) — one front end for every record in the central catalogue.
+/* Cedwyn records browser v0.7.0 (was the catalogue browser) — one front end for every record in the central catalogue.
    Records are read live (REST /api/catalogue today; a GraphQL endpoint can be switched in via CONFIG or ?source=graphql&endpoint=...).
    Record pages: artifact placeholder -> description / transcript -> interpretation box. Nothing here edits a record.
    v0.3.0: Google-style search with tabs (All · Web · Images · Videos · Blog · Books) and a preview image per result; sources.json is a display/classification map only.
    v0.5.0: the standard site header; a Google-style home (logo, search box, Search button; v0.6.0 drops "I'm feeling lucky" for a Trending row); tabs All · Web · Images · Videos · PDF · Books · Blog
    with galleries for Images, Videos and PDF front pages; real preview thumbnails (thumbs/index.json + thumbs/tN.json, derived WebP copies, never record data);
-   a typed card wherever no picture exists. Records are still read live and never edited here. — Tab agent */
+   a typed card wherever no picture exists. Records are still read live and never edited here. — Tab agent
+   v0.7.0 (8 Nov 2026): Videos shows catalogued footage records only (social clips removed), each with a 4:3 pencil-sketch TV frame
+   (scanlines, grain, a PLACEHOLDER tag, a lower third from the record's own title and date); a record with no file gets a graphite
+   artist's impression whose words come only from its own fields, labelled as reconstructed; every result opens a page whose
+   address carries its UID (?id=);
+   a source file that a record describes folds into that record (sources.json 'rec' index); other sources are labelled
+   'Uncatalogued source' and open ?src=<key>. Record page: UID and title, preview, description, transcript, interpretation. — Tab agent */
 (function () {
   'use strict';
   var CONFIG = {
@@ -58,7 +64,7 @@
   var all = null, shown = 30;
   var TABS = [['all', 'All'], ['web', 'Web'], ['images', 'Images'], ['videos', 'Videos'], ['pdf', 'PDF'], ['books', 'Books'], ['blog', 'Blog']];
   var IMGRE = /image|photo|map|plan\b|drawing|aerial|postcard|sketch|png|jpe?g/i, BOOKRE = /book|trade directory|library item/i, WEBRE = /web page|press|website|newspaper/i, PDFRE = /\bpdf\b/i;
-  var VQ = '?v=0.5.0-' + Math.floor(Date.now() / 300000);
+  var VQ = '?v=0.7.0-' + Math.floor(Date.now() / 300000);
   var extraP = Promise.all([getJSON('sources.json' + VQ).catch(function () { return { items: [], cat: {}, recon: [] }; }),
     getJSON('sources-books.json' + VQ).catch(function () { return { items: [] }; })]).then(function (a) { a[0].items = (a[0].items || []).concat(a[1].items || []); return a[0]; });
   /* thumbnails: a small index (key -> shard, source type, original URL, video duration) and shards of WebP data URIs, fetched only when shown */
@@ -90,14 +96,107 @@
     }
     return H.map(function (x) { return ('00000000' + (x >>> 0).toString(16)).slice(-8); }).join('');
   }
+
+
+
+  /* ---- v0.7.0 (8 Nov 2026): footage records, pencil-sketch artist's impressions, record UID pages, uncatalogued sources ---- */
+  // Footage = a catalogued record whose type or medium is film/video/broadcast, or whose title names a film or a broadcaster.
+  // Secondary/analysis entries about footage are not footage. Social-media clips (sources.json tab 'videos') are not records and are not shown.
+  var FOOT_T = /\b(film|films|footage|video|videocassette|broadcast|newsreel|television|cine)\b|\b(HTV|ITV|BBC|S4C|TWW)\b/i,
+      FOOT_D = /\b(film|footage|video|broadcast|newsreel|television|audiovisual|moving image)\b/i;
+  function isFootage(r) {
+    var d = r.data || {};
+    if (/analysis|secondary/i.test(String(d.label || ''))) return false;
+    return FOOT_D.test([d.type, d.medium].join(' ')) || FOOT_T.test(String(r.title || ''));
+  }
+  // Records with no file get a greyscale graphite artist's impression in inline SVG. Every word drawn on it comes from the
+  // record's own fields (title, date, issuer named in the title, reference numbers, description); where those run out the
+  // sketch draws pencil strokes, never filler text. The record itself is never changed.
+  var SKN = 0, SKLAB = "Artist's impression \u2014 text reconstructed, not the original document",
+      SKLABF = "Artist's impression \u2014 text reconstructed, not the original footage",
+      SKFONT = "'Segoe Print','Bradley Hand','Patrick Hand','Comic Neue','Chalkboard SE','Comic Sans MS',cursive";
+  var ISSUERS = /^(HM Land Registry|Ministry of Justice|Welsh Government(?:\/Cadw)?|Cadw(?: \/ Welsh Government)?|Wales Office(?: FOI Team)?|Department for Culture, Media and Sport|DCMS|Information Commissioner's Office|Post Office Limited|Glamorgan-Gwent Archaeological Trust|GGAT|RCAHMW|Amgueddfa Cymru(?: \u2013 Museum Wales)?|Museum Wales|Vale of Glamorgan(?: Council)?|Cardiff Corporation|Cardiff and Vale University Health Board|Llandough Community Council|South Wales Police|National Library of Wales|Glamorgan Archives|Companies House|Cotswold Archaeolog\w*(?: Trust)?|Ideal Homes Wales|South Wales Echo|London Gazette|Board of Trade Journal|Court of Appeal|BP)\b/;
+  function wrapT(s, n, max) {
+    var w = String(s || '').split(/\s+/), out = [], cur = '';
+    w.forEach(function (x) { if ((cur + ' ' + x).trim().length > n && cur) { out.push(cur); cur = x; } else cur = (cur + ' ' + x).trim(); });
+    if (cur) out.push(cur);
+    if (out.length > max) { out = out.slice(0, max); out[max - 1] = out[max - 1].replace(/\s*\S*$/, '') + ' \u2026'; }
+    return out;
+  }
+  function shortDate(r) { return String(r.date_display || '').split(/[;(]/)[0].trim().slice(0, 34); }
+  function refsOf(r) {                                     // reference numbers already in the record; nothing invented
+    var d = r.data || {}, s = [r.title, d.their_ref, d.reference].join(' '),
+        m = s.match(/\b\d{2}\/\d{3,5}\/[A-Z]{2,4}\b|\b(?:ATISN|FOI|IR|SAR|TO|IC|RC|WA|CAN|NPRN|PRN)[- \/]?\d[\dA-Z\/-]{2,}\b|\b[A-Z]{1,3}\d{5,}[A-Z0-9]*\b/g) || [];
+    return m.filter(function (x, i) { return m.indexOf(x) === i; }).slice(0, 2);
+  }
+  function issuerOf(r) { var m = ISSUERS.exec(String(r.title || '')); return m ? m[1] : ''; }
+  function skDefs(id) {
+    return '<defs><filter id="pn' + id + '" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency=".75" numOctaves="2" seed="' + (id % 9 + 1) + '"/><feDisplacementMap in="SourceGraphic" scale="1.6"/></filter>' +
+      '<filter id="pp' + id + '"><feTurbulence type="fractalNoise" baseFrequency="1.4" numOctaves="3" seed="4"/><feColorMatrix values="0 0 0 0 .3 0 0 0 0 .3 0 0 0 0 .29 0 0 0 .2 0"/></filter>' +
+      '<pattern id="ph' + id + '" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(35)"><path d="M0 0 V5" stroke="#888" stroke-width=".6" opacity=".5"/></pattern></defs>';
+  }
+  function tx(x, y, s, sz, anc, wt, fill) { return '<text x="' + x + '" y="' + y + '" font-size="' + sz + '"' + (anc ? ' text-anchor="' + anc + '"' : '') + (wt ? ' font-weight="' + wt + '"' : '') + (fill ? ' fill="' + fill + '"' : '') + '>' + esc(s) + '</text>'; }
+  function stroke(x, y, w, id) {                            // a pencil line standing for text that the record does not hold
+    var p = 'M' + x + ' ' + y, n = Math.max(3, Math.round(w / 8));
+    for (var i = 1; i <= n; i++) p += ' Q' + (x + (i - .5) * w / n).toFixed(1) + ' ' + (y - 2.2 + ((i * 5 + id) % 3) * 1.4).toFixed(1) + ' ' + (x + i * w / n).toFixed(1) + ' ' + y;
+    return '<path d="' + p + '" fill="none" stroke="#777" stroke-width=".85" stroke-linecap="round" opacity=".7"/>';
+  }
+  function docSketch(r) {                                   // portrait sheet, 300 x 400
+    var id = ++SKN, d = r.data || {}, ty = String(d.type || ''), tall = ty + ' ' + String(r.title || ''), dt = shortDate(r), refs = refsOf(r), iss = issuerOf(r);
+    var letter = /letter|email|reply|response|correspondence|acknowledg|FOI|SAR/i.test(tall), deed = /\b(deed|conveyance|lease|indenture|tenancy|agreement)\b/i.test(tall),
+        press = /press|newspaper/i.test(ty), notice = /gazette|notice/i.test(ty);
+    var desc = r.kind === 'evidence' || r.kind === 'artifact' ? [r.summary, d.description].filter(Boolean)[0] || '' : '';   // a missing record's note is about the search, not the document's text
+    var h = '<svg class="sk" viewBox="0 0 300 400" role="img" aria-label="' + esc(SKLAB + ': ' + r.title) + '" xmlns="http://www.w3.org/2000/svg">' + skDefs(id) +
+      '<rect width="300" height="400" fill="#ecebe6"/><rect width="300" height="400" filter="url(#pp' + id + ')"/>' +
+      '<g filter="url(#pn' + id + ')" fill="#3b3b3b" font-family="' + SKFONT + '">' +
+      '<path d="M24 20 L278 17 L281 380 L21 383 Z" fill="#f7f6f2" stroke="#4d4d4d" stroke-width="1.1"/>' +
+      '<path d="M281 24 L289 29 L288 389 L28 391 L21 383 L281 380 Z" fill="url(#ph' + id + ')" stroke="#8a8a8a" stroke-width=".7"/>';
+    var y = 44;
+    if (press) { h += '<path d="M34 28 H268 M34 56 H268 M34 59 H268" stroke="#4d4d4d" stroke-width="1"/>' + tx(150, 49, iss || 'PRESS REPORT', 15, 'middle', 700); y = 74; }
+    else if (iss) { h += tx(36, y, iss, 13, '', 700) + '<path d="M36 ' + (y + 6) + ' H200" stroke="#555" stroke-width=".9"/>'; y += 22; }
+    if (dt) h += tx(266, y, dt, 10.5, 'end');
+    if (refs.length) { h += tx(36, y, (letter ? 'Our ref: ' : 'Ref: ') + refs.join(' \u00b7 '), 10.5); }
+    y += 24;
+    var tl = wrapT(r.title, 38, 3);
+    if (letter && !press) { h += tx(36, y, 'Dear Sir or Madam,', 11.5); y += 20; tl.forEach(function (l, i) { h += tx(36, y, (i ? '' : 'Re: ') + l, 11, '', 700); y += 15; }); }
+    else if (deed) { tl.forEach(function (l) { h += tx(150, y, l, 12, 'middle', 700); y += 16; }); y += 4; h += tx(36, y, 'THIS INDENTURE made' + (dt ? ' ' + dt : ''), 10.5); }
+    else if (notice) { h += tx(150, y, 'NOTICE', 14, 'middle', 700); y += 18; tl.forEach(function (l) { h += tx(150, y, l, 11, 'middle'); y += 15; }); }
+    else { tl.forEach(function (l) { h += tx(150, y, l, 12, 'middle', 700); y += 16; }); }
+    y += 14;
+    wrapT(desc, 46, 9).forEach(function (l) { if (y < 316) { h += tx(36, y, l, 10); y += 14; } });
+    var k = 0; if (desc) y += 6;
+    while (y < 320) { h += stroke(36 + (k % 5 === 0 ? 14 : 0), y, (k % 4 === 3 ? 140 : 226) - (k % 5 === 0 ? 14 : 0), id + k); y += 14; k++; if (k % 5 === 4) y += 7; }
+    if (letter && !press) h += tx(36, 342, 'Yours faithfully,', 10.5) + '<path d="M40 362 q10 -15 20 0 t18 -4 t24 2" fill="none" stroke="#444" stroke-width="1.1"/>' + (iss ? tx(36, 374, iss, 9) : '');
+    return h + '</g><rect x="0" y="388" width="300" height="12" fill="#262626" opacity=".85"/>' +
+      '<text x="150" y="397" font-size="7.4" fill="#fff" text-anchor="middle" font-family="system-ui,sans-serif">' + esc(SKLAB) + '</text></svg>';
+  }
+  function filmSketch(r) {                                  // 4:3 pencil-sketch TV frame, 320 x 240: scanlines, grain, a lower third from the record's title and date
+    var id = ++SKN, dt = shortDate(r), lines = wrapT(r.title, 44, 2), lh = lines.length > 1 ? 50 : 36, top = 222 - lh;
+    return '<svg class="sk skf" viewBox="0 0 320 240" role="img" aria-label="' + esc(SKLABF + ': ' + r.title) + '" xmlns="http://www.w3.org/2000/svg">' + skDefs(id) +
+      '<defs><pattern id="sl' + id + '" width="4" height="3" patternUnits="userSpaceOnUse"><path d="M0 .5 H4" stroke="#6d6d6d" stroke-width=".5" opacity=".5"/></pattern></defs>' +
+      '<rect width="320" height="240" fill="#e7e5df"/><rect width="320" height="240" filter="url(#pp' + id + ')"/>' +
+      '<g filter="url(#pn' + id + ')" fill="none" stroke="#444" stroke-linecap="round">' +
+      '<rect x="10" y="9" width="300" height="214" rx="20" stroke-width="1.5"/><rect x="10" y="9" width="300" height="214" rx="20" fill="url(#ph' + id + ')" stroke="none" opacity=".35"/>' +
+      '<path d="M10 140 C70 120 120 132 168 118 S262 110 310 124" stroke-width="1"/>' +
+      '<path d="M118 132 V92 L148 70 L178 92 V128 M126 100 h12 v12 h-12z M158 100 h12 v12 h-12z M142 132 v-18 h12 v18 M166 80 v-12 h6 v16" stroke-width="1.1"/>' +
+      '<path d="M44 152 l5 -16 l5 16 M64 154 l4 -14 l4 14 M232 150 l5 -16 l5 16 M252 152 l4 -13 l4 13 M90 150 l3 -9 l3 9" stroke-width=".9"/>' +
+      '<path d="M32 52 q14 -9 28 0 M250 42 q15 -9 30 0" stroke-width=".8" opacity=".7"/></g>' +
+      '<rect x="10" y="9" width="300" height="214" rx="20" fill="url(#sl' + id + ')"/>' +
+      '<g filter="url(#pn' + id + ')" font-family="' + SKFONT + '"><path d="M18 ' + top + ' H302 V' + (top + lh) + ' H18 Z" fill="#3a3a3a" opacity=".82" stroke="#222"/>' +
+      lines.map(function (l, i) { return tx(26, top + 15 + i * 14, l, 11, '', 700, '#f2f0ea'); }).join('') +
+      (dt ? tx(26, top + lh - 7, dt, 9.5, '', '', '#d6d3cb') : '') + '</g>' +
+      '<g font-family="system-ui,sans-serif"><rect x="18" y="17" width="80" height="15" rx="2" fill="#2a2a2a"/><text x="58" y="27.6" font-size="8.2" fill="#fff" text-anchor="middle" font-weight="700" letter-spacing=".9">PLACEHOLDER</text>' +
+      '<rect x="0" y="228" width="320" height="12" fill="#1f1f1f" opacity=".88"/><text x="160" y="237" font-size="7.6" fill="#fff" text-anchor="middle">' + esc(SKLABF) + '</text></g></svg>';
+  }
+  function sketchOf(r) { return isFootage(r) ? filmSketch(r) : docSketch(r); }
   function isPrivate(r) { var d = r.data || {}; return /privately|subject[- ]access|personal data|personal material|\bSAR\b/i.test([r.status, d.label, r.holder, d.type, r.title].join(' ').replace(/FOI\/EIR\/SAR/g, 'FOI')); }
   function recTab(r, x) {                                   // the mapping file first, then the same rules for records added since
     var t = String((r.data || {}).type || ''), ti = TI[r.id] || {};
+    if (isFootage(r)) return 'videos';
     if (ti.k === 'pdf' || (PDFRE.test(t) && !/png|jpe?g|xlsx?|odt|docx?/i.test(t))) return 'pdf';
     if (ti.k === 'img') return 'images';
     if (x.cat && x.cat[r.id] && x.cat[r.id] !== 'all') return x.cat[r.id];
     if ((x.recon || []).indexOf(r.id) >= 0 || r.kind === 'artifact' || IMGRE.test(t)) return 'images';
-    if (/video|film/i.test(t)) return 'videos';
     if (BOOKRE.test(t)) return 'books';
     if (WEBRE.test(t)) return 'web';
     return 'all';
@@ -107,24 +206,35 @@
     var d = r.data || {}, ti = TI[r.id] || {}, priv = isPrivate(r);
     var it = { tab: recTab(r, x), id: r.id, rt: r.title, t: r.id + ': ' + r.title, u: '?id=' + r.id, s: 'Records · ' + (KINDS[r.kind] || r.kind) + (d.type ? ' · ' + d.type : ''),
       d: r.summary || r.status || '', dt: r.updated || '', ic: r.kind, ty: d.type || KINDS[r.kind] || r.kind, priv: priv,
-      h: [r.id, r.alias, r.title, r.holder, r.summary, r.status, r.date_display, d.type, d.label, d.their_ref, d.reference].join(' ').toLowerCase(), ds: r.date_sort || '' };
+      h: [r.id, r.alias, r.title, r.holder, r.summary, r.status, r.date_display, d.type, d.label, d.their_ref, d.reference].join(' ').toLowerCase(), ds: r.date_sort || '', r: r, foot: isFootage(r) };
     if (!priv && ti.s != null) it.tk = r.id;
     else if (!priv && hasRecon(r.id, x)) { it.img = 'recon/' + r.id + '.webp'; it.sk = 1; }
     return it;
   }
   function bookImg(u) { var m = /archive\.org\/details\/([^\/\s?#]+)/.exec(u || ''); return m ? 'https://archive.org/services/img/' + m[1] : null; }
   function build(recs, x) {
-    var out = recs.map(function (r) { return fromRecord(r, x); });
+    var out = recs.map(function (r) { return fromRecord(r, x); }), byId = {}, REC = x.rec || {};
+    out.forEach(function (it) { byId[it.id] = it; });
     (x.items || []).forEach(function (it) {
       var u = String(it.u || '');
+      if (it.tab === 'videos') return;                       // v0.7.0: channel uploads and social clips are not catalogued evidence
       if (it.ic === 'pdf' || /\.pdf($|[?#])/i.test(u)) it.tab = 'pdf';
-      var k = skey(u), ti = TI[k];
+      var k = skey(u), ti = TI[k], ro = REC[u] && byId[REC[u]];
+      if (ro) {                                              // a source file a record already describes: one result, the record's
+        (ro.srcs = ro.srcs || []).push({ t: it.t, u: u.split(' (')[0], k: k });
+        ro.h += ' ' + String(it.t || '').toLowerCase();
+        if (!ro.tk && !ro.img && !ro.priv && ti && ti.s != null) ro.tk = k;
+        if (it.tab === 'pdf' && !ro.foot) ro.tab = 'pdf';
+        return;
+      }
       if (ti) { if (ti.s != null) it.tk = k; if (ti.d) it.dur = ti.d; }
       if (!it.img && !it.tk && (it.tab === 'books' || it.ic === 'book')) it.img = bookImg(u);
-      it.u = u.split(' (')[0];
-      it.ty = it.tab === 'pdf' ? 'PDF' : it.tab === 'videos' ? 'Video' : it.tab === 'books' ? 'Book' : it.tab === 'blog' ? 'Blog post' : 'Web page';
+      it.ou = u.split(' (')[0]; it.key = k; it.unc = 1; it.u = '?src=' + k;
+      it.ty = it.tab === 'pdf' ? 'PDF' : it.tab === 'books' ? 'Book' : it.tab === 'blog' ? 'Blog post' : 'Web page';
+      it.s = 'Uncatalogued source · ' + (it.s || host(it.ou));
       it.h = [it.t, it.d, it.s, it.k].join(' ').toLowerCase(); it.ds = it.dt || ''; out.push(it);
     });
+    out.forEach(function (it) { if (it.srcs) it.d = 'Source file: ' + it.srcs.map(function (s) { return s.t; }).join(' · ') + (it.d ? ' — ' + it.d : ''); });
     return out;
   }
   function card(it) {                                        // typed placeholder: never an empty box
@@ -134,6 +244,7 @@
     var c = card(it).replace(/"/g, '&quot;');
     if (it.tk) return '<span class="th ' + cls + '"><img data-tk="' + esc(it.tk) + '" src="data:image/gif;base64,R0lGODlhAQABAAAAACw=" alt="" decoding="async">' + (it.sk ? '<b class="bdg">sketch</b>' : '') + '</span>';
     if (it.img) return '<span class="th ' + cls + '"><img src="' + esc(it.img) + '" alt="" loading="lazy" decoding="async" onerror="this.outerHTML=\'' + c + '\'">' + (it.sk ? '<b class="bdg">sketch</b>' : '') + '</span>';
+    if (it.r && !it.priv) return '<span class="th ' + cls + ' thsk">' + sketchOf(it.r) + '</span>';
     return '<span class="th ' + cls + '">' + card(it) + '</span>';
   }
   function host(u) { try { return new URL(u, location.href).hostname.replace(/^www\./, ''); } catch (e) { return ''; } }
@@ -141,7 +252,7 @@
     var toks = q.toLowerCase().split(/\s+/).filter(Boolean), qq = q.toLowerCase();
     return all.map(function (it) {
       if (!toks.every(function (t) { return it.h.indexOf(t) >= 0; })) return null;
-      var tt = String(it.t || '').toLowerCase(), sc = 0;
+      var tt = (String(it.t || '') + ' ' + (it.srcs || []).map(function (s) { return s.t; }).join(' ')).toLowerCase(), sc = 0;
       toks.forEach(function (t) { sc += tt.indexOf(t) >= 0 ? 3 : 1; });
       if (it.id && it.id.toLowerCase() === qq) sc += 50; if (qq && tt.indexOf(qq) >= 0) sc += 5; if (it.id) sc += 1; if (it.tk || it.img) sc += 0.5;
       it.sc = sc; return it;
@@ -230,10 +341,16 @@
     if (tab === 'images') {
       h += '<div class="gal">' + page.map(function (it) { return '<figure class="gi"><a href="' + esc(it.u || '#') + '"' + ext(it) + '>' + pic(it, 'gim') + '</a><figcaption><span class="gt">' + esc(it.rt || it.t) + '</span>' + recLink(it) + '</figcaption></figure>'; }).join('') + '</div>';
     } else if (tab === 'videos') {
-      h += '<div class="vgal">' + page.map(function (it) {
-        return '<article class="vi"><a class="vth" href="' + esc(it.u || '#') + '"' + ext(it) + '>' + pic(it, 'vim') + '<span class="play" aria-hidden="true">▶</span>' + (it.dur ? '<span class="dur">' + esc(it.dur) + '</span>' : '') + '</a>' +
-          '<div class="vtx"><a class="vt" href="' + esc(it.u || '#') + '"' + ext(it) + '>' + esc(it.rt || it.t) + '</a><span class="vs">' + esc(it.s || host(it.u)) + (it.dt ? ' · ' + esc(String(it.dt).slice(0, 10)) : '') + '</span>' + (it.id ? recLink(it) : '') + '</div></article>';
-      }).join('') + '</div>';
+      var vcard = function (it) {                            // catalogued footage only; no footage file is held here yet, so each shows its sketch frame
+        return '<article class="vi"><a class="vth" href="?id=' + esc(it.id) + '" aria-label="' + esc(it.rt) + '"><span class="th vim vff">' + filmSketch(it.r) + '</span></a>' +
+          '<div class="vtx"><a class="vt" href="?id=' + esc(it.id) + '">' + esc(it.rt) + '</a><span class="vs">' + esc(it.id) + ' · ' + esc(KINDS[it.r.kind] || it.r.kind) + (it.r.date_display ? ' · ' + esc(shortDate(it.r)) : '') + '</span>' + recLink(it) + '</div></article>';
+      };
+      h += '<div class="vgal">' + page.map(vcard).join('') + '</div>';
+      if (q) {
+        var seen = {}; rows.forEach(function (it) { seen[it.id] = 1; });
+        var other = all.filter(function (it) { return it.tab === 'videos' && it.r && !seen[it.id]; });
+        if (other.length) h += '<h3 class="vo">Other catalogued footage</h3><div class="vgal">' + other.map(vcard).join('') + '</div>';
+      }
     } else if (tab === 'pdf') {
       h += '<div class="pgal">' + page.map(function (it) {
         return '<figure class="pi"><a href="' + esc(it.u || '#') + '"' + ext(it) + '>' + pic(it, 'pim') + '<b class="pdfb">PDF</b></a><figcaption><span class="gt">' + esc(it.rt || it.t) + '</span>' + recLink(it) + '</figcaption></figure>';
@@ -261,21 +378,31 @@
     history.pushState(null, '', '?' + P.toString()); renderList();
   }
 
-  /* ---- record page ---- */
-  function previewFig(r) {                                  // v0.5.0: the derived thumbnail, linked to the original it was made from
-    var ti = TI[r.id]; if (!ti || ti.s == null || isPrivate(r)) return '';
-    return '<figure class="prev"><a href="' + esc(ti.u || '#') + '" rel="noopener"><img data-tk="' + esc(r.id) + '" src="data:image/gif;base64,R0lGODlhAQABAAAAACw=" alt="Preview of ' + esc(r.title) + '"></a><figcaption>' + (ti.k === 'pdf' ? 'Front page' : ti.k === 'page' ? 'Picture from the record\'s page' : 'Preview') + ' · <a href="' + esc(ti.u || '#') + '" rel="noopener">open the original</a></figcaption></figure>';
+
+  /* ---- record page (v0.7.0): UID and title -> preview -> description, transcript -> interpretation -> record details ---- */
+  function previewFig(r, srcs) {                            // the derived thumbnail (the record's own, else its source file's front page), linked to the original
+    if (isPrivate(r)) return '';
+    var ti = TI[r.id], k = r.id, ou = ti && ti.u;
+    if (!ti || ti.s == null) { ti = null; (srcs || []).some(function (s) { var t = TI[s.k]; if (t && t.s != null) { ti = t; k = s.k; ou = s.u; return true; } return false; }); }
+    if (!ti) return '';
+    return '<figure class="prev"><a href="' + esc(ou || '#') + '" rel="noopener"><img data-tk="' + esc(k) + '" src="data:image/gif;base64,R0lGODlhAQABAAAAACw=" alt="Preview of ' + esc(r.title) + '"></a><figcaption>' + (ti.k === 'pdf' || /\.pdf/i.test(ou || '') ? 'First page' : ti.k === 'page' ? 'Picture from the record\'s page' : 'Preview') + ' · <a href="' + esc(ou || '#') + '" rel="noopener">open the original</a></figcaption></figure>';
+  }
+  function placeholderFrame(r) {                           // no file is held here: a graphite artist's impression, labelled as such
+    var f = isFootage(r);
+    return '<figure class="skfig' + (f ? ' skfilm' : '') + '">' + (f ? filmSketch(r) : docSketch(r)) + '<figcaption>' + esc(f ? SKLABF : SKLAB) + '. Every word on it comes from this record\'s own title, date, references and description; no file of this item is held here yet.</figcaption></figure>';
+  }
+  function statusNote(r) {
+    var d = r.data || {}, st = String(r.status || '');
+    if (/not (yet )?(held|found|obtained)|requested|pending|blocked|sought/i.test(st)) return '<p class="muted stn">' + esc(st) + '. This entry records the item and where it should be; the original is not in the repository yet.</p>';
+    return '<p class="muted stn">' + esc(d.label || KINDS[r.kind] || r.kind) + (st ? ' · ' + esc(st) : '') + '. The original is shown on its holder\'s or the archive\'s own page; this page shows the record of it.</p>';
   }
   function artifactCard(r) {
-    var d = r.data || {}, st = String(r.status || '');
-    if (isPrivate(r)) return '<div class="artifact"><strong>Document held privately — personal data</strong><span class="muted">The original is kept privately in the evidence repository and is not published here. The description and extract below are the public record of it.</span></div>';
-    if (/not (yet )?(held|found|obtained)|requested|pending|blocked/i.test(st)) return '<div class="artifact"><strong>Artifact not yet held</strong><span class="muted">' + esc(st) + '. This entry records the document and where it should be; the original is not in the repository yet.</span></div>';
-    return '<div class="artifact"><strong>' + esc(d.label || 'Artifact') + '</strong><span class="muted">' + esc(d.type || r.kind) + ' · ' + esc(st) + '. The artifact itself is shown on its holder\'s or the archive\'s own page; this page shows the record of it.</span></div>';
+    return '<div class="artifact"><strong>Document held privately — personal data</strong><span class="muted">The original is kept privately in the evidence repository and is not published here. The description and extract below are the public record of it.</span></div>';
   }
   function row(k, v, self) { return v ? '<tr><th>' + esc(k) + '</th><td>' + txt(v, self) + '</td></tr>' : ''; }
   function interpBlock(r, extra) {
     var it = r.interpretation || (r.data || {}).interpretation || (extra && extra.interpretation), h = '<section class="interp" aria-label="Interpretation"><div class="lab">Interpretation — our reading, not a finding</div>';
-    if (!it) return h + '<p>No interpretation has been written for this record yet. The record above stands on its own; an interpretation reading it against hindsight and the wider chronology will appear here when it is added.</p></section>';
+    if (!it) return h + '<p class="nya">Interpretation not yet added.</p></section>';
     if (typeof it === 'string') return h + it.split(/\n{2,}/).map(function (p) { return '<p>' + txt(p, r.id) + '</p>'; }).join('') + '</section>';
     (it.sections || []).forEach(function (s) {
       h += '<h3>' + esc(s.h) + '</h3>';
@@ -286,48 +413,71 @@
     return h + '</section>';
   }
   function reconFig(r) {
-    return '<figure class="recon"><img src="recon/' + encodeURIComponent(r.id) + '.webp" alt="Pencil sketch: an artist reconstruction of ' + esc(r.title) + '. It is not the document." loading="lazy" onerror="this.parentNode.remove()"><figcaption>tab.bot artist reconstruction</figcaption></figure>';
+    return '<figure class="recon"><img src="recon/' + encodeURIComponent(r.id) + '.webp" alt="Pencil sketch: an artist reconstruction of ' + esc(r.title) + '. It is not the document." loading="lazy"><figcaption>tab.bot artist reconstruction</figcaption></figure>';
   }
+  function srcsFor(id, x) { var out = []; Object.keys((x && x.rec) || {}).forEach(function (u) { if (x.rec[u] === id) { var t = ((x.items || []).filter(function (i) { return i.u === u; })[0] || {}).t; out.push({ u: u.split(' (')[0], k: skey(u), t: t || u }); } }); return out; }
+  function uidLine(id, lab) { var url = 'https://bucklerfamily.estate/catalogue/?' + (lab === 'src' ? 'src=' : 'id=') + id; return '<p class="uid">' + (lab === 'src' ? 'Source key' : 'Record UID') + ' <b>' + esc(id) + '</b> · <a href="' + esc(url) + '">' + esc(url.replace('https://', '')) + '</a></p>'; }
   function renderRecord(id) {
     foot(true); app.innerHTML = '<p class="muted">Loading ' + esc(id) + '…</p>';
-    Promise.all([SRC.get(id), pagesP, thumbsP]).then(function (a) {
-      var r = a[0].item, links = a[0].links, extra = (a[1] || {})[id] || null;
+    Promise.all([SRC.get(id), pagesP, thumbsP, extraP]).then(function (a) {
+      var r = a[0].item, links = a[0].links, extra = (a[1] || {})[id] || null, srcs = srcsFor(id, a[3]);
       if (!r) throw new Error('not found');
       var d = r.data || {}; ttl(r.id + ' · ');
       var rel = {}; (links || []).forEach(function (l) { var t = l.target || l.to || l.id || l.dst; if (t && t !== r.id) rel[t] = 1; });
       (JSON.stringify(r).match(IDRE) || []).forEach(function (m) { if (m !== r.id) rel[m] = 1; });
-      var h = '<p class="muted"><a href="' + esc(window.__cs || './') + '">← Back to search</a></p><h1>' + esc(r.id) + ': ' + esc(r.title) + '</h1>';
-      var pv = previewFig(r);
-      h += '<h2>Artifact</h2>' + (pv || artifactCard(r)) + (pv ? '' : reconFig(r));
+      var h = '<p class="muted"><a href="' + esc(window.__cs || './') + '">← Back to search</a></p>' + uidLine(r.id) + '<h1>' + esc(r.id) + ': ' + esc(r.title) + '</h1>';
+      var pv = previewFig(r, srcs);
+      h += '<h2>Preview</h2>';
+      if (isPrivate(r)) h += artifactCard(r);
+      else if (pv) h += pv;
+      else if (hasRecon(r.id, a[3] || {}) && !isFootage(r)) h += reconFig(r) + statusNote(r);
+      else h += placeholderFrame(r) + statusNote(r);
       h += '<h2>Description</h2>';
-      if (r.summary) h += '<p>' + txt(r.summary, r.id) + '</p>';
-      if (d.provenance) h += '<p>' + txt(d.provenance, r.id) + '</p>';
-      if (!r.summary && !d.provenance) h += '<p class="muted">No description in the record.</p>';
+      var desc = [r.summary, d.description && d.description !== r.summary ? d.description : '', d.provenance].filter(Boolean);
+      if (desc.length) h += desc.map(function (p) { return '<p>' + txt(p, r.id) + '</p>'; }).join('');
+      else h += '<p class="nya">Description not yet added.</p>';
+      if (srcs.length) h += '<p class="muted">Source file' + (srcs.length > 1 ? 's' : '') + ': ' + srcs.map(function (s) { return '<a href="' + esc(s.u) + '" rel="noopener">' + esc(s.t) + '</a>'; }).join(' · ') + '</p>';
       h += '<h2>Transcript</h2>';
       if (r.body) h += '<blockquote class="verbatim">' + txt(r.body, r.id) + '</blockquote>';
       else if (extra && extra.extract) h += '<p class="muted">' + esc(extra.extract_label || 'Extract (public-safe, verbatim)') + '</p><blockquote class="verbatim">' + txt(extra.extract, r.id) + '</blockquote>';
-      else h += '<p class="muted">No transcript in the record.</p>';
-      h += '<table class="ghf-ev-table"><tbody>' + row('ID', r.id + (r.alias ? ' (' + r.alias + ')' : ''), r.id) + row('Kind', KINDS[r.kind] || r.kind) + row('Title', r.title, r.id) +
+      else h += '<p class="nya">Transcript not yet added.</p>';
+      h += '<h2>Interpretation</h2>' + interpBlock(r, extra);
+      h += '<h2>Record details</h2><table class="ghf-ev-table"><tbody>' + row('ID', r.id + (r.alias ? ' (' + r.alias + ')' : ''), r.id) + row('Kind', KINDS[r.kind] || r.kind) + row('Title', r.title, r.id) +
         row('Date', r.date_display) + row('Status', r.status) + row('Type', d.type) + row('Evidence label', d.label) + row('Holder', r.holder || d.repository, r.id) +
         row('Reference', d.their_ref || d.reference) + row('Artifact', d.artifact) + row('Evidence grade', d.evidence_grade ? d.evidence_grade + (d.grade_note ? ' — ' + d.grade_note : '') : '') +
         row('Why we believe it exists', d.why_we_believe_it_exists, r.id) + row('How to obtain', d.obtain, r.id) + row('Source', typeof d.source === 'string' ? d.source : '', r.id) +
         (Object.keys(rel).length ? '<tr><th>Linked records</th><td>' + Object.keys(rel).sort().map(function (x) { return '<a href="?id=' + x + '">' + x + '</a>'; }).join(' · ') + '</td></tr>' : '') +
         row('Record entry', 'revision ' + (r.rev || 1) + (r.updated ? ', updated ' + r.updated.slice(0, 10) : '')) + '</tbody></table>';
-      h += '<h2>Interpretation</h2>' + interpBlock(r, extra);
       h += '<p class="muted">Raw record: <a href="' + esc(CONFIG.rest + '/' + r.id) + '">JSON</a>' + (r.page && r.page.charAt(0) === '/' ? ' · Earlier page: <a href="https://bucklerfamily.estate' + esc(r.page) + '">' + esc(r.page) + '</a>' : '') + '</p>';
       app.innerHTML = h; hydrate(app); window.scrollTo(0, 0);
     }).catch(function (e) { app.innerHTML = '<p class="muted"><a href="' + esc(window.__cs || './') + '">← Back to search</a></p><div class="err">Record ' + esc(id) + ' could not be read (' + esc(e.message) + '). It may not be in the records yet.</div>'; });
+  }
+  function renderSource(key) {                              // a source file or page that no catalogue record describes yet: shown, never made into a record here
+    foot(true);
+    var it = (all || []).filter(function (x) { return x.key === key; })[0];
+    var back = '<p class="muted"><a href="' + esc(window.__cs || './') + '">← Back to search</a></p>';
+    if (!it) { app.innerHTML = back + '<div class="err">Source ' + esc(key) + ' is not in the search index.</div>'; return; }
+    ttl(String(it.t || '').slice(0, 60) + ' · ');
+    var h = back + uidLine(key, 'src') + '<h1>' + esc(it.t) + '</h1><p class="unc">Uncatalogued source</p><p class="muted">No catalogue record describes this source yet, so it has no record UID. It is listed for the catalogue to take up; nothing on this page is a record.</p>';
+    h += '<h2>Preview</h2>';
+    if (it.tk || it.img) h += '<figure class="prev"><a href="' + esc(it.ou) + '" rel="noopener">' + (it.tk ? '<img data-tk="' + esc(it.tk) + '" src="data:image/gif;base64,R0lGODlhAQABAAAAACw=" alt="Preview of ' + esc(it.t) + '">' : '<img src="' + esc(it.img) + '" alt="Preview of ' + esc(it.t) + '" onerror="this.remove()">') + '</a><figcaption>' + (it.tab === 'pdf' ? 'First page' : 'Preview') + ' · <a href="' + esc(it.ou) + '" rel="noopener">open the source</a></figcaption></figure>';
+    else h += '<div class="artifact"><strong>' + esc(it.ty || 'Source') + '</strong><span class="muted">No preview yet. <a href="' + esc(it.ou) + '" rel="noopener">Open the source</a>.</span></div>';
+    h += '<h2>Description</h2><p class="nya">Description not yet added.</p><p class="muted">' + esc(it.s) + (it.dt ? ' · captured ' + esc(String(it.dt).slice(0, 10)) : '') + ' · <a href="' + esc(it.ou) + '" rel="noopener">' + esc(it.ou) + '</a></p>';
+    h += '<h2>Transcript</h2><p class="nya">Transcript not yet added.</p>';
+    h += '<h2>Interpretation</h2><section class="interp" aria-label="Interpretation"><div class="lab">Interpretation — our reading, not a finding</div><p class="nya">Interpretation not yet added.</p></section>';
+    app.innerHTML = h; hydrate(app); window.scrollTo(0, 0);
   }
 
   function route() {
     P = new URLSearchParams(location.search); var id = (P.get('id') || '').trim().toUpperCase();
     if (id) return renderRecord(id);
-    if (all) return renderList();
-    Promise.all([SRC.list(), extraP, thumbsP]).then(function (x) { all = build(x[0], x[1]); renderList(); }).catch(function (e) { app.innerHTML = '<div class="err">The records could not be read (' + esc(e.message) + '). Try again in a moment.</div>'; });
+    var sk = (P.get('src') || '').trim();
+    if (all) return sk ? renderSource(sk) : renderList();
+    Promise.all([SRC.list(), extraP, thumbsP]).then(function (x) { all = build(x[0], x[1]); if (sk) renderSource(sk); else renderList(); }).catch(function (e) { app.innerHTML = '<div class="err">The records could not be read (' + esc(e.message) + '). Try again in a moment.</div>'; });
   }
   document.addEventListener('click', function (e) {
     var a = e.target.closest && e.target.closest('a[href^="?"]'); if (!a || e.metaKey || e.ctrlKey) return;
-    e.preventDefault(); history.pushState(null, '', a.getAttribute('href')); if (!/[?&]id=/.test(a.getAttribute('href'))) shown = 30; route(); window.scrollTo(0, 0);
+    e.preventDefault(); history.pushState(null, '', a.getAttribute('href')); if (!/[?&](id|src)=/.test(a.getAttribute('href'))) shown = 30; route(); window.scrollTo(0, 0);
   });
   window.addEventListener('popstate', route);
   route();
