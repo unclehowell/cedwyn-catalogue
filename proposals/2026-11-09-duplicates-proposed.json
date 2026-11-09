@@ -1,0 +1,138 @@
+{
+ "schema": "cedwyn-proposal/0.1.0",
+ "kind": "catalogue_duplicate_withdrawal",
+ "state": "PROPOSED — not applied, nothing changed in D1",
+ "created": "2026-11-09",
+ "groups": [
+  {
+   "id": "P1",
+   "entries": [
+    "EV-0080",
+    "MED-0043",
+    "MED-0044",
+    "MED-0045"
+   ],
+   "record": "Court of Appeal judgment, BP Properties Ltd v Buckler [1987] EWCA Civ 2 (31 Jul 1987)",
+   "proposal": "keep EV-0080; withdraw MED-0043 (BAILII), MED-0044 (CaseMine), MED-0045 (vLex) → EV-0080 and add the three sites as EV-0080 locations",
+   "open_question": "the three media entries are online copies of one judgment; folding edits EV-0080, and the GraphRAG pass is joining citations of the same judgment at the moment"
+  },
+  {
+   "id": "P2",
+   "entries": [
+    "MED-0086",
+    "MED-0087"
+   ],
+   "record": "South Wales Echo, 12 Oct 1994: law-firm files found in a layby",
+   "proposal": "withdraw MED-0087 → MED-0086 if they are the same item",
+   "open_question": "one is described as a comment piece, the other as a p.5 news report, while both catalogue_refs read p.6; the page needs reading before deciding"
+  },
+  {
+   "id": "P3",
+   "entries": [
+    "EV-0456",
+    "EV-0457"
+   ],
+   "record": "Vale of Glamorgan Council records enquiry, Church View Close, 7 Jun 2026",
+   "proposal": "withdraw EV-0457 → EV-0456 if both are the same email",
+   "open_question": "titles differ by 'Planning Permission'; may be two separate emails; check the mail thread"
+  },
+  {
+   "id": "P4",
+   "entries": "11 EV/MR pairs below",
+   "record": "documents catalogued both as an evidence entry and as a missing-records entry",
+   "proposal": "one entry per document: keep the EV id, make 'not held' a status/field on it, withdraw MR-0036…MR-0046 → their EV ids",
+   "open_question": "the missing-records register is a published list with its own ids; folding it is an architecture choice (see unclehowell/cedwyn#536). EV-0126 is HELD while MR-0045 reads NOT YET OBTAINED, so that pair also needs a status check",
+   "pairs": [
+    {
+     "entries": [
+      "EV-0136",
+      "MR-0046"
+     ],
+     "record": "Transfer of the woodland to Forest of Cardiff (title WA735527), with plan",
+     "note": "MR-0046 is the missing-records entry for the document EV-0136 catalogues (PENDING vs NOT YET OBTAINED)"
+    },
+    {
+     "entries": [
+      "EV-0126",
+      "MR-0045"
+     ],
+     "record": "Land at Great House Farm, Llandough: An Archaeological Assessment (GGAT, 1990)",
+     "note": "MR-0045 is the missing-records entry for the document EV-0126 catalogues (HELD vs NOT YET OBTAINED)"
+    },
+    {
+     "entries": [
+      "EV-0077",
+      "MR-0044"
+     ],
+     "record": "East Vale Local Plan (February 1987): buildings on site to be retained",
+     "note": "MR-0044 is the missing-records entry for the document EV-0077 catalogues (PENDING vs NOT YET OBTAINED)"
+    },
+    {
+     "entries": [
+      "EV-0071",
+      "MR-0043"
+     ],
+     "record": "Title WA231076 Items 15, 16, 18, 19, 23: 1983–84 registration activity",
+     "note": "MR-0043 is the missing-records entry for the document EV-0071 catalogues (PENDING vs NOT YET OBTAINED)"
+    },
+    {
+     "entries": [
+      "EV-0058",
+      "MR-0042"
+     ],
+     "record": "GGAT letter or note warning of archaeological sensitivity at Great House Farm",
+     "note": "MR-0042 is the missing-records entry for the document EV-0058 catalogues (PENDING vs NOT YET OBTAINED)"
+    },
+    {
+     "entries": [
+      "EV-0052",
+      "MR-0041"
+     ],
+     "record": "Conveyance and plan, BP Pension Trust to BP Properties (farmhouse and garden)",
+     "note": "MR-0041 is the missing-records entry for the document EV-0052 catalogues (PENDING vs NOT YET OBTAINED)"
+    },
+    {
+     "entries": [
+      "EV-0047",
+      "MR-0040"
+     ],
+     "record": "H. J. Thomas architectural survey and floor plan of the house (RCAHMW / NMR)",
+     "note": "MR-0040 is the missing-records entry for the document EV-0047 catalogues (PENDING vs NOT YET OBTAINED)"
+    },
+    {
+     "entries": [
+      "EV-0039",
+      "MR-0039"
+     ],
+     "record": "WGR Tenancy Offers Concerning Remaining House and Garden (1959 and 1965)",
+     "note": "MR-0039 is the missing-records entry for the document EV-0039 catalogues (PENDING vs NOT YET OBTAINED)"
+    },
+    {
+     "entries": [
+      "EV-0015",
+      "MR-0037"
+     ],
+     "record": "Drain agreement and plan between John, Marquis of Bute and James Pelham Stuart Corbett",
+     "note": "MR-0037 is the missing-records entry for the document EV-0015 catalogues (PENDING vs NOT YET OBTAINED)"
+    },
+    {
+     "entries": [
+      "EV-0013",
+      "MR-0036"
+     ],
+     "record": "Bute conveyance of 23 February 1905 referred to on the WA231076 file",
+     "note": "MR-0036 is the missing-records entry for the document EV-0013 catalogues (PENDING vs NOT YET OBTAINED)"
+    },
+    {
+     "entries": [
+      "EV-0033",
+      "MR-0038"
+     ],
+     "record": "Mary Williams's \"previous statement\" on the 1955 and 1962 applications (missing)",
+     "note": "MR-0038 is the missing-records entry for the document EV-0033 catalogues (PENDING vs NOT YET OBTAINED)"
+    }
+   ]
+  }
+ ],
+ "also_noted": "media register aliases 'MR-xxxx' (e.g. MED-0179 alias MR-0179) reuse the MR- prefix of the missing-records register; two different records share each MR number as a label"
+}
