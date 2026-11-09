@@ -1,0 +1,84 @@
+{
+ "schema": "cedwyn-proposal/0.1.0",
+ "kind": "catalogue_change_proposal",
+ "change": "add-only",
+ "created": "2026-11-08",
+ "note": "Add-only. Opened at 23:44Z 8 Nov while the D1 daily write allowance stood at 98.5%. After the 00:00Z reset (0.0% at 00:03Z) the records were inserted into D1 core_items with INSERT OR IGNORE and are live. EV-0870 and EV-0871 were inserted at 00:04Z, before a note arrived that EV-0870 to EV-0898 are held by another worker and that the same two articles were added at 23:31Z as MED-0073 and MED-0075; the other five use EV-0901 to EV-0905. Proposed change for the owner (not applied, no record deleted): withdraw EV-0870 (same article as MED-0073) and EV-0871 (same article as MED-0075).",
+ "related_existing": {
+  "EV-0119": "South Wales Echo 20 Mar 1989 p.2 (already catalogued)",
+  "EV-0120": "23 Mar 1989, page not recorded",
+  "EV-0121": "24 Mar 1989, page not recorded",
+  "EV-0112": "\"From farm to a bus\" (19 May 1989 p.13 per the search result)",
+  "EV-0273": "23 Feb 1990 p.1",
+  "EV-0109": "10 Dec 1988",
+  "EV-0076 / MR-0077": "House of Lords petition"
+ },
+ "records": [
+  {
+   "id": "EV-0870",
+   "title": "South Wales Echo, 21 Jan 1989, p.2: court report (William Buckler)",
+   "date_display": "Saturday 21 January 1989, p.2",
+   "bna_search_url": "https://www.britishnewspaperarchive.co.uk/search/results/1989-01-21/1989-01-21?basicsearch=%22bp%20properties%22%20llandough&exactsearch=false&retrievecountrycounts=false&newspapertitle=south%2bwales%2becho",
+   "status": "SOURCE PENDING (snippet only)",
+   "live": "https://bucklerfamily.estate/catalogue/?id=EV-0870"
+  },
+  {
+   "id": "EV-0871",
+   "title": "South Wales Echo, 4 Mar 1989, p.8: court report on charges from the day of the demolition (William Buckler)",
+   "date_display": "Saturday 4 March 1989, p.8",
+   "bna_search_url": "https://www.britishnewspaperarchive.co.uk/search/results/1989-03-04/1989-03-04?basicsearch=%22bp%20properties%22%20llandough&exactsearch=false&retrievecountrycounts=false&newspapertitle=south%2bwales%2becho",
+   "status": "SOURCE PENDING (snippet only)",
+   "live": "https://bucklerfamily.estate/catalogue/?id=EV-0871"
+  },
+  {
+   "id": "EV-0901",
+   "title": "South Wales Echo, 23 Mar 1989, p.4: report on legal proceedings (William Buckler)",
+   "date_display": "Thursday 23 March 1989, p.4",
+   "bna_search_url": "https://www.britishnewspaperarchive.co.uk/search/results/1989-03-23/1989-03-23?basicsearch=%22bp%20properties%22%20llandough&exactsearch=false&retrievecountrycounts=false&newspapertitle=south%2bwales%2becho",
+   "status": "SOURCE PENDING (snippet only)",
+   "live": "https://bucklerfamily.estate/catalogue/?id=EV-0901"
+  },
+  {
+   "id": "EV-0902",
+   "title": "South Wales Echo, 24 Mar 1989, p.6: report on legal proceedings (William Buckler)",
+   "date_display": "Friday 24 March 1989, p.6",
+   "bna_search_url": "https://www.britishnewspaperarchive.co.uk/search/results/1989-03-24/1989-03-24?basicsearch=%22bp%20properties%22%20llandough&exactsearch=false&retrievecountrycounts=false&newspapertitle=south%2bwales%2becho",
+   "status": "SOURCE PENDING (snippet only)",
+   "live": "https://bucklerfamily.estate/catalogue/?id=EV-0902"
+  },
+  {
+   "id": "EV-0903",
+   "title": "South Wales Echo, 22 Nov 1989, p.14: homes plan for the site (William Buckler)",
+   "date_display": "Wednesday 22 November 1989, p.14",
+   "bna_search_url": "https://www.britishnewspaperarchive.co.uk/search/results/1989-11-22/1989-11-22?basicsearch=%22bp%20properties%22%20demolition%20council&exactsearch=false&retrievecountrycounts=false&newspapertitle=south%2bwales%2becho",
+   "status": "SOURCE PENDING (snippet only)",
+   "live": "https://bucklerfamily.estate/catalogue/?id=EV-0903"
+  },
+  {
+   "id": "EV-0904",
+   "title": "South Wales Echo, 1 Mar 1990, p.17: residential development plans and the archaeologists’ call (William Buckler)",
+   "date_display": "Thursday 1 March 1990, p.17",
+   "bna_search_url": "https://www.britishnewspaperarchive.co.uk/search/results/1990-03-01/1990-03-01?basicsearch=%22bp%20properties%22%20llandough&exactsearch=false&retrievecountrycounts=false&newspapertitle=south%2bwales%2becho",
+   "status": "SOURCE PENDING (snippet only)",
+   "live": "https://bucklerfamily.estate/catalogue/?id=EV-0904"
+  },
+  {
+   "id": "EV-0905",
+   "title": "South Wales Echo, 1 Jun 1990, p.1: front-page report on the site (the Buckler family)",
+   "date_display": "Friday 1 June 1990, p.1",
+   "bna_search_url": "https://www.britishnewspaperarchive.co.uk/search/results/1990-06-01/1990-06-01?basicsearch=%22bp%20properties%22%20llandough&exactsearch=false&retrievecountrycounts=false&newspapertitle=south%2bwales%2becho",
+   "status": "SOURCE PENDING (snippet only)",
+   "live": "https://bucklerfamily.estate/catalogue/?id=EV-0905"
+  }
+ ],
+ "proposed_withdrawals": [
+  {
+   "id": "EV-0870",
+   "duplicate_of": "MED-0073"
+  },
+  {
+   "id": "EV-0871",
+   "duplicate_of": "MED-0075"
+  }
+ ]
+}
