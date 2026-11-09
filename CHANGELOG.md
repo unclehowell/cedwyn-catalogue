@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.8.2 — 2026-11-09
+- One entry per record, round 2 (PR #28): MED-0043/0044/0045 (BAILII, CaseMine, vLex copies of [1987] EWCA Civ 2) withdrawn → EV-0080 and kept as its locations; MR-0036…MR-0046 withdrawn → their EV entries, which now carry `holding_status`; EV-0126 confirmed held (scanned copy of the GGAT August 1990 assessment) and MR-0045's "not yet obtained" retired; MED-0086/0087 and EV-0456/0457 checked and kept as separate records (`not_duplicate_of`).
+- Media register display aliases are now MRG-nnnn, so MR-nnnn names missing records only (README, "Labels: one label, one record").
+
 ## 0.8.1 — 2026-11-08
 - One central catalogue: 359 records moved in from the older evidence lists: 230 correspondence and evidence records under their existing EV numbers (EV-0226 to EV-0606), EV-0899 (the 1990 and 1994 GGAT archaeology record, formerly numbered EV-0900), and 128 newspaper, archive and web items from the media register as kind "Media item" (MED-xxxx, each carrying its register number as an alias). Media items are labelled and their ids link like other records.
 

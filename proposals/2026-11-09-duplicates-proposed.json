@@ -1,7 +1,7 @@
 {
  "schema": "cedwyn-proposal/0.1.0",
  "kind": "catalogue_duplicate_withdrawal",
- "state": "PROPOSED — not applied, nothing changed in D1",
+ "state": "DECIDED and APPLIED 9 Nov 2026 (owner rule: one entry per record, unclehowell/cedwyn#536); D1 core_items rows updated rev+1, before-state saved",
  "created": "2026-11-09",
  "groups": [
   {
@@ -14,7 +14,9 @@
    ],
    "record": "Court of Appeal judgment, BP Properties Ltd v Buckler [1987] EWCA Civ 2 (31 Jul 1987)",
    "proposal": "keep EV-0080; withdraw MED-0043 (BAILII), MED-0044 (CaseMine), MED-0045 (vLex) → EV-0080 and add the three sites as EV-0080 locations",
-   "open_question": "the three media entries are online copies of one judgment; folding edits EV-0080, and the GraphRAG pass is joining citations of the same judgment at the moment"
+   "open_question": "the three media entries are online copies of one judgment; folding edits EV-0080, and the GraphRAG pass is joining citations of the same judgment at the moment",
+   "decision": "withdrawn: MED-0043, MED-0044, MED-0045 → EV-0080",
+   "evidence": "All three are online copies of the same Court of Appeal judgment, BP Properties Ltd v Buckler [1987] EWCA Civ 2, 31 July 1987: the BAILII address is the neutral-citation path /ew/cases/EWCA/Civ/1987/2; the vLex page read live 9 Nov 2026 shows the same parties, court and date; the CaseMine page (live page refuses automated reads) is catalogued under the same parties and date and is the copy the EV-0080 wiki page names beside BAILII. The three sites are now locations on EV-0080 (url, access, folded_from)."
   },
   {
    "id": "P2",
@@ -24,7 +26,9 @@
    ],
    "record": "South Wales Echo, 12 Oct 1994: law-firm files found in a layby",
    "proposal": "withdraw MED-0087 → MED-0086 if they are the same item",
-   "open_question": "one is described as a comment piece, the other as a p.5 news report, while both catalogue_refs read p.6; the page needs reading before deciding"
+   "open_question": "one is described as a comment piece, the other as a p.5 news report, while both catalogue_refs read p.6; the page needs reading before deciding",
+   "decision": "kept both: not duplicates",
+   "evidence": "The stitched archive OCR of the 12 Oct 1994 issue shows two separate articles: p.6 comment piece \"When old legal documents were found tipped by the roadside\" (MED-0086) and the p.5 news report \"Legal litter probe\" (MED-0087). MED-0087 page reference corrected from p.6 to p.5; each entry now carries not_duplicate_of with the reason."
   },
   {
    "id": "P3",
@@ -34,7 +38,9 @@
    ],
    "record": "Vale of Glamorgan Council records enquiry, Church View Close, 7 Jun 2026",
    "proposal": "withdraw EV-0457 → EV-0456 if both are the same email",
-   "open_question": "titles differ by 'Planning Permission'; may be two separate emails; check the mail thread"
+   "open_question": "titles differ by 'Planning Permission'; may be two separate emails; check the mail thread",
+   "decision": "kept both: not duplicates",
+   "evidence": "The mail thread shows two different emails sent on 7 Jun 2026 about 70 minutes apart, to different council addresses, each in its own thread: EV-0456 an enquiry to a planning officer, EV-0457 a formal FOI/EIR request to the FOI unit. Each entry now carries not_duplicate_of with the reason."
   },
   {
    "id": "P4",
@@ -131,8 +137,15 @@
      "record": "Mary Williams's \"previous statement\" on the 1955 and 1962 applications (missing)",
      "note": "MR-0038 is the missing-records entry for the document EV-0033 catalogues (PENDING vs NOT YET OBTAINED)"
     }
-   ]
+   ],
+   "decision": "withdrawn: MR-0036…MR-0046 → their EV entries; the EV entry carries holding_status (\"held\" / \"not held\")",
+   "evidence": "Each MR entry was generated from its EV entry (basis \"cross-reference (catalogue entry EV-…)\"), so each pair is one document. EV-0126 vs MR-0045 settled from the record itself: the scanned 17-page copy linked from EV-0126 opens on the title page \"Land at Great House Farm, Llandough: An Archaeological Assessment\", Glamorgan-Gwent Archaeological Trust, August 1990, so EV-0126 holding_status is \"held\" and its stale label was corrected; MR-0045's \"not yet obtained\" was wrong. The published missing-records list now reads the status from the EV entry: folded items show the EV id and its holding status (EV-0126 leaves the list), and every MR page stays at its address pointing to its EV entry."
   }
  ],
- "also_noted": "media register aliases 'MR-xxxx' (e.g. MED-0179 alias MR-0179) reuse the MR- prefix of the missing-records register; two different records share each MR number as a label"
+ "also_noted": "media register aliases 'MR-xxxx' (e.g. MED-0179 alias MR-0179) reuse the MR- prefix of the missing-records register; two different records share each MR number as a label",
+ "label_fix": {
+  "decision": "media register items keep their MED-nnnn ids; their display alias is now MRG-nnnn (same digits). MR-nnnn names missing records only. The old alias is kept as data.legacy_alias.",
+  "rows": 128
+ },
+ "applied_by": "task e6c9e859 — Sion's Tab agent"
 }

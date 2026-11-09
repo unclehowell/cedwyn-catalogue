@@ -28,5 +28,11 @@ No build step and no extra commit are needed per record.
 `CONFIG.graphql` to the endpoint (or test with `?source=graphql&endpoint=<url>`). Expected queries: `search(q:String, limit:Int): [Record]`
 and `record(id: ID!): Record` with `links { rel target }`.
 
+## Labels: one label, one record
+- Every record has one id, and an id is never reused or renumbered. A duplicate entry is never deleted: it is marked `status: "WITHDRAWN: duplicate of <kept id>"` with `data.duplicate_of`, and the id keeps resolving.
+- Physical or online copies of one record are **locations** on the single entry (`data.locations`, each with holder, url/page and `folded_from`), not separate entries.
+- Evidence entries carry `data.holding_status` ("held" / "not held"). The missing-records list (`/research/missing-records/`) reads it from the evidence entry; an `MR-nnnn` that was the same document as an `EV-nnnn` is withdrawn and its page points to the EV entry.
+- `MR-nnnn` names a **missing record** only. Media register items are `MED-nnnn`; their display alias is `MRG-nnnn` (same digits). Older pages called them "media register MR-nnnn"; that text is kept as `data.legacy_alias`, so an old `MR-` reference to a media item maps to the `MED-` id with the same digits.
+
 ## Rules
 Add-only for catalogue content; never edit an existing record from here. Commits end with the agent signature; no force-push.
