@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.8.3 — 2026-11-09
+- The page no longer shows its no-JavaScript fallback as raw markup while it loads (issue #29). The app shell `<main id="app">` now carries `data-cw-nolevels`, so the shared reading-levels script leaves it alone instead of wrapping it in a "The full list" card whose preview printed the `<noscript>` text with its tags. Readers see only "Loading the records…" until the search box appears; the `<noscript>` fallback stays real HTML for readers with JavaScript off.
+
 ## 0.8.2 — 2026-11-09
 - One entry per record, round 2 (PR #28): MED-0043/0044/0045 (BAILII, CaseMine, vLex copies of [1987] EWCA Civ 2) withdrawn → EV-0080 and kept as its locations; MR-0036…MR-0046 withdrawn → their EV entries, which now carry `holding_status`; EV-0126 confirmed held (scanned copy of the GGAT August 1990 assessment) and MR-0045's "not yet obtained" retired; MED-0086/0087 and EV-0456/0457 checked and kept as separate records (`not_duplicate_of`).
 - Media register display aliases are now MRG-nnnn, so MR-nnnn names missing records only (README, "Labels: one label, one record").
