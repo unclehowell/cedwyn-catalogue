@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.9.0 — 2026-11-09
+- Record page schema (issue #30): preview + link to the artifact, then record details directly under it (date of the record, our catalogue reference, location of the original record(s)), then Description, Transcript (text records only) and Interpretation.
+- Every link to where an original lives now opens our archived copy (its `?src=` catalogue entry, or our own hosted file). The preview no longer links straight to third-party sites; where no archived copy is held, the address is shown as text.
+- Archived-copy entries (`?src=`) now show our archived copy, then the live original website, then the public Internet Archive Wayback copy; they resolve for sources a record already describes and for any page in the wayback index.
+
 ## 0.8.3 — 2026-11-09
 - The page no longer shows its no-JavaScript fallback as raw markup while it loads (issue #29). The app shell `<main id="app">` now carries `data-cw-nolevels`, so the shared reading-levels script leaves it alone instead of wrapping it in a "The full list" card whose preview printed the `<noscript>` text with its tags. Readers see only "Loading the records…" until the search box appears; the `<noscript>` fallback stays real HTML for readers with JavaScript off.
 

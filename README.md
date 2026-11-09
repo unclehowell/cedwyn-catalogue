@@ -13,11 +13,13 @@ reader's browser (REST: `GET /api/catalogue?limit=500&offset=N` for the list, `G
 So a record added to the catalogue appears here, with its own page, as soon as the API serves it (the API caches for up to 5 minutes).
 No build step and no extra commit are needed per record.
 
-## Record page layout (the standard)
-1. **Artifact** — a placeholder card. Records held privately (subject-access or personal data) show "Document held privately — personal data"; the original is never embedded here, and no PDF is shown.
-2. **Description / transcript** — the record's summary and provenance, then its verbatim transcript (`body`). Where a record has no transcript, a public-safe verbatim extract may be supplied in `pages.json`.
-   A metadata table in the Legal Wiki EV style follows (ID, kind, date, status, type, label, holder, reference, grade, how to obtain, linked records).
-3. **Interpretation** — a clearly labelled box: our reading against hindsight and the wider record, with what cuts against it. Taken from the record's `interpretation` field when the catalogue carries one, else from `pages.json`, else a "not written yet" note.
+## Record page layout (the standard; schema of 9 Nov 2026, issue #30)
+1. **Preview** — the artifact itself (its derived thumbnail) or a labelled placeholder, with the link to the artifact. The link opens **our archived copy**, never the external site; where no archived copy is held yet the caption says so and there is no link. Records held privately (subject-access or personal data) show "Document held privately — personal data".
+2. **Record details, directly under the preview** — date of the record; our catalogue reference (EV-/MR-/CH-/MED-/AR- id, alias, holder's reference); location of the original record(s): the holder, and each original's website address as text, linked to **our archived copy's catalogue entry** (`?src=<key>`), or to our own file for copies we host.
+3. **Description**, then a separate **Transcript** when the record is text (verbatim `body`, or a public-safe extract from `pages.json`), then **Interpretation** — the schema title: a clearly labelled box, our reading against hindsight and the wider record, with what cuts against it. Taken from the record's `interpretation` field, else `pages.json`, else a "not written yet" note.
+4. The fuller metadata table in the Legal Wiki EV style follows (ID, kind, date, status, type, label, holder, reference, grade, how to obtain, linked records).
+
+**Archived-copy entries (`?src=<key>`)** are the only pages that link out: preview and link to our copy, then date captured, catalogue reference, our archived copy, the **original website** (live link) and the **public archived copy** on the Internet Archive Wayback Machine. The original address comes from the wayback index (`wayback.bucklerfamily.estate/websites/index.json`). Watchtower tracks those external pages for updates.
 
 ## Files
 - `index.html` — page shell and styles. `app.js` — routing, search, record pages, and the data layer.

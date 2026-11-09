@@ -1,6 +1,9 @@
-/* Cedwyn records browser v0.8.0 (was the catalogue browser) — one front end for every record in the central catalogue.
+/* Cedwyn records browser v0.9.0 (was the catalogue browser) — one front end for every record in the central catalogue.
    Records are read live (REST /api/catalogue today; a GraphQL endpoint can be switched in via CONFIG or ?source=graphql&endpoint=...).
-   Record pages: artifact placeholder -> description / transcript -> interpretation box. Nothing here edits a record.
+   Record page schema (v0.9.0, 9 Nov 2026, cedwyn-catalogue#30): preview or placeholder + link to the artifact -> record details
+   (date, our catalogue reference, where the original(s) are, each linked to OUR archived copy) -> Description -> Transcript (text
+   records) -> Interpretation (the schema title). Only an archived-copy entry (?src=) links to the live website, then to the
+   public Internet Archive copy. Nothing here edits a record.
    v0.3.0: Google-style search with tabs (All · Web · Images · Videos · Blog · Books) and a preview image per result; sources.json is a display/classification map only.
    v0.5.0: the standard site header; a Google-style home (logo, search box, Search button; v0.6.0 drops "I'm feeling lucky" for a Trending row); tabs All · Web · Images · Videos · PDF · Books · Blog
    with galleries for Images, Videos and PDF front pages; real preview thumbnails (thumbs/index.json + thumbs/tN.json, derived WebP copies, never record data);
@@ -68,7 +71,7 @@
   var all = null, shown = 30;
   var TABS = [['all', 'All'], ['web', 'Web'], ['images', 'Images'], ['videos', 'Videos'], ['pdf', 'PDF'], ['books', 'Books'], ['blog', 'Blog']];
   var IMGRE = /image|photo|map|plan\b|drawing|aerial|postcard|sketch|png|jpe?g/i, BOOKRE = /book|trade directory|library item/i, WEBRE = /web page|press|website|newspaper/i, PDFRE = /\bpdf\b/i;
-  var VQ = '?v=0.8.0-' + Math.floor(Date.now() / 300000);
+  var VQ = '?v=0.9.0-' + Math.floor(Date.now() / 300000);
   var extraP = Promise.all([getJSON('sources.json' + VQ).catch(function () { return { items: [], cat: {}, recon: [] }; }),
     getJSON('sources-books.json' + VQ).catch(function () { return { items: [] }; })]).then(function (a) { a[0].items = (a[0].items || []).concat(a[1].items || []); return a[0]; });
   /* thumbnails: a small index (key -> shard, source type, original URL, video duration) and shards of WebP data URIs, fetched only when shown */
@@ -81,6 +84,28 @@
       shard(e.s).then(function (s) { if (s[k]) { im.src = s[k]; im.removeAttribute('data-tk'); } });
     });
   }
+  /* v0.9.0 (9 Nov 2026, cedwyn-catalogue#30): record page schema. Every link to where an original lives goes to OUR archived copy
+     (its catalogue entry, ?src=); only an archived-copy entry links out, to the live website and then to the public Internet Archive copy. */
+  var WBI = 'https://wayback.bucklerfamily.estate/websites/index.json', WB = { byOrig: {}, byCopy: {} };
+  function nurl(u) { return String(u || '').split(' (')[0].replace(/^https?:\/\//i, '').replace(/^www\./i, '').replace(/[#].*$/, '').replace(/\/+$/, '').toLowerCase(); }
+  var wbP = getJSON(WBI).then(function (d) {
+    (d.items || []).forEach(function (e) {
+      if (!e.url || !e.latest) return;
+      var copy = 'https://wayback.bucklerfamily.estate' + e.latest, o = { orig: e.url, copy: copy, t: e.title, dt: e.captured, v: e.version };
+      WB.byOrig[nurl(e.url)] = o; WB.byCopy[nurl(copy)] = o; WB.byCopy[nurl(copy.replace(/latest\.html$/, ''))] = o;
+    });
+    return WB;
+  }).catch(function () { return WB; });
+  function ours(u) { return /^(https?:\/\/)?([a-z0-9-]+\.)*bucklerfamily\.estate(\/|$)/i.test(String(u || '')) || String(u || '').charAt(0) === '/'; }
+  function copyOf(u) {                                       // -> {copy, orig, key} our archived copy of u, or null
+    if (!u) return null;
+    var w = WB.byCopy[nurl(u)];
+    if (w) return { copy: w.copy, orig: w.orig, key: skey(String(u).split(' (')[0]), dt: w.dt };
+    if (ours(u)) return { copy: String(u).split(' (')[0], orig: null, key: skey(String(u).split(' (')[0]) };
+    w = WB.byOrig[nurl(u)];
+    return w ? { copy: w.copy, orig: w.orig, key: skey(w.copy), dt: w.dt } : null;
+  }
+  function wbMachine(u) { return 'https://web.archive.org/web/*/' + String(u || '').replace(/^https?:\/\//i, ''); }
   function skey(u) {                                         // same key the thumbnail builder used: 'S' + first 10 hex of sha1(url)
     return 'S' + sha1(u).slice(0, 10);
   }
@@ -228,6 +253,7 @@
     return it;
   }
   function bookImg(u) { var m = /archive\.org\/details\/([^\/\s?#]+)/.exec(u || ''); return m ? 'https://archive.org/services/img/' + m[1] : null; }
+  var SRCK = {};                                             // v0.9.0: every archived-copy entry by key, including those a record describes
   function build(recs, x) {
     var out = recs.map(function (r) { return fromRecord(r, x); }), byId = {}, REC = x.rec || {};
     out.forEach(function (it) { byId[it.id] = it; });
@@ -237,6 +263,7 @@
       if (it.ic === 'pdf' || /\.pdf($|[?#])/i.test(u)) it.tab = 'pdf';
       var k = skey(u), ti = TI[k], ro = REC[u] && byId[REC[u]];
       if (ro) {                                              // a source file a record already describes: one result, the record's
+        SRCK[k] = { t: it.t, ou: u.split(' (')[0], key: k, tab: it.tab, dt: it.dt, s: it.s, img: it.img, tk: ti && ti.s != null ? k : null, rec: ro.id };
         (ro.srcs = ro.srcs || []).push({ t: it.t, u: u.split(' (')[0], k: k });
         ro.h += ' ' + String(it.t || '').toLowerCase();
         if (!ro.tk && !ro.img && !ro.priv && ti && ti.s != null) ro.tk = k;
@@ -401,7 +428,9 @@
     var ti = TI[r.id], k = r.id, ou = ti && ti.u;
     if (!ti || ti.s == null) { ti = null; (srcs || []).some(function (s) { var t = TI[s.k]; if (t && t.s != null) { ti = t; k = s.k; ou = s.u; return true; } return false; }); }
     if (!ti) return '';
-    return '<figure class="prev"><a href="' + esc(ou || '#') + '" rel="noopener"><img data-tk="' + esc(k) + '" src="data:image/gif;base64,R0lGODlhAQABAAAAACw=" alt="Preview of ' + esc(r.title) + '"></a><figcaption>' + (ti.k === 'pdf' || /\.pdf/i.test(ou || '') ? 'First page' : ti.k === 'page' ? 'Picture from the record\'s page' : 'Preview') + ' · <a href="' + esc(ou || '#') + '" rel="noopener">open the original</a></figcaption></figure>';
+    var c = copyOf(ou), href = c ? (ours(ou) && !WB.byCopy[nurl(ou)] ? c.copy : '?src=' + c.key) : '', lab = ti.k === 'pdf' || /\.pdf/i.test(ou || '') ? 'First page' : ti.k === 'page' ? 'Picture from the record\'s page' : 'Preview';
+    var img = '<img data-tk="' + esc(k) + '" src="data:image/gif;base64,R0lGODlhAQABAAAAACw=" alt="Preview of ' + esc(r.title) + '">';
+    return '<figure class="prev">' + (href ? '<a href="' + esc(href) + '">' + img + '</a>' : img) + '<figcaption>' + lab + ' · ' + (href ? '<a href="' + esc(href) + '">open the artifact (our archived copy)</a>' : 'our archived copy of the original is not held yet') + '</figcaption></figure>';
   }
   function placeholderFrame(r) {                           // no file is held here: a graphite artist's impression, labelled as such
     var f = isFootage(r);
@@ -434,9 +463,26 @@
   }
   function srcsFor(id, x) { var out = []; Object.keys((x && x.rec) || {}).forEach(function (u) { if (x.rec[u] === id) { var t = ((x.items || []).filter(function (i) { return i.u === u; })[0] || {}).t; out.push({ u: u.split(' (')[0], k: skey(u), t: t || u }); } }); return out; }
   function uidLine(id, lab) { var url = 'https://bucklerfamily.estate/catalogue/?' + (lab === 'src' ? 'src=' : 'id=') + id; return '<p class="uid">' + (lab === 'src' ? 'Source key' : 'Record UID') + ' <b>' + esc(id) + '</b> · <a href="' + esc(url) + '">' + esc(url.replace('https://', '')) + '</a></p>'; }
+  function locLink(u, t) {                                   // where an original lives: the text names the original, the link opens OUR copy
+    var c = copyOf(u), shown = (c && c.orig) || String(u || '').split(' (')[0];
+    if (!c) return '<span>' + esc(t ? t + ' — ' : '') + esc(shown) + '</span> <span class="muted">(our archived copy is not held yet)</span>';
+    var href = WB.byCopy[nurl(c.copy)] || !ours(u) ? '?src=' + c.key : c.copy;
+    return '<a href="' + esc(href) + '">' + esc(t || shown) + '</a> <span class="muted">· ' + esc(c.orig ? host(c.orig) : 'our archive') + ' · our archived copy</span>';
+  }
+  function metaBlock(r, srcs) {                              // directly under the preview: date, our catalogue reference, where the original(s) are
+    var d = r.data || {}, ti = TI[r.id], seen = {}, locs = [];
+    (srcs || []).forEach(function (s) { if (!seen[nurl(s.u)]) { seen[nurl(s.u)] = 1; locs.push(locLink(s.u, s.t)); } });
+    if (ti && ti.u && !seen[nurl(ti.u)] && !isPrivate(r)) { seen[nurl(ti.u)] = 1; locs.push(locLink(ti.u)); }
+    var hold = r.holder || d.repository, ref = [r.id + (r.alias ? ' (' + r.alias + ')' : ''), d.their_ref || d.reference ? 'holder\'s reference ' + (d.their_ref || d.reference) : ''].filter(Boolean).join(' · ');
+    return '<table class="ghf-ev-table recmeta"><tbody>' + row('Date of the record', r.date_display || 'not recorded') +
+      '<tr><th>Catalogue reference</th><td>' + esc(ref) + '</td></tr>' +
+      '<tr><th>Original record' + (locs.length > 1 ? 's' : '') + '</th><td>' + (hold ? txt(hold, r.id) + (locs.length ? '<br>' : '') : '') +
+      (locs.length ? locs.join('<br>') : (hold ? '' : '<span class="muted">not recorded</span>')) + '</td></tr></tbody></table>';
+  }
+  function isText(r) { var t = String(((r.data || {}).type) || '') + ' ' + (KINDS[r.kind] || ''); return !isFootage(r) && r.kind !== 'artifact' && r.kind !== 'media' && !IMGRE.test(t); }
   function renderRecord(id) {
     foot(true); app.innerHTML = '<p class="muted">Loading ' + esc(id) + '…</p>';
-    Promise.all([SRC.get(id), pagesP, thumbsP, extraP]).then(function (a) {
+    Promise.all([SRC.get(id), pagesP, thumbsP, extraP, wbP]).then(function (a) {
       var r = a[0].item, links = a[0].links, extra = (a[1] || {})[id] || null, srcs = srcsFor(id, a[3]);
       if (!r) throw new Error('not found');
       var d = r.data || {}; ttl(r.id + ' · ');
@@ -449,15 +495,14 @@
       else if (pv) h += pv;
       else if (hasRecon(r.id, a[3] || {}) && !isFootage(r)) h += reconFig(r) + statusNote(r);
       else h += placeholderFrame(r) + statusNote(r);
+      h += metaBlock(r, srcs);
       h += '<h2>Description</h2>';
       var desc = [r.summary, d.description && d.description !== r.summary ? d.description : '', d.provenance].filter(Boolean);
       if (desc.length) h += desc.map(function (p) { return '<p>' + txt(p, r.id) + '</p>'; }).join('');
       else h += '<p class="nya">Description not yet added.</p>';
-      if (srcs.length) h += '<p class="muted">Source file' + (srcs.length > 1 ? 's' : '') + ': ' + srcs.map(function (s) { return '<a href="' + esc(s.u) + '" rel="noopener">' + esc(s.t) + '</a>'; }).join(' · ') + '</p>';
-      h += '<h2>Transcript</h2>';
-      if (r.body) h += '<blockquote class="verbatim">' + txt(r.body, r.id) + '</blockquote>';
-      else if (extra && extra.extract) h += '<p class="muted">' + esc(extra.extract_label || 'Extract (public-safe, verbatim)') + '</p><blockquote class="verbatim">' + txt(extra.extract, r.id) + '</blockquote>';
-      else h += '<p class="nya">Transcript not yet added.</p>';
+      if (r.body) h += '<h2>Transcript</h2><blockquote class="verbatim">' + txt(r.body, r.id) + '</blockquote>';
+      else if (extra && extra.extract) h += '<h2>Transcript</h2><p class="muted">' + esc(extra.extract_label || 'Extract (public-safe, verbatim)') + '</p><blockquote class="verbatim">' + txt(extra.extract, r.id) + '</blockquote>';
+      else if (isText(r)) h += '<h2>Transcript</h2><p class="nya">Transcript not yet added.</p>';
       h += '<h2>Interpretation</h2>' + interpBlock(r, extra);
       h += '<h2>Record details</h2><table class="ghf-ev-table"><tbody>' + row('ID', r.id + (r.alias ? ' (' + r.alias + ')' : ''), r.id) + row('Kind', KINDS[r.kind] || r.kind) + row('Title', r.title, r.id) +
         row('Date', r.date_display) + row('Status', r.status) + row('Type', d.type) + row('Evidence label', d.label) + row('Holder', r.holder || d.repository, r.id) +
@@ -469,20 +514,32 @@
       app.innerHTML = h; hydrate(app); window.scrollTo(0, 0);
     }).catch(function (e) { app.innerHTML = '<p class="muted"><a href="' + esc(window.__cs || './') + '">← Back to search</a></p><div class="err">Record ' + esc(id) + ' could not be read (' + esc(e.message) + '). It may not be in the records yet.</div>'; });
   }
-  function renderSource(key) {                              // a source file or page that no catalogue record describes yet: shown, never made into a record here
+  function renderSource(key) {                              // OUR archived copy of a page or file: the one place that links out (live site, then Internet Archive)
     foot(true);
-    var it = (all || []).filter(function (x) { return x.key === key; })[0];
     var back = '<p class="muted"><a href="' + esc(window.__cs || './') + '">← Back to search</a></p>';
-    if (!it) { app.innerHTML = back + '<div class="err">Source ' + esc(key) + ' is not in the search index.</div>'; return; }
-    ttl(String(it.t || '').slice(0, 60) + ' · ');
-    var h = back + uidLine(key, 'src') + '<h1>' + esc(it.t) + '</h1><p class="unc">Uncatalogued source</p><p class="muted">No catalogue record describes this source yet, so it has no record UID. It is listed for the catalogue to take up; nothing on this page is a record.</p>';
-    h += '<h2>Preview</h2>';
-    if (it.tk || it.img) h += '<figure class="prev"><a href="' + esc(it.ou) + '" rel="noopener">' + (it.tk ? '<img data-tk="' + esc(it.tk) + '" src="data:image/gif;base64,R0lGODlhAQABAAAAACw=" alt="Preview of ' + esc(it.t) + '">' : '<img src="' + esc(it.img) + '" alt="Preview of ' + esc(it.t) + '" onerror="this.remove()">') + '</a><figcaption>' + (it.tab === 'pdf' ? 'First page' : 'Preview') + ' · <a href="' + esc(it.ou) + '" rel="noopener">open the source</a></figcaption></figure>';
-    else h += '<div class="artifact"><strong>' + esc(it.ty || 'Source') + '</strong><span class="muted">No preview yet. <a href="' + esc(it.ou) + '" rel="noopener">Open the source</a>.</span></div>';
-    h += '<h2>Description</h2><p class="nya">Description not yet added.</p><p class="muted">' + esc(it.s) + (it.dt ? ' · captured ' + esc(String(it.dt).slice(0, 10)) : '') + ' · <a href="' + esc(it.ou) + '" rel="noopener">' + esc(it.ou) + '</a></p>';
-    h += '<h2>Transcript</h2><p class="nya">Transcript not yet added.</p>';
-    h += '<h2>Interpretation</h2><section class="interp" aria-label="Interpretation"><div class="lab">Interpretation — our reading, not a finding</div><p class="nya">Interpretation not yet added.</p></section>';
-    app.innerHTML = h; hydrate(app); window.scrollTo(0, 0);
+    wbP.then(function () {
+      var it = (all || []).filter(function (x) { return x.key === key; })[0] || SRCK[key];
+      if (!it) { Object.keys(WB.byOrig).some(function (n) { var w = WB.byOrig[n]; if (skey(w.copy) === key) { it = { t: w.t, ou: w.copy, key: key, dt: w.dt, tab: 'web', s: host(w.orig) }; return true; } return false; }); }
+      if (!it) { app.innerHTML = back + '<div class="err">Source ' + esc(key) + ' is not in the search index.</div>'; return; }
+      ttl(String(it.t || '').slice(0, 60) + ' · ');
+      var held = ours(it.ou), w = WB.byCopy[nurl(it.ou)], orig = w ? w.orig : (held ? null : it.ou);
+      var h = back + uidLine(key, 'src') + '<h1>' + esc(it.t) + '</h1>' + (held ? '<p class="unc">Our archived copy</p>' : '<p class="unc">Uncatalogued source</p>') +
+        (it.rec ? '<p class="muted">Described by catalogue record <a href="?id=' + esc(it.rec) + '">' + esc(it.rec) + '</a>.</p>' : '<p class="muted">No catalogue record describes this ' + (held ? 'archived copy' : 'source') + ' yet, so it has no record UID; it is listed for the catalogue to take up.</p>');
+      h += '<h2>Preview</h2>';
+      var img = it.tk ? '<img data-tk="' + esc(it.tk) + '" src="data:image/gif;base64,R0lGODlhAQABAAAAACw=" alt="Preview of ' + esc(it.t) + '">' : it.img ? '<img src="' + esc(it.img) + '" alt="Preview of ' + esc(it.t) + '" onerror="this.remove()">' : '';
+      if (held) h += img ? '<figure class="prev"><a href="' + esc(it.ou) + '">' + img + '</a><figcaption>' + (it.tab === 'pdf' ? 'First page' : 'Preview') + ' · <a href="' + esc(it.ou) + '">open our archived copy</a></figcaption></figure>'
+        : '<div class="artifact"><strong>' + esc(it.ty || 'Source') + '</strong><span class="muted">No preview yet. <a href="' + esc(it.ou) + '">Open our archived copy</a>.</span></div>';
+      else h += (img ? '<figure class="prev">' + img + '<figcaption>Preview · our archived copy is not held yet</figcaption></figure>' : '<div class="artifact"><strong>' + esc(it.ty || 'Source') + '</strong><span class="muted">Our archived copy of this source is not held yet.</span></div>');
+      h += '<table class="ghf-ev-table recmeta"><tbody>' + row('Date captured', it.dt ? String(it.dt).slice(0, 10) : 'not recorded') +
+        '<tr><th>Catalogue reference</th><td>' + esc(key) + (it.rec ? ' · described by <a href="?id=' + esc(it.rec) + '">' + esc(it.rec) + '</a>' : '') + '</td></tr>' +
+        '<tr><th>Our archived copy</th><td>' + (held ? '<a href="' + esc(it.ou) + '">' + esc(it.ou.replace(/^https?:\/\//, '')) + '</a>' : '<span class="muted">not held yet</span>') + '</td></tr>' +
+        (orig ? '<tr><th>Original website</th><td>' + (held ? '<a href="' + esc(orig) + '" rel="noopener external">' + esc(orig) + '</a>' : esc(orig)) + '</td></tr>' : '') +
+        (orig && held ? '<tr><th>Public archived copy</th><td><a href="' + esc(wbMachine(orig)) + '" rel="noopener external">Internet Archive Wayback Machine</a></td></tr>' : '') + '</tbody></table>';
+      h += '<h2>Description</h2><p class="nya">Description not yet added.</p><p class="muted">' + esc(it.s || '') + '</p>';
+      if (it.tab !== 'images') h += '<h2>Transcript</h2><p class="nya">' + (held ? 'The text is in <a href="' + esc(it.ou) + '">our archived copy</a>; a transcript is not yet added here.' : 'Transcript not yet added.') + '</p>';
+      h += '<h2>Interpretation</h2><section class="interp" aria-label="Interpretation"><div class="lab">Interpretation — our reading, not a finding</div><p class="nya">Interpretation not yet added.</p></section>';
+      app.innerHTML = h; hydrate(app); window.scrollTo(0, 0);
+    });
   }
 
   function route() {
