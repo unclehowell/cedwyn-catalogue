@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.10.2 — 2026-11-10
+- Subject-access correspondence shows its headers only (sender, date, subject line), with a link to request the original; no transcript is shown.
+- An email's page reads its record file first (the transcript lives there); the catalogue API row for an email carries its header data only.
+
 ## 0.10.1 — 2026-11-10
 - Email records now carry ids in the EV series (EV-0906 onwards), one numbering format throughout the catalogue; the EM prefix is gone.
 - Every email is shown. Passages that cannot be published are black blocks; hovering, tapping or focusing a block shows "Redacted. The uncensored original costs £9.99." with a link to the request form.

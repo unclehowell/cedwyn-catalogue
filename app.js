@@ -76,9 +76,9 @@
   function emRowFromIndex(x) {                               // [id, datetime, s|r, institutions[], from, subject, thread, transcript_public, part, attachments]
     var sent = x[2] === 's', who = (x[3] || []).join(', ') || 'an unlisted correspondent', d = String(x[1] || '').slice(0, 10);
     return { id: x[0], kind: 'email', alias: null, title: (sent ? 'Email to ' : 'Email from ') + who + (d ? ' (' + emDate(d) + ')' : ''), date_display: d ? emDate(d) : '', date_sort: d,
-      status: x[7] ? 'transcript public' + (x[12] ? ' (' + x[12] + ' passage' + (x[12] === 1 ? '' : 's') + ' redacted)' : '') : 'not yet transcribed', holder: 'Cedwyn email archive', body: null,
+      status: x[13] ? 'headers only (subject-access correspondence)' : x[7] ? 'transcript public' + (x[12] ? ' (' + x[12] + ' passage' + (x[12] === 1 ? '' : 's') + ' redacted)' : '') : 'not yet transcribed', holder: 'Cedwyn email archive', body: null,
       summary: 'Subject: ' + (x[5] || '(no subject)'), page: null,
-      data: { type: 'Email', label: 'EMAIL', email: { direction: sent ? 'sent' : 'received', datetime: x[1], institutions: (x[3] || []).map(function (n) { return { name: n }; }), from: x[4] || '', subject: x[5], thread_id: x[6], transcript_public: !!x[7], attachments: x[9] || 0 }, part: x[8] }, updated: null, rev: 1 };
+      data: { type: 'Email', label: 'EMAIL', email: { direction: sent ? 'sent' : 'received', datetime: x[1], institutions: (x[3] || []).map(function (n) { return { name: n }; }), from: x[4] || '', subject: x[5], thread_id: x[6], transcript_public: !!x[7], headers_only: !!x[13], attachments: x[9] || 0 }, part: x[8] }, updated: null, rev: 1 };
   }
   function emRowFromRecord(r) {                              // core record -> the catalogue row shape the API serves (body = public transcript)
     var e = r.email || {};
@@ -119,7 +119,7 @@
     Sources.rest.get = function (id) {
       if (!/^EV-\d+$/.test(id) || +id.slice(3) < 906) return G.apply(this, arguments);   // emails are EV-0906 onwards (one numbering format, owner 10 Nov 2026)
       var self = this, args = arguments;
-      return G.apply(self, args).then(function (d) { return d && d.item ? d : emGet(id); }, function () { return emGet(id); })
+      return emGet(id).then(function (d) { return d || G.apply(self, args); }, function () { return G.apply(self, args); })   // v0.10.2: the record file carries the transcript; the API row is metadata only
         .then(function (d) { if (!d) throw new Error('not found'); return d; });
     };
   })();
@@ -138,7 +138,7 @@
     return '<article class="mr"><div class="md">' + esc(it.r.date_display || '') + '<span class="mdir">' + (sent ? '→ sent' : '← received') + '</span></div><div>' +
       '<div class="mw">' + esc((sent ? 'To ' : 'From ') + who) + (e.from && !sent ? ' · ' + rdxPlain(esc(e.from)) : '') + '</div>' +
       '<a class="ms" href="?id=' + esc(it.id) + '">' + rdxPlain(esc(e.subject || '(no subject)')) + '</a>' +
-      '<span class="mid">' + esc(it.id) + (e.attachments ? ' · ' + e.attachments + ' attachment' + (e.attachments === 1 ? '' : 's') : '') + (e.transcript_public ? '' : ' · not yet transcribed') + '</span></div></article>';
+      '<span class="mid">' + esc(it.id) + (e.attachments ? ' · ' + e.attachments + ' attachment' + (e.attachments === 1 ? '' : 's') : '') + (e.transcript_public ? '' : e.headers_only ? ' · headers only' : ' · not yet transcribed') + '</span></div></article>';
   }
   function emailBlock(r) {
     var e = (r.data || {}).email || {}, sent = e.direction === 'sent', who = (e.institutions || []).map(function (x) { return x.name; }).join(', ');
@@ -146,6 +146,7 @@
     return '<h2>Email</h2><dl class="mhead"><dt>' + (sent ? 'Sent to' : 'Received from') + '</dt><dd>' + esc(who || 'an unlisted correspondent') + (e.from && !sent ? ' (' + rdx(esc(e.from), r.id) + ')' : '') + '</dd>' +
       '<dt>Date and time (UTC)</dt><dd>' + esc(String(e.datetime || '').replace('T', ' ').replace('Z', '')) + '</dd><dt>Subject line</dt><dd>' + rdx(esc(e.subject || '(no subject)'), r.id) + '</dd>' +
       (e.attachments ? '<dt>Attachments</dt><dd>' + e.attachments + '</dd>' : '') + '<dt>Transcript</dt><dd>' + esc(r.status || '') + '</dd>' +
+      (e.headers_only ? '<dt>Original</dt><dd><a href="/catalogue/request-original/?id=' + encodeURIComponent(r.id) + '">Request the uncensored original (£9.99)</a></dd>' : '') +
       (src && src.href ? '<dt>Archive copy</dt><dd><a href="' + esc(src.href) + '" rel="noopener">' + esc(src.href.split('/').pop()) + '</a></dd>' : '') + '</dl>';
   }
   var SRC = Sources[CONFIG.source] || Sources.rest;
