@@ -1,7 +1,13 @@
 # Changelog
 
+## 0.10.1 — 2026-11-10
+- Email records now carry ids in the EV series (EV-0906 onwards), one numbering format throughout the catalogue; the EM prefix is gone.
+- Every email is shown. Passages that cannot be published are black blocks; hovering, tapping or focusing a block shows "Redacted. The uncensored original costs £9.99." with a link to the request form.
+- New page `request-original/`: record id, name, email and reason, then the £9.99 Stripe payment. The price is stated on the form.
+- Ids sort by their number, so ids past EV-9999 (EV-10000 … EV-1000000) stay in order.
+
 ## 0.10.0 — 2026-11-10
-- **Emails tab** beside Web, Images and Videos: every email in the case correspondence is a catalogue record of its own (kind `email`, ids `EM-0001` …, core schema 0.4.0).
+- **Emails tab** beside Web, Images and Videos: every email in the case correspondence is a catalogue record of its own (kind `email`, ids in the EV series, core schema 0.4.0).
   Inbox-style rows (date, sent/received, correspondent, subject line, record id); newest first when there is no search; search covers subject, sender and correspondent.
 - Email record page: an Email header block (sent to / received from, date and time, subject line, attachments, transcript state, archive copy) in place of the picture preview; the transcript shows only where the record makes it public.
 - Records are read from the central catalogue like every other kind. Until the API serves `kind=email` rows they are read from the catalogue's own record files (`unclehowell/cedwyn` `data/core/records/emails/`); the preview at /catalogue-preview/ reads them from the pull-request branch `catalogue-emails-v0.4.0`.

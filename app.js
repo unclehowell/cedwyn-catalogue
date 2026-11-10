@@ -8,7 +8,7 @@
    v0.5.0: the standard site header; a Google-style home (logo, search box, Search button; v0.6.0 drops "I'm feeling lucky" for a Trending row); tabs All · Web · Images · Videos · PDF · Books · Blog
    with galleries for Images, Videos and PDF front pages; real preview thumbnails (thumbs/index.json + thumbs/tN.json, derived WebP copies, never record data);
    a typed card wherever no picture exists. Records are still read live and never edited here. — Tab agent
-   v0.10.0 (10 Nov 2026): an Emails tab beside Web, Images and Videos — every email in the case correspondence is its own record (kind email, EM-0001 …),
+   v0.10.0 (10 Nov 2026): an Emails tab beside Web, Images and Videos — every email in the case correspondence is its own record (kind email, ids in the EV series from EV-0906),
    read from the central catalogue like every other record; inbox-style rows; record page adds an Email block. — Tab agent
    v0.8.0 (8 Nov 2026): every filler is a scene composed from the site's own photographs (the Great House, Mary Williams, the Williams plan),
    drawn as one black-and-white graphite pencil sketch and labelled "Artist's impression — not the original"; the two footage records show TV-news
@@ -67,7 +67,7 @@
     }
   };
 
-  /* ---- v0.10.0 (10 Nov 2026): email records (kind email, EM-0001 …), one catalogue record per message (core schema 0.4.0).
+  /* ---- v0.10.0 (10 Nov 2026): email records (kind email, ids in the EV series from EV-0906), one catalogue record per message (core schema 0.4.0).
      The central catalogue serves them through the REST API once loaded; until the API has kind=email rows, they are read from the
      catalogue's own record files (unclehowell/cedwyn data/core/records/emails/: index.json + emails-NN.json). Same row shape either way. */
   var EMAILS = 'https://raw.githubusercontent.com/unclehowell/cedwyn/' + (/^\/catalogue-preview\//.test(location.pathname) || P.get('emails') === 'staged' ? 'catalogue-emails-v0.4.0' : 'main') + '/data/core/records/emails/';
@@ -76,8 +76,8 @@
   function emRowFromIndex(x) {                               // [id, datetime, s|r, institutions[], from, subject, thread, transcript_public, part, attachments]
     var sent = x[2] === 's', who = (x[3] || []).join(', ') || 'an unlisted correspondent', d = String(x[1] || '').slice(0, 10);
     return { id: x[0], kind: 'email', alias: null, title: (sent ? 'Email to ' : 'Email from ') + who + (d ? ' (' + emDate(d) + ')' : ''), date_display: d ? emDate(d) : '', date_sort: d,
-      status: x[7] ? 'transcript public' : 'transcript held or not yet transcribed', holder: 'Cedwyn email archive', body: null,
-      summary: x[5] ? 'Subject: ' + x[5] : 'Subject line held for editorial review', page: null,
+      status: x[7] ? 'transcript public' + (x[12] ? ' (' + x[12] + ' passage' + (x[12] === 1 ? '' : 's') + ' redacted)' : '') : 'not yet transcribed', holder: 'Cedwyn email archive', body: null,
+      summary: 'Subject: ' + (x[5] || '(no subject)'), page: null,
       data: { type: 'Email', label: 'EMAIL', email: { direction: sent ? 'sent' : 'received', datetime: x[1], institutions: (x[3] || []).map(function (n) { return { name: n }; }), from: x[4] || '', subject: x[5], thread_id: x[6], transcript_public: !!x[7], attachments: x[9] || 0 }, part: x[8] }, updated: null, rev: 1 };
   }
   function emRowFromRecord(r) {                              // core record -> the catalogue row shape the API serves (body = public transcript)
@@ -87,6 +87,17 @@
       data: { type: 'Email', label: 'EMAIL', reference: (r.provenance || {}).reference, email: e, sources: r.sources || [] }, updated: r.updated, rev: r.rev };
   }
   var MON = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  /* v0.10.1 (10 Nov 2026): redaction. Removed passages arrive from the build as black blocks (U+2588); the originals are never published.
+     Each block is drawn as a black box; hovering, tapping or focusing it shows the label with the request link. */
+  var RDX_LABEL = 'Redacted. The uncensored original costs £9.99.';
+  function rdx(html, id) {
+    var rid = id || P.get('id') || '';
+    return String(html).replace(/\u2588+/g, function () {
+      return '<span class="rdx" tabindex="0" role="button" aria-label="' + RDX_LABEL + '"><span class="rdl" role="tooltip">' + RDX_LABEL +
+        ' <a href="/catalogue/request-original/?id=' + encodeURIComponent(rid) + '">Request the original</a></span></span>';
+    });
+  }
+  function rdxPlain(html) { return String(html).replace(/\u2588+/g, '<span class="rdx rdx-s" title="' + RDX_LABEL + ' Open the record to request it."></span>'); }
   function emDate(d) { var p = String(d).split('-'); return p.length === 3 ? (+p[2]) + ' ' + MON[+p[1] - 1] + ' ' + p[0] : d; }
   function emGet(id) {
     return emIndex().then(function (ix) {
@@ -106,7 +117,7 @@
       });
     };
     Sources.rest.get = function (id) {
-      if (!/^EM-\d+$/.test(id)) return G.apply(this, arguments);
+      if (!/^EV-\d+$/.test(id) || +id.slice(3) < 906) return G.apply(this, arguments);   // emails are EV-0906 onwards (one numbering format, owner 10 Nov 2026)
       var self = this, args = arguments;
       return G.apply(self, args).then(function (d) { return d && d.item ? d : emGet(id); }, function () { return emGet(id); })
         .then(function (d) { if (!d) throw new Error('not found'); return d; });
@@ -116,21 +127,24 @@
     var s = document.createElement('style');
     s.textContent = '.mres{border-top:1px solid rgba(127,127,127,.25)}.mr{display:grid;grid-template-columns:4.6rem minmax(0,1fr);gap:.2rem .7rem;padding:.7rem 0;border-bottom:1px solid rgba(127,127,127,.25)}' +
       '.mr .md{font-size:.78rem;opacity:.75;line-height:1.3}.mr .mdir{display:block;font-size:.7rem;letter-spacing:.08em;text-transform:uppercase}.mr .mw{font-size:.82rem;opacity:.8;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}' +
-      '.mr .ms{display:block;font-weight:500;overflow-wrap:anywhere}.mr .mid{font-size:.75rem;opacity:.7}.mhead{margin:0 0 1rem}.mhead dt{font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;opacity:.7;margin-top:.5rem}.mhead dd{margin:0;overflow-wrap:anywhere}';
+      '.mr .ms{display:block;font-weight:500;overflow-wrap:anywhere}.mr .mid{font-size:.75rem;opacity:.7}.mhead{margin:0 0 1rem}.mhead dt{font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;opacity:.7;margin-top:.5rem}.mhead dd{margin:0;overflow-wrap:anywhere}' +
+      '.rdx{display:inline-block;position:relative;background:#000;color:#000;min-width:3.2em;height:1.05em;vertical-align:-.15em;border-radius:2px;cursor:pointer;margin:0 .1em}' +
+      '.rdx:focus{outline:2px solid #d9a441}.rdx .rdl{display:none;position:absolute;left:0;top:1.4em;z-index:20;width:15rem;max-width:80vw;padding:.55rem .7rem;background:#fff8e6;color:#1d1d24;border:1px solid #d9a441;border-radius:6px;font-size:.85rem;line-height:1.35;box-shadow:0 2px 10px rgba(0,0,0,.2);white-space:normal}' +
+      '.rdx:hover .rdl,.rdx:focus .rdl,.rdx:focus-within .rdl{display:block}.rdx .rdl a{color:#7a3b12;font-weight:600}.rdx-s{min-width:2.4em}';
     document.head.appendChild(s);
   })();
   function emailRow(it) {
     var e = (it.r && it.r.data && it.r.data.email) || {}, sent = e.direction === 'sent', who = (e.institutions || []).map(function (x) { return x.name; }).join(', ') || 'Unlisted correspondent';
     return '<article class="mr"><div class="md">' + esc(it.r.date_display || '') + '<span class="mdir">' + (sent ? '→ sent' : '← received') + '</span></div><div>' +
-      '<div class="mw">' + esc((sent ? 'To ' : 'From ') + who) + (e.from && !sent ? ' · ' + esc(e.from) : '') + '</div>' +
-      '<a class="ms" href="?id=' + esc(it.id) + '">' + esc(e.subject || 'Subject line held for editorial review') + '</a>' +
-      '<span class="mid">' + esc(it.id) + (e.attachments ? ' · ' + e.attachments + ' attachment' + (e.attachments === 1 ? '' : 's') : '') + (e.transcript_public ? '' : ' · transcript not shown') + '</span></div></article>';
+      '<div class="mw">' + esc((sent ? 'To ' : 'From ') + who) + (e.from && !sent ? ' · ' + rdxPlain(esc(e.from)) : '') + '</div>' +
+      '<a class="ms" href="?id=' + esc(it.id) + '">' + rdxPlain(esc(e.subject || '(no subject)')) + '</a>' +
+      '<span class="mid">' + esc(it.id) + (e.attachments ? ' · ' + e.attachments + ' attachment' + (e.attachments === 1 ? '' : 's') : '') + (e.transcript_public ? '' : ' · not yet transcribed') + '</span></div></article>';
   }
   function emailBlock(r) {
     var e = (r.data || {}).email || {}, sent = e.direction === 'sent', who = (e.institutions || []).map(function (x) { return x.name; }).join(', ');
     var src = ((r.data || {}).sources || [])[0];
-    return '<h2>Email</h2><dl class="mhead"><dt>' + (sent ? 'Sent to' : 'Received from') + '</dt><dd>' + esc(who || 'an unlisted correspondent') + (e.from && !sent ? ' (' + esc(e.from) + ')' : '') + '</dd>' +
-      '<dt>Date and time (UTC)</dt><dd>' + esc(String(e.datetime || '').replace('T', ' ').replace('Z', '')) + '</dd><dt>Subject line</dt><dd>' + esc(e.subject || 'held for editorial review') + '</dd>' +
+    return '<h2>Email</h2><dl class="mhead"><dt>' + (sent ? 'Sent to' : 'Received from') + '</dt><dd>' + esc(who || 'an unlisted correspondent') + (e.from && !sent ? ' (' + rdx(esc(e.from), r.id) + ')' : '') + '</dd>' +
+      '<dt>Date and time (UTC)</dt><dd>' + esc(String(e.datetime || '').replace('T', ' ').replace('Z', '')) + '</dd><dt>Subject line</dt><dd>' + rdx(esc(e.subject || '(no subject)'), r.id) + '</dd>' +
       (e.attachments ? '<dt>Attachments</dt><dd>' + e.attachments + '</dd>' : '') + '<dt>Transcript</dt><dd>' + esc(r.status || '') + '</dd>' +
       (src && src.href ? '<dt>Archive copy</dt><dd><a href="' + esc(src.href) + '" rel="noopener">' + esc(src.href.split('/').pop()) + '</a></dd>' : '') + '</dl>';
   }
@@ -575,7 +589,8 @@
       var desc = [r.summary, d.description && d.description !== r.summary ? d.description : '', d.provenance].filter(Boolean);
       if (desc.length) h += desc.map(function (p) { return '<p>' + txt(p, r.id) + '</p>'; }).join('');
       else h += '<p class="nya">Description not yet added.</p>';
-      if (r.body) h += '<h2>Transcript</h2><blockquote class="verbatim">' + txt(r.body, r.id) + '</blockquote>';
+      if (r.body) h += '<h2>Transcript</h2><blockquote class="verbatim">' + rdx(txt(r.body, r.id), r.id) + '</blockquote>' +
+        (/\u2588/.test(r.body) ? '<p class="muted">Black blocks mark redacted passages. <a href="/catalogue/request-original/?id=' + encodeURIComponent(r.id) + '">Request the uncensored original (£9.99)</a>.</p>' : '');
       else if (extra && extra.extract) h += '<h2>Transcript</h2><p class="muted">' + esc(extra.extract_label || 'Extract (public-safe, verbatim)') + '</p><blockquote class="verbatim">' + txt(extra.extract, r.id) + '</blockquote>';
       else if (isText(r)) h += '<h2>Transcript</h2><p class="nya">Transcript not yet added.</p>';
       h += '<h2>Interpretation</h2>' + interpBlock(r, extra);
@@ -586,7 +601,7 @@
         (Object.keys(rel).length ? '<tr><th>Linked records</th><td>' + Object.keys(rel).sort().map(function (x) { return '<a href="?id=' + x + '">' + x + '</a>'; }).join(' · ') + '</td></tr>' : '') +
         row('Record entry', 'revision ' + (r.rev || 1) + (r.updated ? ', updated ' + r.updated.slice(0, 10) : '')) + '</tbody></table>';
       h += '<p class="muted">Raw record: <a href="' + esc(CONFIG.rest + '/' + r.id) + '">JSON</a>' + (r.page && r.page.charAt(0) === '/' ? ' · Earlier page: <a href="https://bucklerfamily.estate' + esc(r.page) + '">' + esc(r.page) + '</a>' : '') + '</p>';
-      app.innerHTML = h; hydrate(app); window.scrollTo(0, 0);
+      app.innerHTML = rdx(h, r.id); hydrate(app); window.scrollTo(0, 0);
     }).catch(function (e) { app.innerHTML = '<p class="muted"><a href="' + esc(window.__cs || './') + '">← Back to search</a></p><div class="err">Record ' + esc(id) + ' could not be read (' + esc(e.message) + '). It may not be in the records yet.</div>'; });
   }
   function renderSource(key) {                              // OUR archived copy of a page or file: the one place that links out (live site, then Internet Archive)
