@@ -6,7 +6,11 @@
 // that picture (decoded from the repo's thumbs/trN.json shards; pending records get the pencil sketch); file/<ID>
 // opens the record's own file (its PDF or image, read from where the catalogue's thumbs/rec-index.json says it lives;
 // only files listed there). Nothing else on the zone is touched. Records are read, never written. — Sion's Tab agent
-const VERSION = '2.0.0';
+// 2.1.0 (10 Nov 2026, cedwyn-catalogue#34): logos/<key>.png serves a self-hosted institution logo (decoded from the repo's
+// logos/logos.json; logos/map.json maps each email record to its logo). An email record's link preview (og:image, and
+// og/<ID>.jpg) is that logo, or the neutral email picture for personal, private or unlisted mail. No third-party logo service.
+// 2.1.1: og:image size for a logo is its real 192 x 192.
+const VERSION = '2.1.1';
 const SRC = 'https://raw.githubusercontent.com/unclehowell/cedwyn-catalogue/main/';
 const APEX = 'https://bucklerfamily.estate';
 const BASE = '/catalogue/';
@@ -35,7 +39,18 @@ async function repoJSON(name) {
   try { return await r.json(); } catch (e) { return null; }
 }
 async function recIndex() { const d = await repoJSON('thumbs/rec-index.json'); return (d && d.items) || {}; }
+async function logoMap() { return (await repoJSON('logos/map.json')) || { rec: {}, logos: {} }; }
+async function logoKey(id) { const M = await logoMap(), k = (M.rec || {})[id]; return k && (M.logos || {})[k] ? k : 'email'; }
+async function logoPNG(key, method) {
+  const L = ((await repoJSON('logos/logos.json')) || {}).items || {}, d = L[key];
+  const m = d && /^data:image\/png;base64,(.*)$/.exec(d);
+  if (!m) return notFound(BASE + 'logos/' + key + '.png');
+  const bin = Uint8Array.from(atob(m[1]), c => c.charCodeAt(0));
+  return new Response(method === 'HEAD' ? null : bin, { status: 200, headers: hdrs('image/png', 86400) });
+}
+function isEmailId(id) { const m = /^EV-(\d+)$/.exec(id); return !!m && +m[1] >= 906; }
 async function ogImage(id) {
+  if (isEmailId(id)) return logoPNG(await logoKey(id), 'GET');
   const R = await recIndex(), x = R[id];
   if (x && x.s != null) {
     const sh = await repoJSON('thumbs/t' + x.s + '.json'), d = sh && sh[id];
@@ -68,6 +83,7 @@ async function recordMeta(id) {
   const title = e ? e[0] : 'Record ' + id;
   const desc = (e && e[1]) || 'A record in the Great House, Cedwyn Estate catalogue.';
   const real = !!(x && x.s != null && !priv);
+  if (isEmailId(id)) { const k = await logoKey(id); return { title, desc, img: APEX + BASE + 'logos/' + k + '.png', w: 192, h: 192, real: k !== 'email', type: 'image/png', logo: true }; }
   return { title, desc, img: APEX + BASE + 'og/' + encodeURIComponent(id) + '.jpg', w: real ? x.w : 1200, h: real ? x.h : 630, real };
 }
 class Attr { constructor(v) { this.v = v; } element(e) { e.setAttribute('content', this.v); } }
@@ -79,10 +95,10 @@ async function withMeta(resp, id) {
   const tags = '\n<meta property="og:type" content="article"><meta property="og:site_name" content="' + q(SITE) + '">' +
     '<meta property="og:title" content="' + q(m.title) + '"><meta property="og:description" content="' + q(m.desc) + '">' +
     '<meta property="og:url" content="' + q(url) + '"><link rel="canonical" href="' + q(url) + '">' +
-    '<meta property="og:image" content="' + q(m.img) + '"><meta property="og:image:secure_url" content="' + q(m.img) + '"><meta property="og:image:type" content="image/jpeg">' +
+    '<meta property="og:image" content="' + q(m.img) + '"><meta property="og:image:secure_url" content="' + q(m.img) + '"><meta property="og:image:type" content="' + (m.type || 'image/jpeg') + '">' +
     (m.w ? '<meta property="og:image:width" content="' + m.w + '"><meta property="og:image:height" content="' + m.h + '">' : '') +
-    '<meta property="og:image:alt" content="' + q((m.real ? 'Preview of ' : 'Pencil sketch for ') + m.title) + '">' +
-    '<meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="' + q(m.title) + '">' +
+    '<meta property="og:image:alt" content="' + q(m.logo ? (m.real ? 'Institution logo for ' : 'Email picture for ') + m.title : (m.real ? 'Preview of ' : 'Pencil sketch for ') + m.title) + '">' +
+    '<meta name="twitter:card" content="' + (m.logo ? 'summary' : 'summary_large_image') + '"><meta name="twitter:title" content="' + q(m.title) + '">' +
     '<meta name="twitter:description" content="' + q(m.desc) + '"><meta name="twitter:image" content="' + q(m.img) + '">\n';
   return new HTMLRewriter().on('title', new Txt(m.title + ' · ' + SITE)).on('meta[name="description"]', new Attr(m.desc)).on('head', new Head(tags)).transform(resp);
 }
@@ -99,6 +115,8 @@ export default {
     let rest = decodeURIComponent(u.pathname.slice(BASE.length));
     let m = /^og\/([A-Za-z0-9-]+)\.jpg$/.exec(rest);
     if (m) return ogImage(m[1].toUpperCase());
+    m = /^logos\/([a-z0-9-]+)\.png$/.exec(rest);
+    if (m) return logoPNG(m[1], request.method);
     m = /^file\/([A-Za-z0-9-]+)(\.[a-z]+)?$/.exec(rest);
     if (m) return openFile(m[1].toUpperCase(), request.method);
     if (rest === '' || rest.endsWith('/')) rest += 'index.html';
