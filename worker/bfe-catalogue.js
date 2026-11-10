@@ -1,38 +1,106 @@
-// bfe-catalogue 1.0.0 — serves unclehowell/cedwyn-catalogue (main) at https://bucklerfamily.estate/catalogue/
+// bfe-catalogue 2.0.0 — serves unclehowell/cedwyn-catalogue (main) at https://bucklerfamily.estate/catalogue/
 // and 301s the old catalogue.bucklerfamily.estate host there (path and query kept). Owner 6 Nov 2026 09:48: no
-// subdomains, paths of bucklerfamily.estate. Files come from the repo's main branch (edge-cached 2 min), so a push
-// to main is live within minutes. Nothing else on the zone is touched: the apex router still serves every other path.
-// — Sion's Tab agent
-const VERSION = '1.0.0';
+// subdomains, paths of bucklerfamily.estate. Files come from the repo (edge-cached 2 min), so a push is live within minutes.
+// 2.0.0 (10 Nov 2026, cedwyn-catalogue#32): a record address (?id=EV-…) carries its own link-preview tags (og:/twitter:
+// title, description, image) written here, so a shared link shows the record's own preview picture; og/<ID>.jpg serves
+// that picture (decoded from the repo's thumbs/trN.json shards; pending records get the pencil sketch); file/<ID>
+// opens the record's own file (its PDF or image, read from where the catalogue's thumbs/rec-index.json says it lives;
+// only files listed there). Nothing else on the zone is touched. Records are read, never written. — Sion's Tab agent
+const VERSION = '2.0.0';
 const SRC = 'https://raw.githubusercontent.com/unclehowell/cedwyn-catalogue/main/';
 const APEX = 'https://bucklerfamily.estate';
 const BASE = '/catalogue/';
+const API = APEX + '/api/catalogue/';
+const SITE = 'Great House, Cedwyn Estate records';
 const TYPES = { html: 'text/html; charset=utf-8', js: 'application/javascript; charset=utf-8', mjs: 'application/javascript; charset=utf-8',
   json: 'application/json; charset=utf-8', css: 'text/css; charset=utf-8', svg: 'image/svg+xml', png: 'image/png', jpg: 'image/jpeg',
   jpeg: 'image/jpeg', webp: 'image/webp', gif: 'image/gif', ico: 'image/x-icon', txt: 'text/plain; charset=utf-8', xml: 'application/xml; charset=utf-8',
-  webmanifest: 'application/manifest+json', woff2: 'font/woff2' };
+  webmanifest: 'application/manifest+json', woff2: 'font/woff2', pdf: 'application/pdf' };
 const HIDDEN = new Set(['CNAME', '.nojekyll']);
+const IDRE = /^[A-Z]{2,4}(-[A-Z]{2,4})?-\d{3,7}$/;
 function hdrs(type, maxAge) {
   return { 'content-type': type, 'cache-control': 'public, max-age=' + maxAge, 'x-content-type-options': 'nosniff',
     'access-control-allow-origin': '*', 'referrer-policy': 'no-referrer', 'x-bfe-catalogue': VERSION };
 }
-function notFound(path) {
-  return new Response('<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Not found · Catalogue</title>' +
-    '<p style="font:16px/1.5 system-ui,sans-serif;margin:24px">Not found: ' + path.replace(/[<>&"]/g, '') + '. <a href="' + BASE + '">Open the catalogue</a>.</p>',
-    { status: 404, headers: hdrs('text/html; charset=utf-8', 60) });
+function clean(s) { return String(s == null ? '' : s).replace(/[<>&"]/g, ''); }
+function page(status, title, msg) {
+  return new Response('<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>' + clean(title) + ' · Catalogue</title>' +
+    '<p style="font:16px/1.5 system-ui,sans-serif;margin:24px">' + msg + ' <a href="' + BASE + '">Open the catalogue</a>.</p>',
+    { status: status, headers: hdrs('text/html; charset=utf-8', 60) });
+}
+function notFound(path) { return page(404, 'Not found', 'Not found: ' + clean(path) + '.'); }
+async function repoJSON(name) {
+  const r = await fetch(SRC + name, { cf: { cacheTtl: 120, cacheEverything: true } });
+  if (!r.ok) return null;
+  try { return await r.json(); } catch (e) { return null; }
+}
+async function recIndex() { const d = await repoJSON('thumbs/rec-index.json'); return (d && d.items) || {}; }
+async function ogImage(id) {
+  const R = await recIndex(), x = R[id];
+  if (x && x.s != null) {
+    const sh = await repoJSON('thumbs/t' + x.s + '.json'), d = sh && sh[id];
+    if (d && d.startsWith('data:image/')) {
+      const m = /^data:(image\/[a-z]+);base64,(.*)$/.exec(d);
+      if (m) { const bin = Uint8Array.from(atob(m[2]), c => c.charCodeAt(0)); return new Response(bin, { status: 200, headers: hdrs(m[1], 3600) }); }
+    }
+  }
+  const p = await fetch(SRC + 'sketch/og-pending.jpg', { cf: { cacheTtl: 3600, cacheEverything: true } });
+  return new Response(p.body, { status: p.ok ? 200 : 404, headers: hdrs('image/jpeg', 3600) });
+}
+async function openFile(id, method) {
+  const R = await recIndex(), x = R[id];
+  if (!x || !x.u || !(x.k === 'pdf' || x.k === 'img')) return page(404, id, 'The file for record <b>' + clean(id) + '</b> is pending: it is not held on this site yet. <a href="' + BASE + '?id=' + encodeURIComponent(id) + '">Back to the record</a>.');
+  if (/^https:\/\/([a-z0-9-]+\.)*bucklerfamily\.estate\//i.test(x.u)) return Response.redirect(x.u, 302);   // already on this site
+  const up = await fetch(x.u, { headers: { 'user-agent': 'Mozilla/5.0 (bucklerfamily.estate catalogue file)' }, cf: { cacheTtl: 86400, cacheEverything: true } });
+  if (!up.ok) return page(502, id, 'The file for record <b>' + clean(id) + '</b> could not be read just now (' + up.status + '). Please try again in a minute. <a href="' + BASE + '?id=' + encodeURIComponent(id) + '">Back to the record</a>.');
+  let type = up.headers.get('content-type') || (x.k === 'pdf' ? 'application/pdf' : 'image/jpeg');
+  if (/octet-stream|text\/plain/.test(type) && x.k === 'pdf') type = 'application/pdf';
+  const ext = type.includes('pdf') ? 'pdf' : (type.split('/')[1] || 'jpg').replace('jpeg', 'jpg').split(';')[0];
+  const h = hdrs(type, 86400); h['content-disposition'] = 'inline; filename="' + id + '.' + ext + '"';
+  return new Response(method === 'HEAD' ? null : up.body, { status: 200, headers: h });
+}
+async function recordMeta(id) {
+  // title and description come from thumbs/og-meta.json (copied from the catalogue at build time: a Worker cannot read the
+  // catalogue API on its own zone); a record added since then gets its id and a plain line until the next build
+  const M = ((await repoJSON('thumbs/og-meta.json')) || {}).items || {}, e = M[id] || null;
+  const R = await recIndex(), x = R[id] || null;
+  const priv = !!(e && e[2]);
+  const title = e ? e[0] : 'Record ' + id;
+  const desc = (e && e[1]) || 'A record in the Great House, Cedwyn Estate catalogue.';
+  const real = !!(x && x.s != null && !priv);
+  return { title, desc, img: APEX + BASE + 'og/' + encodeURIComponent(id) + '.jpg', w: real ? x.w : 1200, h: real ? x.h : 630, real };
+}
+class Attr { constructor(v) { this.v = v; } element(e) { e.setAttribute('content', this.v); } }
+class Txt { constructor(v) { this.v = v; } element(e) { e.setInnerContent(this.v); } }
+class Head { constructor(tags) { this.tags = tags; } element(e) { e.append(this.tags, { html: true }); } }
+function q(s) { return String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+async function withMeta(resp, id) {
+  const m = await recordMeta(id), url = APEX + BASE + '?id=' + encodeURIComponent(id);
+  const tags = '\n<meta property="og:type" content="article"><meta property="og:site_name" content="' + q(SITE) + '">' +
+    '<meta property="og:title" content="' + q(m.title) + '"><meta property="og:description" content="' + q(m.desc) + '">' +
+    '<meta property="og:url" content="' + q(url) + '"><link rel="canonical" href="' + q(url) + '">' +
+    '<meta property="og:image" content="' + q(m.img) + '"><meta property="og:image:secure_url" content="' + q(m.img) + '"><meta property="og:image:type" content="image/jpeg">' +
+    (m.w ? '<meta property="og:image:width" content="' + m.w + '"><meta property="og:image:height" content="' + m.h + '">' : '') +
+    '<meta property="og:image:alt" content="' + q((m.real ? 'Preview of ' : 'Pencil sketch for ') + m.title) + '">' +
+    '<meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="' + q(m.title) + '">' +
+    '<meta name="twitter:description" content="' + q(m.desc) + '"><meta name="twitter:image" content="' + q(m.img) + '">\n';
+  return new HTMLRewriter().on('title', new Txt(m.title + ' · ' + SITE)).on('meta[name="description"]', new Attr(m.desc)).on('head', new Head(tags)).transform(resp);
 }
 export default {
   async fetch(request) {
     const u = new URL(request.url);
     if (u.hostname !== 'bucklerfamily.estate') {
-      // catalogue.bucklerfamily.estate (and any other host routed here) -> the path on the main domain
       const p = u.pathname === '/' ? '' : u.pathname.replace(/^\/+/, '');
       return Response.redirect(APEX + BASE + p + u.search, 301);
     }
-    if (u.pathname === '/catalogue') return Response.redirect(APEX + BASE + u.search, 301);
+    if (u.pathname === BASE.slice(0, -1)) return Response.redirect(APEX + BASE + u.search, 301);
     if (!u.pathname.startsWith(BASE)) return notFound(u.pathname);
     if (request.method !== 'GET' && request.method !== 'HEAD') return new Response('Method not allowed', { status: 405, headers: { allow: 'GET, HEAD' } });
     let rest = decodeURIComponent(u.pathname.slice(BASE.length));
+    let m = /^og\/([A-Za-z0-9-]+)\.jpg$/.exec(rest);
+    if (m) return ogImage(m[1].toUpperCase());
+    m = /^file\/([A-Za-z0-9-]+)(\.[a-z]+)?$/.exec(rest);
+    if (m) return openFile(m[1].toUpperCase(), request.method);
     if (rest === '' || rest.endsWith('/')) rest += 'index.html';
     if (rest.split('/').some(s => s === '..' || s === '.' || s.startsWith('.') && s !== '.well-known') || HIDDEN.has(rest)) return notFound(u.pathname);
     const ext = (rest.split('.').pop() || '').toLowerCase();
@@ -41,6 +109,9 @@ export default {
     if (up.status === 404) return notFound(u.pathname);
     if (!up.ok) return new Response('The catalogue files could not be read just now (' + up.status + '). Please try again in a minute.', { status: 502, headers: hdrs('text/plain; charset=utf-8', 0) });
     const maxAge = ext === 'html' ? 60 : 300;
-    return new Response(request.method === 'HEAD' ? null : up.body, { status: 200, headers: hdrs(type, maxAge) });
+    let resp = new Response(request.method === 'HEAD' ? null : up.body, { status: 200, headers: hdrs(type, maxAge) });
+    const id = (u.searchParams.get('id') || '').trim().toUpperCase();
+    if (rest === 'index.html' && id && IDRE.test(id) && request.method === 'GET') { try { resp = await withMeta(resp, id); } catch (e) {} }
+    return resp;
   }
 };
