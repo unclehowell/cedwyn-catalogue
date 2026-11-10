@@ -8,6 +8,8 @@
    v0.5.0: the standard site header; a Google-style home (logo, search box, Search button; v0.6.0 drops "I'm feeling lucky" for a Trending row); tabs All · Web · Images · Videos · PDF · Books · Blog
    with galleries for Images, Videos and PDF front pages; real preview thumbnails (thumbs/index.json + thumbs/tN.json, derived WebP copies, never record data);
    a typed card wherever no picture exists. Records are still read live and never edited here. — Tab agent
+   v0.12.0 (10 Nov 2026, cedwyn-catalogue#34): transcripts start collapsed ("Show transcript", <details>); email records show the institution's logo
+   (self-hosted, logos/map.json) or a neutral email picture. — Tab agent
    v0.10.0 (10 Nov 2026): an Emails tab beside Web, Images and Videos — every email in the case correspondence is its own record (kind email, ids in the EV series from EV-0906),
    read from the central catalogue like every other record; inbox-style rows; record page adds an Email block. — Tab agent
    v0.8.0 (8 Nov 2026): every filler is a scene composed from the site's own photographs (the Great House, Mary Williams, the Williams plan),
@@ -133,9 +135,29 @@
       '.rdx:hover .rdl,.rdx:focus .rdl,.rdx:focus-within .rdl{display:block}.rdx .rdl a{color:#7a3b12;font-weight:600}.rdx-s{min-width:2.4em}';
     document.head.appendChild(s);
   })();
+  /* v0.12.0 (10 Nov 2026, cedwyn-catalogue#34): a transcript is always collapsed on load, opened by its own "Show transcript" control
+     (<details>/<summary>: works without script). Email records show the logo of the institution on the other side of the exchange,
+     worked out from its mail domain and self-hosted in logos/ (logos/map.json: record -> logo); personal mail domains, private
+     individuals and unlisted correspondents keep the neutral email picture logos/email.png. Display only: no record is changed. */
+  function trx(inner) {
+    return '<details class="trx"><summary><span class="trs">Show transcript</span><span class="trh">Hide transcript</span></summary>' + inner + '</details>';
+  }
+  var LG = { rec: {}, logos: {} }, LGBASE = 'logos/';
+  var logosP = getJSON(LGBASE + 'map.json?v=' + Math.floor(Date.now() / 300000)).then(function (d) { LG = d || LG; LG.rec = LG.rec || {}; LG.logos = LG.logos || {}; return LG; }).catch(function () { return LG; });
+  function logoOf(id) { var k = LG.rec[id]; return k && LG.logos[k] ? { src: LGBASE + k + '.png', n: LG.logos[k] } : { src: LGBASE + 'email.png', n: '' }; }
+  function logoImg(id, cls) { var o = logoOf(id); return '<img class="lgimg' + (cls ? ' ' + cls : '') + '" src="' + esc(o.src) + '" alt="' + esc(o.n ? 'Logo: ' + o.n : 'Email') + '" loading="lazy" decoding="async" width="64" height="64">'; }
+  (function () {
+    var s = document.createElement('style');
+    s.textContent = 'details.trx{margin:.3rem 0 1rem;border:1px solid rgba(127,127,127,.35);border-radius:8px;padding:0 .8rem}details.trx>summary{cursor:pointer;padding:.65rem 0;font-weight:600;list-style:none;color:var(--acc,#7a3b12)}' +
+      'details.trx>summary::-webkit-details-marker{display:none}details.trx>summary::before{content:"\\25B8";display:inline-block;margin-right:.45rem;transition:transform .15s}details.trx[open]>summary::before{transform:rotate(90deg)}' +
+      'details.trx .trh,details.trx[open] .trs{display:none}details.trx[open] .trh{display:inline}details.trx>summary:focus-visible{outline:2px solid #d9a441;outline-offset:2px}' +
+      '.th img.lgimg{object-fit:contain;background:#fff;padding:10%;box-sizing:border-box}.mr{grid-template-columns:2.6rem 4.6rem minmax(0,1fr)}.mr .mlg{width:2.6rem;height:2.6rem;border-radius:6px;overflow:hidden;border:1px solid rgba(127,127,127,.25);background:#fff}' +
+      '.mr .mlg img{width:100%;height:100%;object-fit:contain;display:block;padding:8%;box-sizing:border-box}.mfig{display:flex;align-items:center;gap:.7rem;margin:0 0 .8rem}.mfig img{width:64px;height:64px;object-fit:contain;background:#fff;border:1px solid rgba(127,127,127,.3);border-radius:10px;padding:6px;box-sizing:border-box}.mfig figcaption{font-size:.85rem;opacity:.8}';
+    document.head.appendChild(s);
+  })();
   function emailRow(it) {
     var e = (it.r && it.r.data && it.r.data.email) || {}, sent = e.direction === 'sent', who = (e.institutions || []).map(function (x) { return x.name; }).join(', ') || 'Unlisted correspondent';
-    return '<article class="mr"><div class="md">' + esc(it.r.date_display || '') + '<span class="mdir">' + (sent ? '→ sent' : '← received') + '</span></div><div>' +
+    return '<article class="mr"><a class="mlg" href="?id=' + esc(it.id) + '" tabindex="-1" aria-hidden="true">' + logoImg(it.id) + '</a><div class="md">' + esc(it.r.date_display || '') + '<span class="mdir">' + (sent ? '→ sent' : '← received') + '</span></div><div>' +
       '<div class="mw">' + esc((sent ? 'To ' : 'From ') + who) + (e.from && !sent ? ' · ' + rdxPlain(esc(e.from)) : '') + '</div>' +
       '<a class="ms" href="?id=' + esc(it.id) + '">' + rdxPlain(esc(e.subject || '(no subject)')) + '</a>' +
       '<span class="mid">' + esc(it.id) + (e.attachments ? ' · ' + e.attachments + ' attachment' + (e.attachments === 1 ? '' : 's') : '') + (e.transcript_public ? '' : e.headers_only ? ' · headers only' : ' · not yet transcribed') + '</span></div></article>';
@@ -143,7 +165,8 @@
   function emailBlock(r) {
     var e = (r.data || {}).email || {}, sent = e.direction === 'sent', who = (e.institutions || []).map(function (x) { return x.name; }).join(', ');
     var src = ((r.data || {}).sources || [])[0];
-    return '<h2>Email</h2><dl class="mhead"><dt>' + (sent ? 'Sent to' : 'Received from') + '</dt><dd>' + esc(who || 'an unlisted correspondent') + (e.from && !sent ? ' (' + rdx(esc(e.from), r.id) + ')' : '') + '</dd>' +
+    var lo = logoOf(r.id);
+    return '<h2>Email</h2><figure class="mfig">' + logoImg(r.id) + '<figcaption>' + (lo.n ? esc(lo.n) + ' (logo from its own website, matched by the mail domain)' : 'No institution logo: personal, private or unlisted mail') + '</figcaption></figure><dl class="mhead"><dt>' + (sent ? 'Sent to' : 'Received from') + '</dt><dd>' + esc(who || 'an unlisted correspondent') + (e.from && !sent ? ' (' + rdx(esc(e.from), r.id) + ')' : '') + '</dd>' +
       '<dt>Date and time (UTC)</dt><dd>' + esc(String(e.datetime || '').replace('T', ' ').replace('Z', '')) + '</dd><dt>Subject line</dt><dd>' + rdx(esc(e.subject || '(no subject)'), r.id) + '</dd>' +
       (e.attachments ? '<dt>Attachments</dt><dd>' + e.attachments + '</dd>' : '') + '<dt>Transcript</dt><dd>' + esc(r.status || '') + '</dd>' +
       (e.headers_only ? '<dt>Original</dt><dd><a href="/catalogue/request-original/?id=' + encodeURIComponent(r.id) + '">Request the uncensored original (£9.99)</a></dd>' : '') +
@@ -341,7 +364,7 @@
     var it = { tab: recTab(r, x), id: r.id, rt: r.title, t: r.id + ': ' + r.title, u: '?id=' + r.id, s: 'Records · ' + (KINDS[r.kind] || r.kind) + (d.type ? ' · ' + d.type : ''),
       d: r.summary || r.status || '', dt: r.updated || '', ic: r.kind, ty: d.type || KINDS[r.kind] || r.kind, priv: priv,
       h: [r.id, r.alias, r.title, r.holder, r.summary, r.status, r.date_display, d.type, d.label, d.their_ref, d.reference].concat(d.email ? [d.email.subject, d.email.from, (d.email.institutions || []).map(function (x) { return x.name; }).join(' ')] : []).join(' ').toLowerCase(), ds: r.date_sort || '', r: r, foot: isFootage(r) };
-    if (r.kind === 'email') { it.dt = (d.email && d.email.datetime) || r.date_sort || ''; it.mail = 1; return it; }
+    if (r.kind === 'email') { it.dt = (d.email && d.email.datetime) || r.date_sort || ''; it.mail = 1; it.img = logoOf(r.id).src; it.lg = 1; return it; }
     if (!priv && ti.s != null) it.tk = r.id;
     else if (!priv && hasRecon(r.id, x)) { it.img = 'recon/' + r.id + '.webp'; it.sk = 1; }
     return it;
@@ -383,7 +406,7 @@
   function pic(it, cls) {
     var c = card(it).replace(/"/g, '&quot;');
     if (it.tk) return '<span class="th ' + cls + '"><img data-tk="' + esc(it.tk) + '" src="data:image/gif;base64,R0lGODlhAQABAAAAACw=" alt="" decoding="async">' + (it.sk ? '<b class="bdg">sketch</b>' : '') + '</span>';
-    if (it.img) return '<span class="th ' + cls + '"><img' + (it.sk ? ' class="skimg"' : '') + ' src="' + esc(it.img) + '" alt="" loading="lazy" decoding="async" onerror="this.outerHTML=\'' + c + '\'">' + (it.sk ? '<b class="bdg">sketch</b>' : '') + '</span>';
+    if (it.img) return '<span class="th ' + cls + '"><img' + (it.sk ? ' class="skimg"' : it.lg ? ' class="lgimg"' : '') + ' src="' + esc(it.img) + '" alt="" loading="lazy" decoding="async" onerror="this.outerHTML=\'' + c + '\'">' + (it.sk ? '<b class="bdg">sketch</b>' : '') + '</span>';
     if (it.r && !it.priv) return '<span class="th ' + cls + ' thsk">' + sketchOf(it.r) + '</span>';
     return '<span class="th ' + cls + '">' + card(it) + '</span>';
   }
@@ -464,7 +487,7 @@
       if (sort === 'date-desc') return String(b.ds || '').localeCompare(String(a.ds || ''));
       if (sort === 'id') { if (a.id && b.id) return a.id.localeCompare(b.id, 'en', { numeric: true }); return a.id ? -1 : b.id ? 1 : 0; }
       if (q && b.sc !== a.sc) return b.sc - a.sc;
-      if ((b.tk || b.img ? 1 : 0) !== (a.tk || a.img ? 1 : 0)) return (b.tk || b.img ? 1 : 0) - (a.tk || a.img ? 1 : 0);
+      if ((b.tk || b.img && !b.lg ? 1 : 0) !== (a.tk || a.img && !a.lg ? 1 : 0)) return (b.tk || b.img && !b.lg ? 1 : 0) - (a.tk || a.img && !a.lg ? 1 : 0);
       if (a.id && b.id) return a.id.localeCompare(b.id, 'en', { numeric: true });
       return a.id ? -1 : b.id ? 1 : 0;
     });
@@ -637,7 +660,7 @@
   function isText(r) { var t = String(((r.data || {}).type) || '') + ' ' + (KINDS[r.kind] || ''); return !isFootage(r) && r.kind !== 'artifact' && r.kind !== 'media' && !IMGRE.test(t); }
   function renderRecord(id) {
     foot(true); app.innerHTML = '<p class="muted">Loading ' + esc(id) + '…</p>';
-    Promise.all([SRC.get(id), pagesP, thumbsP, extraP, wbP]).then(function (a) {
+    Promise.all([SRC.get(id), pagesP, thumbsP, extraP, wbP, logosP]).then(function (a) {
       var r = a[0].item, links = a[0].links, extra = (a[1] || {})[id] || null, srcs = srcsFor(id, a[3]);
       if (!r) throw new Error('not found');
       var d = r.data || {}; ttl(r.id + ' · ');
@@ -658,9 +681,9 @@
       var desc = [r.summary, d.description && d.description !== r.summary ? d.description : '', d.provenance].filter(Boolean);
       if (desc.length) h += desc.map(function (p) { return '<p>' + txt(p, r.id) + '</p>'; }).join('');
       else h += '<p class="nya">Description not yet added.</p>';
-      if (r.body) h += '<h2>Transcript</h2><blockquote class="verbatim">' + rdx(txt(r.body, r.id), r.id) + '</blockquote>' +
-        (/\u2588/.test(r.body) ? '<p class="muted">Black blocks mark redacted passages. <a href="/catalogue/request-original/?id=' + encodeURIComponent(r.id) + '">Request the uncensored original (£9.99)</a>.</p>' : '');
-      else if (extra && extra.extract) h += '<h2>Transcript</h2><p class="muted">' + esc(extra.extract_label || 'Extract (public-safe, verbatim)') + '</p><blockquote class="verbatim">' + txt(extra.extract, r.id) + '</blockquote>';
+      if (r.body) h += '<h2>Transcript</h2>' + trx('<blockquote class="verbatim">' + rdx(txt(r.body, r.id), r.id) + '</blockquote>' +
+        (/\u2588/.test(r.body) ? '<p class="muted">Black blocks mark redacted passages. <a href="/catalogue/request-original/?id=' + encodeURIComponent(r.id) + '">Request the uncensored original (£9.99)</a>.</p>' : ''));
+      else if (extra && extra.extract) h += '<h2>Transcript</h2>' + trx('<p class="muted">' + esc(extra.extract_label || 'Extract (public-safe, verbatim)') + '</p><blockquote class="verbatim">' + txt(extra.extract, r.id) + '</blockquote>');
       else if (isText(r)) h += '<h2>Transcript</h2><p class="nya">Transcript not yet added.</p>';
       h += '<h2>Interpretation</h2>' + interpBlock(r, extra);
       h += '<h2>Record details</h2><table class="ghf-ev-table"><tbody>' + row('ID', r.id + (r.alias ? ' (' + r.alias + ')' : ''), r.id) + row('Kind', KINDS[r.kind] || r.kind) + row('Title', r.title, r.id) +
@@ -707,7 +730,7 @@
     if (id) return renderRecord(id);
     var sk = (P.get('src') || '').trim();
     if (all) return sk ? renderSource(sk) : renderList();
-    Promise.all([SRC.list(), extraP, thumbsP, wbP]).then(function (x) { all = build(x[0], x[1]); if (sk) renderSource(sk); else renderList(); }).catch(function (e) { app.innerHTML = '<div class="err">The records could not be read (' + esc(e.message) + '). Try again in a moment.</div>'; });
+    Promise.all([SRC.list(), extraP, thumbsP, wbP, logosP]).then(function (x) { all = build(x[0], x[1]); if (sk) renderSource(sk); else renderList(); }).catch(function (e) { app.innerHTML = '<div class="err">The records could not be read (' + esc(e.message) + '). Try again in a moment.</div>'; });
   }
   document.addEventListener('click', function (e) {
     var a = e.target.closest && e.target.closest('a[href^="?"]'); if (!a || e.metaKey || e.ctrlKey) return;

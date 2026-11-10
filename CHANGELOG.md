@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.12.0 — 2026-11-10
+- **Transcripts collapsed.** Every transcript (and public-safe extract) on a record page now starts closed under a "Show transcript" control (`<details>`/`<summary>`, so it opens without script too); "Hide transcript" closes it again.
+- **Institution logos for emails.** Each email record (EV-0906 onwards) shows the logo of the institution on the other side of the exchange, worked out from its mail domain: in the Emails tab row, as the card picture in All, on the record page beside the header, and as the link-preview picture (`og:image`). Logos were fetched once from each institution's own website and are served from this site (`logos/logos.json`, `/catalogue/logos/<key>.png`); `logos/map.json` maps records to logos. Personal mail domains, private individuals and unlisted correspondents keep a neutral email picture. Display only: no record was changed. (cedwyn-catalogue#34)
+
 ## 0.11.0 — 2026-11-10
 - **Real previews.** Every record that holds a file now shows a preview cut from that file: where a page carries a photograph (EV-0094, the barn), the picture itself is cropped out; otherwise the first page or the image. Derived display images only (`thumbs/rec-index.json` + `thumbs/trN.json`); records are never edited. The pencil filter over real previews is gone: pencil sketches are kept only for records whose file is still pending, and no sketch carries a "placeholder" tag.
 - **Open file.** Under each preview an "Open file" link; tapping the preview opens the file too. Files are served from this site at `/catalogue/file/<ID>` (only files the index lists). A record with no file says "File pending".
