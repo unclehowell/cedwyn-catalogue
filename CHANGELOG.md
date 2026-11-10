@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.11.0 — 2026-11-10
+- **Real previews.** Every record that holds a file now shows a preview cut from that file: where a page carries a photograph (EV-0094, the barn), the picture itself is cropped out; otherwise the first page or the image. Derived display images only (`thumbs/rec-index.json` + `thumbs/trN.json`); records are never edited. The pencil filter over real previews is gone: pencil sketches are kept only for records whose file is still pending, and no sketch carries a "placeholder" tag.
+- **Open file.** Under each preview an "Open file" link; tapping the preview opens the file too. Files are served from this site at `/catalogue/file/<ID>` (only files the index lists). A record with no file says "File pending".
+- **Share buttons** under every preview and on every record page: Instagram (the phone's share sheet, or "Copy link to share on Instagram"), Facebook, X, LinkedIn, Email.
+- **Link previews.** A record address (`?id=EV-…`) now carries its own og:/twitter: title, description and image, written by the site's Worker, so a shared link shows the record's own picture (pending records show the pencil sketch).
+- **News tab** for press, newspaper reports, clippings and scans of them. Images keeps photographs, maps and drawings.
+- **Blogs** lists only external blogs about the case; each opens our archived copy, never the live blog. Our own websites, webapps and blog posts are not evidence and are no longer listed, searched or counted (nothing deleted).
+
 ## 0.10.0 — 2026-11-10
 - **Emails tab** beside Web, Images and Videos: every email in the case correspondence is a catalogue record of its own (kind `email`, ids `EM-0001` …, core schema 0.4.0).
   Inbox-style rows (date, sent/received, correspondent, subject line, record id); newest first when there is no search; search covers subject, sender and correspondent.

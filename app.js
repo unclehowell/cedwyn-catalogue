@@ -139,14 +139,19 @@
 
   /* ---- search (v0.5.0): Google-style home, tabs, galleries, real thumbnails ---- */
   var all = null, shown = 30;
-  var TABS = [['all', 'All'], ['web', 'Web'], ['images', 'Images'], ['videos', 'Videos'], ['emails', 'Emails'], ['pdf', 'PDF'], ['books', 'Books'], ['blog', 'Blog']];
+  var TABS = [['all', 'All'], ['web', 'Web'], ['images', 'Images'], ['news', 'News'], ['videos', 'Videos'], ['emails', 'Emails'], ['pdf', 'PDF'], ['books', 'Books'], ['blog', 'Blog']];
   var IMGRE = /image|photo|map|plan\b|drawing|aerial|postcard|sketch|png|jpe?g/i, BOOKRE = /book|trade directory|library item/i, WEBRE = /web page|press|website|newspaper/i, PDFRE = /\bpdf\b/i;
   var VQ = '?v=0.9.0-' + Math.floor(Date.now() / 300000);
   var extraP = Promise.all([getJSON('sources.json' + VQ).catch(function () { return { items: [], cat: {}, recon: [] }; }),
     getJSON('sources-books.json' + VQ).catch(function () { return { items: [] }; })]).then(function (a) { a[0].items = (a[0].items || []).concat(a[1].items || []); return a[0]; });
   /* thumbnails: a small index (key -> shard, source type, original URL, video duration) and shards of WebP data URIs, fetched only when shown */
   var TI = {}, RC = [], shardP = {};
-  var thumbsP = getJSON('thumbs/index.json' + VQ).then(function (d) { TI = d.items || {}; RC = d.recon || []; return TI; }).catch(function () { return TI; });
+  var thumbsP = Promise.all([getJSON('thumbs/index.json' + VQ).catch(function () { return {}; }), getJSON('thumbs/rec-index.json' + VQ).catch(function () { return {}; })]).then(function (a) {
+    var d = a[0] || {}; TI = d.items || {}; RC = d.recon || [];
+    var R = (a[1] || {}).items || {};                         // v0.11.0: each record's own preview, cut from its file
+    Object.keys(R).forEach(function (id) { var o = TI[id] || {}, x = R[id]; TI[id] = { k: x.k || o.k, u: x.u || o.u, s: x.s, c: x.how }; });
+    return TI;
+  });
   function shard(n) { if (!shardP[n]) shardP[n] = getJSON('thumbs/t' + n + '.json' + VQ).catch(function () { return {}; }); return shardP[n]; }
   function hydrate(root) {
     [].forEach.call((root || document).querySelectorAll('img[data-tk]'), function (im) {
@@ -296,7 +301,7 @@
       '<g filter="url(#pn' + id + ')" font-family="' + SKFONT + '"><path d="M18 ' + top + ' H302 V' + (top + lh) + ' H18 Z" fill="#3a3a3a" opacity=".82" stroke="#222"/>' +
       lines.map(function (l, i) { return tx(26, top + 15 + i * 14, l, 11, '', 700, '#f2f0ea'); }).join('') +
       (dt ? tx(26, top + lh - 7, dt, 9.5, '', '', '#d6d3cb') : '') + '</g>' +
-      '<g font-family="system-ui,sans-serif"><rect x="18" y="17" width="80" height="15" rx="2" fill="#2a2a2a"/><text x="58" y="27.6" font-size="8.2" fill="#fff" text-anchor="middle" font-weight="700" letter-spacing=".9">PLACEHOLDER</text>' +
+      '<g font-family="system-ui,sans-serif">' +
       '<rect x="0" y="228" width="320" height="12" fill="#1f1f1f" opacity=".88"/><text x="160" y="237" font-size="7.6" fill="#fff" text-anchor="middle">' + esc(SKLABF) + '</text></g></svg>';
   }
   function sketchOf(r) { return isFootage(r) ? filmSketch(r) : docSketch(r); }
@@ -305,6 +310,8 @@
     var t = String((r.data || {}).type || ''), ti = TI[r.id] || {};
     if (r.kind === 'email') return 'emails';
     if (isFootage(r)) return 'videos';
+    if (isNews(r)) return 'news';                            // v0.11.0: press, newspaper reports, clippings and scans of them
+    if (isBlog(r)) return 'blog';                            // v0.11.0: external blogs about the case (our own are not listed)
     if (ti.k === 'pdf' || (PDFRE.test(t) && !/png|jpe?g|xlsx?|odt|docx?/i.test(t))) return 'pdf';
     if (ti.k === 'img') return 'images';
     if (x.cat && x.cat[r.id] && x.cat[r.id] !== 'all') return x.cat[r.id];
@@ -327,7 +334,7 @@
   function bookImg(u) { var m = /archive\.org\/details\/([^\/\s?#]+)/.exec(u || ''); return m ? 'https://archive.org/services/img/' + m[1] : null; }
   var SRCK = {};                                             // v0.9.0: every archived-copy entry by key, including those a record describes
   function build(recs, x) {
-    var out = recs.map(function (r) { return fromRecord(r, x); }), byId = {}, REC = x.rec || {};
+    var out = recs.filter(function (r) { return !isOwnSite(r); }).map(function (r) { return fromRecord(r, x); }), byId = {}, REC = x.rec || {};
     out.forEach(function (it) { byId[it.id] = it; });
     (x.items || []).forEach(function (it) {
       var u = String(it.u || '');
@@ -342,6 +349,8 @@
         if (it.tab === 'pdf' && !ro.foot) ro.tab = 'pdf';
         return;
       }
+      if (ownSource(u)) return;                              // v0.11.0: our own websites, webapps and blog posts are not evidence
+      if (it.tab === 'web' && NEWSU.test(u)) it.tab = 'news';
       if (ti) { if (ti.s != null) it.tk = k; if (ti.d) it.dur = ti.d; }
       if (!it.img && !it.tk && (it.tab === 'books' || it.ic === 'book')) it.img = bookImg(u);
       it.ou = u.split(' (')[0]; it.key = k; it.unc = 1; it.u = '?src=' + k;
@@ -349,6 +358,7 @@
       it.s = 'Uncatalogued source · ' + (it.s || host(it.ou));
       it.h = [it.t, it.d, it.s, it.k].join(' ').toLowerCase(); it.ds = it.dt || ''; out.push(it);
     });
+    out.forEach(function (it) { if (it.tab === 'blog' && it.r) { var bu = (it.r.data || {}).url; it.arc = bu ? (copyOf(bu) || 0) : null; } });
     out.forEach(function (it) { if (it.srcs) it.d = 'Source file: ' + it.srcs.map(function (s) { return s.t; }).join(' · ') + (it.d ? ' — ' + it.d : ''); });
     return out;
   }
@@ -454,11 +464,11 @@
     var page = rows.slice(0, shown);
     function recLink(it) { return it.id ? '<a class="rl" href="?id=' + esc(it.id) + '">' + esc(it.id) + ' · record</a>' : (it.u ? '<a class="rl" href="' + esc(it.u) + '" rel="noopener">' + esc(host(it.u)) + '</a>' : ''); }
     if (tab === 'images') {
-      h += '<div class="gal">' + page.map(function (it) { return '<figure class="gi"><a href="' + esc(it.u || '#') + '"' + ext(it) + '>' + pic(it, 'gim') + '</a><figcaption><span class="gt">' + esc(it.rt || it.t) + '</span>' + recLink(it) + '</figcaption></figure>'; }).join('') + '</div>';
+      h += '<div class="gal">' + page.map(function (it) { return '<figure class="gi"><a href="' + esc(it.u || '#') + '"' + ext(it) + '>' + pic(it, 'gim') + '</a><figcaption><span class="gt">' + esc(it.rt || it.t) + '</span>' + recLink(it) + shr(it) + '</figcaption></figure>'; }).join('') + '</div>';
     } else if (tab === 'videos') {
       var vcard = function (it) {                            // catalogued footage only; no footage file is held here yet, so each shows its sketch frame
         return '<article class="vi"><a class="vth" href="?id=' + esc(it.id) + '" aria-label="' + esc(it.rt) + '"><span class="th vim vff">' + filmSketch(it.r) + '</span></a>' +
-          '<div class="vtx"><a class="vt" href="?id=' + esc(it.id) + '">' + esc(it.rt) + '</a><span class="vs">' + esc(it.id) + ' · ' + esc(KINDS[it.r.kind] || it.r.kind) + (it.r.date_display ? ' · ' + esc(shortDate(it.r)) : '') + '</span>' + recLink(it) + '</div></article>';
+          '<div class="vtx"><a class="vt" href="?id=' + esc(it.id) + '">' + esc(it.rt) + '</a><span class="vs">' + esc(it.id) + ' · ' + esc(KINDS[it.r.kind] || it.r.kind) + (it.r.date_display ? ' · ' + esc(shortDate(it.r)) : '') + '</span>' + recLink(it) + shr(it) + '</div></article>';
       };
       h += '<div class="vgal">' + page.map(vcard).join('') + '</div>';
       if (q) {
@@ -470,14 +480,14 @@
       h += '<div class="mres">' + page.map(emailRow).join('') + '</div>';
     } else if (tab === 'pdf') {
       h += '<div class="pgal">' + page.map(function (it) {
-        return '<figure class="pi"><a href="' + esc(it.u || '#') + '"' + ext(it) + '>' + pic(it, 'pim') + '<b class="pdfb">PDF</b></a><figcaption><span class="gt">' + esc(it.rt || it.t) + '</span>' + recLink(it) + '</figcaption></figure>';
+        return '<figure class="pi"><a href="' + esc(it.u || '#') + '"' + ext(it) + '>' + pic(it, 'pim') + '<b class="pdfb">PDF</b></a><figcaption><span class="gt">' + esc(it.rt || it.t) + '</span>' + recLink(it) + shr(it) + '</figcaption></figure>';
       }).join('') + '</div>';
     } else {
       h += '<div class="res">' + page.map(function (it) {
         var src = it.s || host(it.u);
         return '<article class="r"><div class="tx"><div class="src">' + esc(src) + (it.dt ? ' · ' + esc(String(it.dt).slice(0, 10)) : '') + '</div>' +
           (it.u ? '<a class="tt" href="' + esc(it.u) + '"' + ext(it) + '>' + esc(it.t) + '</a>' : '<span class="tt">' + esc(it.t) + '</span>') +
-          (it.d ? '<p class="sn">' + esc(it.d) + '</p>' : '') + '</div>' + (it.u ? '<a class="tl" href="' + esc(it.u) + '"' + ext(it) + ' tabindex="-1" aria-hidden="true">' + pic(it, 'lim') + '</a>' : pic(it, 'lim')) + '</article>';
+          (it.d ? '<p class="sn">' + esc(it.d) + '</p>' : '') + (it.arc ? '<a class="arcl" href="?src=' + esc(it.arc.key) + '">Read our archived copy</a>' : it.arc === 0 ? '<span class="arcl muted">Our archived copy: pending</span>' : '') + shr(it) + '</div>' + (it.u ? '<a class="tl" href="' + esc(it.u) + '"' + ext(it) + ' tabindex="-1" aria-hidden="true">' + pic(it, 'lim') + '</a>' : pic(it, 'lim')) + '</article>';
       }).join('') + '</div>';
     }
     if (rows.length > shown) h += '<button class="more" id="more">More results (' + (rows.length - shown) + ')</button>';
@@ -496,15 +506,70 @@
   }
 
 
+  /* ---- v0.11.0 (10 Nov 2026, cedwyn-catalogue#32): each record that holds a file shows a preview cut from that file (the picture on the page
+     where there is one, else its first page; thumbs/rec-index.json + thumbs/trN.json, derived display images, never record data); pencil
+     sketches only where the file is pending; the file opens from this site (file/<ID>); share buttons under every preview; a News tab;
+     Blogs = external blogs about the case, each opening our archived copy; our own websites, webapps and blog posts are not evidence and are
+     left out of the listing, search and counts (records are never edited, only not listed). — Sion's Tab agent */
+  var OWNH = /(^|\.)bucklerfamily\.estate$|^greathousefarmwiki\.wordpress\.com$/i;
+  function hostOf(u) { var m = /^[a-z]+:\/\/([^\/?#]+)/i.exec(String(u || '')); return m ? m[1].toLowerCase().replace(/^www\./, '') : ''; }
+  function ownSource(u) { u = String(u || ''); var h = hostOf(u); return !!h && OWNH.test(h) && h !== 'wayback.bucklerfamily.estate' && !/\/wp-content\/uploads\//i.test(u) && !/\.pdf($|[?#])/i.test(u); }
+  function isOwnSite(r) { var d = r.data || {}; return /\bblog\b|web ?page|website|web ?app/i.test(String(d.type || '')) && ownSource(d.url || ''); }
+  var NEWST = /\b(press|newspapers?|news|clippings?|cuttings?)\b/i, NEWSX = /gazette|notice|catalogue|register|journal/i,
+      NEWSTI = /\b(newspaper|Western Mail|South Wales (Daily )?(Echo|News)|Penarth (Times|Observer)|Barry (Dock News|Herald)|Cardiff Times|Evening (Post|Express)|Wales ?Online|BBC News|ITV (News|Wales)|press cutting|clipping|Glamorgan Gazette)\b/i,
+      NEWSU = /newspapers\.library\.wales|\.nub\.news|walesonline\.co\.uk|bbc\.co\.uk\/news|penarthtimes|britishnewspaperarchive/i;
+  function isNews(r) { var t = String((r.data || {}).type || ''); if (NEWST.test(t)) return true; if (NEWSX.test(t)) return false; return NEWSTI.test(String(r.title || '')); }
+  function isBlog(r) { return /\bblog\b/i.test(String((r.data || {}).type || '')); }
+  function fileHref(r) {                                    // the record's own file, served from this site; null while the file is pending
+    var t = TI[r.id]; if (!t || !t.u || isPrivate(r)) return null;
+    if (t.k === 'img' || t.k === 'pdf') return 'file/' + encodeURIComponent(r.id);
+    var c = copyOf(t.u); if (c) return WB.byCopy[nurl(c.copy)] || !ours(t.u) ? '?src=' + c.key : c.copy;
+    return hostOf(t.u) === 'greathousefarmwiki.wordpress.com' ? t.u : null;
+  }
+  var ICON = {
+    ig: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="4.2" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="17.4" cy="6.6" r="1.3" fill="currentColor"/></svg>',
+    fb: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 8h3V4h-3c-2.8 0-4.5 1.8-4.5 4.6V11H7v4h2.5v6h4v-6h3l.6-4h-3.6V8.9c0-.6.3-.9.9-.9z" fill="currentColor"/></svg>',
+    x: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 3h4.6l4.1 5.9L17.8 3H20l-6.3 7.3L21 21h-4.6l-4.5-6.4L6.3 21H4l6.9-7.9z" fill="currentColor"/></svg>',
+    li: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="9" width="4" height="12" fill="currentColor"/><circle cx="5" cy="5" r="2.2" fill="currentColor"/><path d="M10 9h3.8v1.8c.6-1.1 2-2.1 4-2.1 3.3 0 4.2 2 4.2 5.2V21h-4v-6.2c0-1.5-.3-2.6-1.8-2.6-1.6 0-2.2 1.1-2.2 2.7V21h-4z" fill="currentColor"/></svg>',
+    em: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M4 7l8 6 8-6" fill="none" stroke="currentColor" stroke-width="2"/></svg>'
+  };
+  function shareBase() { return location.origin + location.pathname.replace(/[^\/]*$/, ''); }
+  function shareRow(kind, id, title, big) {                  // under every preview: Instagram (share sheet, else copy link), Facebook, X, LinkedIn, email
+    if (!id) return '';
+    var u = shareBase() + '?' + (kind === 'src' ? 'src=' : 'id=') + encodeURIComponent(id), t = String(title || id), e = encodeURIComponent;
+    var igl = navigator.share ? 'Instagram' : 'Copy link to share on Instagram';
+    function a(href, k, lab) { return '<a class="shb" href="' + esc(href) + '"' + (k === 'em' ? '' : ' target="_blank" rel="noopener"') + ' aria-label="Share on ' + lab + '" title="' + lab + '">' + ICON[k] + (big ? '<span>' + lab + '</span>' : '') + '</a>'; }
+    return '<div class="shr" role="group" aria-label="Share ' + esc(id) + '">' +
+      '<button type="button" class="shb" data-share="ig" data-u="' + esc(u) + '" data-t="' + esc(t) + '" aria-label="' + igl + '" title="' + igl + '">' + ICON.ig + (big ? '<span>' + igl + '</span>' : '') + '</button>' +
+      a('https://www.facebook.com/sharer/sharer.php?u=' + e(u), 'fb', 'Facebook') + a('https://x.com/intent/post?url=' + e(u) + '&text=' + e(t), 'x', 'X') +
+      a('https://www.linkedin.com/sharing/share-offsite/?url=' + e(u), 'li', 'LinkedIn') + a('mailto:?subject=' + e(t) + '&body=' + e(t + '\n\n' + u), 'em', 'Email').replace('Share on Email', 'Share by email') + '</div>';
+  }
+  function shr(it) { return it.id ? shareRow('id', it.id, it.t) : it.key ? shareRow('src', it.key, it.t) : ''; }
+  document.addEventListener('click', function (ev) {
+    var b = ev.target.closest && ev.target.closest('button[data-share="ig"]'); if (!b) return;
+    ev.preventDefault(); var u = b.getAttribute('data-u'), t = b.getAttribute('data-t');
+    function done(msg) { var s = b.parentNode.querySelector('.shmsg') || document.createElement('span'); s.className = 'shmsg'; s.textContent = msg; b.parentNode.appendChild(s); setTimeout(function () { s.remove(); }, 4000); }
+    if (navigator.share) { navigator.share({ title: t, url: u }).catch(function () {}); return; }
+    var c = navigator.clipboard && navigator.clipboard.writeText ? navigator.clipboard.writeText(u) : Promise.reject();
+    c.then(function () { done('Link copied. Paste it into your Instagram post or story.'); }, function () { window.prompt('Copy this link to share on Instagram', u); });
+  });
+  (function () {
+    var s = document.createElement('style');
+    s.textContent = '.shr{display:flex;flex-wrap:wrap;gap:4px;margin:6px 0 2px;align-items:center}.shb{display:inline-flex;align-items:center;justify-content:center;gap:5px;min-width:28px;height:28px;padding:0 6px;border:1px solid var(--line,#ccc);border-radius:999px;background:var(--card,#fff);color:var(--fg,#222);font:inherit;font-size:12px;line-height:1;text-decoration:none;cursor:pointer}' +
+      '.shb svg{width:14px;height:14px;flex:none}.shb:hover{border-color:var(--acc,#7a3b12);color:var(--acc,#7a3b12)}.shmsg{font-size:12px;color:var(--mut,#666);flex-basis:100%}.fopen{font-weight:600}.fpend{font-size:14px;color:var(--mut,#666);margin:6px 0}.arcl{display:inline-block;font-size:13px;margin-top:2px}';
+    document.head.appendChild(s);
+  })();
+
   /* ---- record page (v0.7.0): UID and title -> preview -> description, transcript -> interpretation -> record details ---- */
-  function previewFig(r, srcs) {                            // the derived thumbnail (the record's own, else its source file's front page), linked to the original
+  function previewFig(r, srcs) {                            // v0.11.0: the preview cut from the record's own file; tapping it opens the file
     if (isPrivate(r)) return '';
     var ti = TI[r.id], k = r.id, ou = ti && ti.u;
     if (!ti || ti.s == null) { ti = null; (srcs || []).some(function (s) { var t = TI[s.k]; if (t && t.s != null) { ti = t; k = s.k; ou = s.u; return true; } return false; }); }
     if (!ti) return '';
-    var c = copyOf(ou), href = c ? (ours(ou) && !WB.byCopy[nurl(ou)] ? c.copy : '?src=' + c.key) : '', lab = ti.k === 'pdf' || /\.pdf/i.test(ou || '') ? 'First page' : ti.k === 'page' ? 'Picture from the record\'s page' : 'Preview';
+    var c = copyOf(ou), href = fileHref(r) || (c ? (ours(ou) && !WB.byCopy[nurl(ou)] ? c.copy : '?src=' + c.key) : '');
+    var lab = ti.c === 'cropped-picture' ? 'Picture from the file' : ti.k === 'pdf' || /\.pdf/i.test(ou || '') ? 'First page' : ti.k === 'page' ? 'Picture from the record\'s page' : 'Preview';
     var img = '<img data-tk="' + esc(k) + '" src="data:image/gif;base64,R0lGODlhAQABAAAAACw=" alt="Preview of ' + esc(r.title) + '">';
-    return '<figure class="prev">' + (href ? '<a href="' + esc(href) + '">' + img + '</a>' : img) + '<figcaption>' + lab + ' · ' + (href ? '<a href="' + esc(href) + '">open the artifact (our archived copy)</a>' : 'our archived copy of the original is not held yet') + '</figcaption></figure>';
+    return '<figure class="prev">' + (href ? '<a href="' + esc(href) + '">' + img + '</a>' : img) + '<figcaption>' + lab + ' · ' + (href ? '<a class="fopen" href="' + esc(href) + '">Open file</a>' : 'file pending') + '</figcaption></figure>';
   }
   function placeholderFrame(r) {                           // no file is held here: a graphite artist's impression, labelled as such
     var f = isFootage(r);
@@ -547,6 +612,7 @@
     var d = r.data || {}, ti = TI[r.id], seen = {}, locs = [];
     (srcs || []).forEach(function (s) { if (!seen[nurl(s.u)]) { seen[nurl(s.u)] = 1; locs.push(locLink(s.u, s.t)); } });
     if (ti && ti.u && !seen[nurl(ti.u)] && !isPrivate(r)) { seen[nurl(ti.u)] = 1; locs.push(locLink(ti.u)); }
+    if (d.url && !seen[nurl(d.url)] && !isPrivate(r)) { seen[nurl(d.url)] = 1; locs.push(locLink(d.url)); }   // v0.11.0: a blog or web record opens our archived copy
     var hold = r.holder || d.repository, ref = [r.id + (r.alias ? ' (' + r.alias + ')' : ''), d.their_ref || d.reference ? 'holder\'s reference ' + (d.their_ref || d.reference) : ''].filter(Boolean).join(' · ');
     return '<table class="ghf-ev-table recmeta"><tbody>' + row('Date of the record', r.date_display || 'not recorded') +
       '<tr><th>Catalogue reference</th><td>' + esc(ref) + '</td></tr>' +
@@ -569,7 +635,9 @@
       if (isPrivate(r)) h += artifactCard(r);
       else if (pv) h += pv;
       else if (hasRecon(r.id, a[3] || {}) && !isFootage(r)) h += reconFig(r) + statusNote(r);
-      else h += placeholderFrame(r) + statusNote(r); }
+      else h += placeholderFrame(r) + statusNote(r);
+      if (!pv && !isPrivate(r)) h += '<p class="fpend">File pending</p>'; }
+      h += shareRow('id', r.id, r.id + ': ' + r.title, 1);
       h += metaBlock(r, srcs);
       h += '<h2>Description</h2>';
       var desc = [r.summary, d.description && d.description !== r.summary ? d.description : '', d.provenance].filter(Boolean);
@@ -605,6 +673,7 @@
       if (held) h += img ? '<figure class="prev"><a href="' + esc(it.ou) + '">' + img + '</a><figcaption>' + (it.tab === 'pdf' ? 'First page' : 'Preview') + ' · <a href="' + esc(it.ou) + '">open our archived copy</a></figcaption></figure>'
         : '<div class="artifact"><strong>' + esc(it.ty || 'Source') + '</strong><span class="muted">No preview yet. <a href="' + esc(it.ou) + '">Open our archived copy</a>.</span></div>';
       else h += (img ? '<figure class="prev">' + img + '<figcaption>Preview · our archived copy is not held yet</figcaption></figure>' : '<div class="artifact"><strong>' + esc(it.ty || 'Source') + '</strong><span class="muted">Our archived copy of this source is not held yet.</span></div>');
+      h += shareRow('src', key, it.t, 1);
       h += '<table class="ghf-ev-table recmeta"><tbody>' + row('Date captured', it.dt ? String(it.dt).slice(0, 10) : 'not recorded') +
         '<tr><th>Catalogue reference</th><td>' + esc(key) + (it.rec ? ' · described by <a href="?id=' + esc(it.rec) + '">' + esc(it.rec) + '</a>' : '') + '</td></tr>' +
         '<tr><th>Our archived copy</th><td>' + (held ? '<a href="' + esc(it.ou) + '">' + esc(it.ou.replace(/^https?:\/\//, '')) + '</a>' : '<span class="muted">not held yet</span>') + '</td></tr>' +
@@ -622,7 +691,7 @@
     if (id) return renderRecord(id);
     var sk = (P.get('src') || '').trim();
     if (all) return sk ? renderSource(sk) : renderList();
-    Promise.all([SRC.list(), extraP, thumbsP]).then(function (x) { all = build(x[0], x[1]); if (sk) renderSource(sk); else renderList(); }).catch(function (e) { app.innerHTML = '<div class="err">The records could not be read (' + esc(e.message) + '). Try again in a moment.</div>'; });
+    Promise.all([SRC.list(), extraP, thumbsP, wbP]).then(function (x) { all = build(x[0], x[1]); if (sk) renderSource(sk); else renderList(); }).catch(function (e) { app.innerHTML = '<div class="err">The records could not be read (' + esc(e.message) + '). Try again in a moment.</div>'; });
   }
   document.addEventListener('click', function (e) {
     var a = e.target.closest && e.target.closest('a[href^="?"]'); if (!a || e.metaKey || e.ctrlKey) return;
