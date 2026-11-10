@@ -8,6 +8,8 @@
    v0.5.0: the standard site header; a Google-style home (logo, search box, Search button; v0.6.0 drops "I'm feeling lucky" for a Trending row); tabs All · Web · Images · Videos · PDF · Books · Blog
    with galleries for Images, Videos and PDF front pages; real preview thumbnails (thumbs/index.json + thumbs/tN.json, derived WebP copies, never record data);
    a typed card wherever no picture exists. Records are still read live and never edited here. — Tab agent
+   v0.10.0 (10 Nov 2026): an Emails tab beside Web, Images and Videos — every email in the case correspondence is its own record (kind email, EM-0001 …),
+   read from the central catalogue like every other record; inbox-style rows; record page adds an Email block. — Tab agent
    v0.8.0 (8 Nov 2026): every filler is a scene composed from the site's own photographs (the Great House, Mary Williams, the Williams plan),
    drawn as one black-and-white graphite pencil sketch and labelled "Artist's impression — not the original"; the two footage records show TV-news
    frames (1974: a reporter interviewing Mary Williams in front of the Great House; 1988: the farmhouse as reported); real thumbnails carry the same
@@ -28,11 +30,11 @@
   };
   var P = new URLSearchParams(location.search);
   if (P.get('source') === 'graphql' && P.get('endpoint')) { CONFIG.source = 'graphql'; CONFIG.graphql = P.get('endpoint'); }
-  var KINDS = { evidence: 'Evidence', artifact: 'Artifact', missing_record: 'Missing record', person: 'Person', catalogue_candidate: 'Candidate', media: 'Media item' };
+  var KINDS = { email: 'Email', evidence: 'Evidence', artifact: 'Artifact', missing_record: 'Missing record', person: 'Person', catalogue_candidate: 'Candidate', media: 'Media item' };
   var app = document.getElementById('app');
 
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
-  var IDRE = /\b(EV|MR|MED|AR|PE|CC)-\d{3,4}\b/g;
+  var IDRE = /\b(EV|MR|MED|AR|PE|CC|EM)-\d{3,4}\b/g;
   function linkIds(html, self) { return html.replace(IDRE, function (m) { return m === self ? m : '<a href="?id=' + m + '">' + m + '</a>'; }); }
   function txt(s, self) { return linkIds(esc(s), self); }
   function getJSON(u) { return fetch(u, { headers: { accept: 'application/json' } }).then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); }); }
@@ -64,12 +66,80 @@
       get: function (id) { var s = this; return s.q('query($id:ID!){record(id:$id){' + s.F + ' links{rel target}}}', { id: id }).then(function (d) { var r = d.record; return { item: s.map(r), links: (r && r.links) || [] }; }); }
     }
   };
+
+  /* ---- v0.10.0 (10 Nov 2026): email records (kind email, EM-0001 …), one catalogue record per message (core schema 0.4.0).
+     The central catalogue serves them through the REST API once loaded; until the API has kind=email rows, they are read from the
+     catalogue's own record files (unclehowell/cedwyn data/core/records/emails/: index.json + emails-NN.json). Same row shape either way. */
+  var EMAILS = 'https://raw.githubusercontent.com/unclehowell/cedwyn/' + (/^\/catalogue-preview\//.test(location.pathname) || P.get('emails') === 'staged' ? 'catalogue-emails-v0.4.0' : 'main') + '/data/core/records/emails/';
+  var emIndexP = null, emPartP = {};
+  function emIndex() { return emIndexP || (emIndexP = getJSON(EMAILS + 'index.json').catch(function () { return { records: [] }; })); }
+  function emRowFromIndex(x) {                               // [id, datetime, s|r, institutions[], from, subject, thread, transcript_public, part, attachments]
+    var sent = x[2] === 's', who = (x[3] || []).join(', ') || 'an unlisted correspondent', d = String(x[1] || '').slice(0, 10);
+    return { id: x[0], kind: 'email', alias: null, title: (sent ? 'Email to ' : 'Email from ') + who + (d ? ' (' + emDate(d) + ')' : ''), date_display: d ? emDate(d) : '', date_sort: d,
+      status: x[7] ? 'transcript public' : 'transcript held or not yet transcribed', holder: 'Cedwyn email archive', body: null,
+      summary: x[5] ? 'Subject: ' + x[5] : 'Subject line held for editorial review', page: null,
+      data: { type: 'Email', label: 'EMAIL', email: { direction: sent ? 'sent' : 'received', datetime: x[1], institutions: (x[3] || []).map(function (n) { return { name: n }; }), from: x[4] || '', subject: x[5], thread_id: x[6], transcript_public: !!x[7], attachments: x[9] || 0 }, part: x[8] }, updated: null, rev: 1 };
+  }
+  function emRowFromRecord(r) {                              // core record -> the catalogue row shape the API serves (body = public transcript)
+    var e = r.email || {};
+    return { id: r.id, kind: 'email', alias: (r.aliases || [])[0] || null, title: r.title, date_display: (r.date || {}).display, date_sort: (r.date || {}).sort,
+      status: r.transcript_status, holder: (r.provenance || {}).holder, body: r.transcript || null, summary: r.description, page: null,
+      data: { type: 'Email', label: 'EMAIL', reference: (r.provenance || {}).reference, email: e, sources: r.sources || [] }, updated: r.updated, rev: r.rev };
+  }
+  var MON = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  function emDate(d) { var p = String(d).split('-'); return p.length === 3 ? (+p[2]) + ' ' + MON[+p[1] - 1] + ' ' + p[0] : d; }
+  function emGet(id) {
+    return emIndex().then(function (ix) {
+      var x = (ix.records || []).filter(function (y) { return y[0] === id; })[0]; if (!x) return null;
+      var n = ('0' + x[8]).slice(-2);
+      return (emPartP[n] || (emPartP[n] = getJSON(EMAILS + 'emails-' + n + '.json'))).then(function (sh) {
+        var r = (sh.records || []).filter(function (y) { return y.id === id; })[0]; return r ? { item: emRowFromRecord(r), links: [] } : null;
+      });
+    });
+  }
+  (function () {
+    var L = Sources.rest.list, G = Sources.rest.get;
+    Sources.rest.list = function () {
+      return L.apply(this, arguments).then(function (items) {
+        if (items.some(function (r) { return r.kind === 'email'; })) return items;
+        return emIndex().then(function (ix) { return items.concat((ix.records || []).map(emRowFromIndex)); });
+      });
+    };
+    Sources.rest.get = function (id) {
+      if (!/^EM-\d+$/.test(id)) return G.apply(this, arguments);
+      var self = this, args = arguments;
+      return G.apply(self, args).then(function (d) { return d && d.item ? d : emGet(id); }, function () { return emGet(id); })
+        .then(function (d) { if (!d) throw new Error('not found'); return d; });
+    };
+  })();
+  (function () {                                             // email row and record styles
+    var s = document.createElement('style');
+    s.textContent = '.mres{border-top:1px solid rgba(127,127,127,.25)}.mr{display:grid;grid-template-columns:4.6rem minmax(0,1fr);gap:.2rem .7rem;padding:.7rem 0;border-bottom:1px solid rgba(127,127,127,.25)}' +
+      '.mr .md{font-size:.78rem;opacity:.75;line-height:1.3}.mr .mdir{display:block;font-size:.7rem;letter-spacing:.08em;text-transform:uppercase}.mr .mw{font-size:.82rem;opacity:.8;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}' +
+      '.mr .ms{display:block;font-weight:500;overflow-wrap:anywhere}.mr .mid{font-size:.75rem;opacity:.7}.mhead{margin:0 0 1rem}.mhead dt{font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;opacity:.7;margin-top:.5rem}.mhead dd{margin:0;overflow-wrap:anywhere}';
+    document.head.appendChild(s);
+  })();
+  function emailRow(it) {
+    var e = (it.r && it.r.data && it.r.data.email) || {}, sent = e.direction === 'sent', who = (e.institutions || []).map(function (x) { return x.name; }).join(', ') || 'Unlisted correspondent';
+    return '<article class="mr"><div class="md">' + esc(it.r.date_display || '') + '<span class="mdir">' + (sent ? '→ sent' : '← received') + '</span></div><div>' +
+      '<div class="mw">' + esc((sent ? 'To ' : 'From ') + who) + (e.from && !sent ? ' · ' + esc(e.from) : '') + '</div>' +
+      '<a class="ms" href="?id=' + esc(it.id) + '">' + esc(e.subject || 'Subject line held for editorial review') + '</a>' +
+      '<span class="mid">' + esc(it.id) + (e.attachments ? ' · ' + e.attachments + ' attachment' + (e.attachments === 1 ? '' : 's') : '') + (e.transcript_public ? '' : ' · transcript not shown') + '</span></div></article>';
+  }
+  function emailBlock(r) {
+    var e = (r.data || {}).email || {}, sent = e.direction === 'sent', who = (e.institutions || []).map(function (x) { return x.name; }).join(', ');
+    var src = ((r.data || {}).sources || [])[0];
+    return '<h2>Email</h2><dl class="mhead"><dt>' + (sent ? 'Sent to' : 'Received from') + '</dt><dd>' + esc(who || 'an unlisted correspondent') + (e.from && !sent ? ' (' + esc(e.from) + ')' : '') + '</dd>' +
+      '<dt>Date and time (UTC)</dt><dd>' + esc(String(e.datetime || '').replace('T', ' ').replace('Z', '')) + '</dd><dt>Subject line</dt><dd>' + esc(e.subject || 'held for editorial review') + '</dd>' +
+      (e.attachments ? '<dt>Attachments</dt><dd>' + e.attachments + '</dd>' : '') + '<dt>Transcript</dt><dd>' + esc(r.status || '') + '</dd>' +
+      (src && src.href ? '<dt>Archive copy</dt><dd><a href="' + esc(src.href) + '" rel="noopener">' + esc(src.href.split('/').pop()) + '</a></dd>' : '') + '</dl>';
+  }
   var SRC = Sources[CONFIG.source] || Sources.rest;
   var pagesP = getJSON(CONFIG.pages + '?v=' + Math.floor(Date.now() / 300000)).catch(function () { return {}; });
 
   /* ---- search (v0.5.0): Google-style home, tabs, galleries, real thumbnails ---- */
   var all = null, shown = 30;
-  var TABS = [['all', 'All'], ['web', 'Web'], ['images', 'Images'], ['videos', 'Videos'], ['pdf', 'PDF'], ['books', 'Books'], ['blog', 'Blog']];
+  var TABS = [['all', 'All'], ['web', 'Web'], ['images', 'Images'], ['videos', 'Videos'], ['emails', 'Emails'], ['pdf', 'PDF'], ['books', 'Books'], ['blog', 'Blog']];
   var IMGRE = /image|photo|map|plan\b|drawing|aerial|postcard|sketch|png|jpe?g/i, BOOKRE = /book|trade directory|library item/i, WEBRE = /web page|press|website|newspaper/i, PDFRE = /\bpdf\b/i;
   var VQ = '?v=0.9.0-' + Math.floor(Date.now() / 300000);
   var extraP = Promise.all([getJSON('sources.json' + VQ).catch(function () { return { items: [], cat: {}, recon: [] }; }),
@@ -233,6 +303,7 @@
   function isPrivate(r) { var d = r.data || {}; return /privately|subject[- ]access|personal data|personal material|\bSAR\b/i.test([r.status, d.label, r.holder, d.type, r.title].join(' ').replace(/FOI\/EIR\/SAR/g, 'FOI')); }
   function recTab(r, x) {                                   // the mapping file first, then the same rules for records added since
     var t = String((r.data || {}).type || ''), ti = TI[r.id] || {};
+    if (r.kind === 'email') return 'emails';
     if (isFootage(r)) return 'videos';
     if (ti.k === 'pdf' || (PDFRE.test(t) && !/png|jpe?g|xlsx?|odt|docx?/i.test(t))) return 'pdf';
     if (ti.k === 'img') return 'images';
@@ -247,7 +318,8 @@
     var d = r.data || {}, ti = TI[r.id] || {}, priv = isPrivate(r);
     var it = { tab: recTab(r, x), id: r.id, rt: r.title, t: r.id + ': ' + r.title, u: '?id=' + r.id, s: 'Records · ' + (KINDS[r.kind] || r.kind) + (d.type ? ' · ' + d.type : ''),
       d: r.summary || r.status || '', dt: r.updated || '', ic: r.kind, ty: d.type || KINDS[r.kind] || r.kind, priv: priv,
-      h: [r.id, r.alias, r.title, r.holder, r.summary, r.status, r.date_display, d.type, d.label, d.their_ref, d.reference].join(' ').toLowerCase(), ds: r.date_sort || '', r: r, foot: isFootage(r) };
+      h: [r.id, r.alias, r.title, r.holder, r.summary, r.status, r.date_display, d.type, d.label, d.their_ref, d.reference].concat(d.email ? [d.email.subject, d.email.from, (d.email.institutions || []).map(function (x) { return x.name; }).join(' ')] : []).join(' ').toLowerCase(), ds: r.date_sort || '', r: r, foot: isFootage(r) };
+    if (r.kind === 'email') { it.dt = (d.email && d.email.datetime) || r.date_sort || ''; it.mail = 1; return it; }
     if (!priv && ti.s != null) it.tk = r.id;
     else if (!priv && hasRecon(r.id, x)) { it.img = 'recon/' + r.id + '.webp'; it.sk = 1; }
     return it;
@@ -297,7 +369,7 @@
       if (!toks.every(function (t) { return it.h.indexOf(t) >= 0; })) return null;
       var tt = (String(it.t || '') + ' ' + (it.srcs || []).map(function (s) { return s.t; }).join(' ')).toLowerCase(), sc = 0;
       toks.forEach(function (t) { sc += tt.indexOf(t) >= 0 ? 3 : 1; });
-      if (it.id && it.id.toLowerCase() === qq) sc += 50; if (qq && tt.indexOf(qq) >= 0) sc += 5; if (it.id) sc += 1; if (it.tk || it.img) sc += 0.5;
+      if (it.id && it.id.toLowerCase() === qq) sc += 50; if (qq && tt.indexOf(qq) >= 0) sc += 5; if (it.id) sc += 1; if (it.tk || it.img) sc += 0.5; if (it.mail) sc -= 2;   // emails rank below other records in All
       it.sc = sc; return it;
     }).filter(Boolean);
   }
@@ -353,7 +425,7 @@
     relabel();
   }
   function renderList() {
-    var q = (P.get('q') || '').trim(), sort = P.get('sort') || 'rel', tab = P.get('tab') || 'all';
+    var q = (P.get('q') || '').trim(), tab = P.get('tab') || 'all', sort = P.get('sort') || (tab === 'emails' && !q ? 'date-desc' : 'rel');
     if (!q && !P.get('tab')) return homePage();
     if (!TABS.some(function (t) { return t[0] === tab; })) tab = 'all';
     window.__cs = location.search || './'; foot(true);
@@ -394,6 +466,8 @@
         var other = all.filter(function (it) { return it.tab === 'videos' && it.r && !seen[it.id]; });
         if (other.length) h += '<h3 class="vo">Other catalogued footage</h3><div class="vgal">' + other.map(vcard).join('') + '</div>';
       }
+    } else if (tab === 'emails') {
+      h += '<div class="mres">' + page.map(emailRow).join('') + '</div>';
     } else if (tab === 'pdf') {
       h += '<div class="pgal">' + page.map(function (it) {
         return '<figure class="pi"><a href="' + esc(it.u || '#') + '"' + ext(it) + '>' + pic(it, 'pim') + '<b class="pdfb">PDF</b></a><figcaption><span class="gt">' + esc(it.rt || it.t) + '</span>' + recLink(it) + '</figcaption></figure>';
@@ -490,11 +564,12 @@
       (JSON.stringify(r).match(IDRE) || []).forEach(function (m) { if (m !== r.id) rel[m] = 1; });
       var h = '<p class="muted"><a href="' + esc(window.__cs || './') + '">← Back to search</a></p>' + uidLine(r.id) + '<h1>' + esc(r.id) + ': ' + esc(r.title) + '</h1>';
       var pv = previewFig(r, srcs);
-      h += '<h2>Preview</h2>';
+      if (r.kind === 'email') h += emailBlock(r);                // v0.10.0: an email shows its header, not a picture
+      else { h += '<h2>Preview</h2>';
       if (isPrivate(r)) h += artifactCard(r);
       else if (pv) h += pv;
       else if (hasRecon(r.id, a[3] || {}) && !isFootage(r)) h += reconFig(r) + statusNote(r);
-      else h += placeholderFrame(r) + statusNote(r);
+      else h += placeholderFrame(r) + statusNote(r); }
       h += metaBlock(r, srcs);
       h += '<h2>Description</h2>';
       var desc = [r.summary, d.description && d.description !== r.summary ? d.description : '', d.provenance].filter(Boolean);
