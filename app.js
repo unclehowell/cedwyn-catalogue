@@ -8,6 +8,8 @@
    v0.5.0: the standard site header; a Google-style home (logo, search box, Search button; v0.6.0 drops "I'm feeling lucky" for a Trending row); tabs All · Web · Images · Videos · PDF · Books · Blog
    with galleries for Images, Videos and PDF front pages; real preview thumbnails (thumbs/index.json + thumbs/tN.json, derived WebP copies, never record data);
    a typed card wherever no picture exists. Records are still read live and never edited here. — Tab agent
+   v0.15.0 (11 Nov 2026, cedwyn-catalogue#38): every result's first line is the record's own date, then a short label of at most 4 words
+   (labelOf(): a fixed display mapping over kind, type and title; nothing written into records); the old "Records · kind · type" line is gone. — Sion's Tab agent
    v0.14.0 (11 Nov 2026, cedwyn-catalogue#37): no share buttons on search results (only on an open record or source page, under its preview);
    each result shows the record's own date, never the catalogue entry date, which moves to the record page ("Added to catalogue"). — Sion's Tab agent
    v0.12.0 (10 Nov 2026, cedwyn-catalogue#34): transcripts start collapsed ("Show transcript", <details>); email records show the institution's logo
@@ -288,6 +290,70 @@
   }
   function resDate(it) { if (it.r) return recDate(it.r) || (it.mail ? String(it.dt || '').slice(0, 10) : ''); return it.dt ? String(it.dt).slice(0, 10) : ''; }
   function addedOn(s) { var m = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(s || '')); return m ? (+m[3]) + ' ' + MON3[+m[2] - 1] + ' ' + m[1] : String(s || '').slice(0, 10); }
+
+  // v0.15.0 (11 Nov 2026, cedwyn-catalogue#38): each result's first line is the record's own date, then a short plain label (at most 4 words) of what the
+  // item is, worked out here from the record's kind, type and title by the fixed rules below. Display only: no label is written into
+  // any record. No rule matches -> no label (never the old "Records · kind · type" line). — Sion's Tab agent
+  var LBT = [                                                 // [label, test on the record's type]
+    ['Court record', /court record|chancery|pleading/], ['Court judgment', /judgment|law-report|law report/], ['Legal commentary', /legal commentary/],
+    ['Statutory instrument', /statutory instrument/], ['Act of Parliament', /\bstatute/], ['Parliamentary notice', /parliamentary/],
+    ['Gazette notice', /gazette|official journal/], ['Fee schedule', /fee schedule|price list/], ['FOI review response', /internal review/],
+    ['FOI response letter', /foi response letter/], ['SAR response', /\bsar response/], ['FOI reply', /foi reply|foi response|email\/foi/],
+    ['Procedure leaflet', /procedure leaflet/], ['Finding aid', /finding aid/], ['Spreadsheet', /spreadsheet|\bxlsx?\b/],
+    ['Council minutes', /minutes/], ['Map extract', /map extract|map screenshot/], ['Map or plan', /map\/plan|\bplan\b/], ['Map', /\bmaps?\b/],
+    ['Released document', /released document/], ['Tenancy agreement', /tenancy|lease/], ['Deed', /\bdeeds?\b/],
+    ['Land Registry record', /land registry/], ['Company register entry', /company register/], ['Planning record', /planning/],
+    ['Monument record', /monument record/], ['Survey report', /survey/], ['Analysis chart', /analysis chart/], ['Analysis table', /analysis table/],
+    ['Family account', /oral|family account/], ['Trade directory', /directory/], ['Printed charters', /charters/], ['Book extract', /\bbook\b/],
+    ['Newspaper extract', /snippet/], ['Newspaper reports', /newspaper reports|press reports/], ['Newspaper report', /newspaper|\bpress\b/],
+    ['Journal article', /journal/], ['Blog post', /\bblog/], ['Video', /youtube|\bvideo/], ['Social media post', /\bsocial\b/],
+    ['Tithe record', /tithe/], ['Manorial record', /manorial/], ['Company record', /compan(y|ies)/], ['Heritage record', /heritage|listing record|listed building|designation/],
+    ['Act of Parliament', /legislation|\bact\b/], ['Magazine article', /periodical|article/], ['Research note', /research|\bnote\b/],
+    ['Sale particulars', /sale catalogue|auction|particulars/], ['Conveyance', /conveyance|contract for sale|covenant|title/], ['Petition', /petition/],
+    ['Consultation paper', /consultation/], ['Printed records', /edited record|record volume/], ['Government file', /government|council papers/],
+    ['Archive file', /archive (series|item|piece|file)|archive files|series listing/], ['Letting record', /letting/], ['Web page', /web page/],
+    ['Order form', /order form|request form/], ['Charity register entry', /charity register/], ['Research thesis', /thesis/],
+    ['Database record', /database/], ['Data extract', /change log|\bcsv\b/], ['Family statement', /statement/], ['Official report', /official report/],
+    ['Historical source', /early source|early county|printed secondary|secondary account/], ['Reference list', /secondary reference/],
+    ['Archive catalogue entry', /catalogue/], ['Image', /\bimage\b|\bjpe?g\b|\bpng\b/],
+    ['Photograph', /\bphoto/], ['Letter', /\bletter\b/], ['Official record', /official record/], ['Email', /\bemail\b/], ['Document', /\bpdf\b|\bodt\b|\bdocument\b/]
+  ];
+  var LBX = [                                                 // [label, test on the title], for catalogue entries, correspondence and untyped records
+    ['Witness statement', /^witness statement/], ['FOI request', /^whatdotheyknow/], ['Probate entry', /\bprobate\b/], ['Census entry', /\bcensus\b/],
+    ['Monument record', /coflein|\bher \d|historic environment record|national monuments record/], ['Museum object', /museum|amgueddfa/],
+    ['Community archive item', /people's collection/], ['Social media post', /facebook|instagram|twitter|tiktok/], ['House price data', /zoopla|price-paid|sold house/],
+    ['Textbook extract', /textbook/], ['Sales brochure', /brochure/], ['Fee schedule', /fee schedule|price list/], ['Diary', /\bdiary\b/],
+    ['SAR correspondence', /\bsar\b|subject access/], ['FOI correspondence', /\bfoi\b|\beir\b|freedom of information|environmental information/],
+    ['Complaint correspondence', /complain/], ['Newspaper extract', /snippet/],
+    ['Newspaper report', /\becho\b|\btimes\b|\bherald\b|\bstar\b|\bnews\b|\bpost,|\bmail,|\bgazette\b|\bpress cutting|newspaper|\bweekly\b/],
+    ['Encyclopedia article', /wikipedia|wikishire/], ['Photograph', /wikimedia commons|\.jpe?g\b/], ['Heritage listing', /listed buildings/],
+    ['Council web page', /community council/], ['Order form', /order form/], ['Building specification', /finishes schedule|specification/],
+    ['Membership card', /membership card/], ['Boundary record', /boundary record/], ['Estate record', /estate records/], ['Textbook extract', /university press/],
+    ['Image', /archive image/],
+    ['Title abstract', /abstract of title/], ['Estate accounts', /receipts and payments|\baccounts\b|rental/], ['Agreement', /\bagreement\b/],
+    ['Archaeology report', /archaeolog|excavation/], ['Video footage', /footage/], ['Title papers', /title papers|title deeds/], ['Place-name notes', /place-name/],
+    ['Map', /\bmaps?\b|\bplan of\b/], ['Photograph', /\bphoto/], ['Report', /\breport\b/], ['Book extract', /\bbook\b|printed page/],
+    ['Scanned document', /scanned|\bpdf\b/], ['Letter', /\bletter\b/]
+  ];
+  var LBR = [['Painted reconstruction', /painted reconstruction/], ['Colourised photograph', /colouri[sz]ed/], ['Artist reconstruction', /reconstruction|pencil sketch|drawing/], ['Photograph', /photograph/]],
+      LBA = LBX.filter(function (x) { return /^(Monument record|Museum object|Community archive item)$/.test(x[0]); }),
+      LBC = LBX.filter(function (x) { return /^(SAR|FOI|Complaint) correspondence$/.test(x[0]); });
+  function pick(tab, s) { for (var i = 0; i < tab.length; i++) if (tab[i][1].test(s)) return tab[i][0]; return ''; }
+  function labelOf(r) {
+    if (!r) return '';
+    var t = String((r.data || {}).type || '').toLowerCase(), ti = String(r.title || '').toLowerCase();
+    if (r.kind === 'email') return /^email from/.test(ti) ? 'Email received' : /^email to/.test(ti) ? 'Email sent' : 'Email';
+    if (r.kind === 'person') return 'Person';
+    if (r.kind === 'missing_record') return 'Record not yet found';
+    if (/archive.?catalogue|catalogue entr|estate record/.test(t)) return pick(LBA, ti) || 'Archive catalogue entry';
+    if (r.kind === 'artifact') { var ar = pick(LBR, ti); if (ar) return ar; }
+    if (/correspondence/.test(t)) return pick(LBC, ti) || 'Correspondence';
+    var a = t && !/^(other|none)$/.test(t) ? pick(LBT, t) : '';
+    if (a === 'Document' || a === 'Email' || !a) a = pick(LBX, ti) || a;
+    if (!a && r.kind === 'artifact') a = 'Image';
+    return a;
+  }
+  function leadLine(date, label) { return (date ? '<b class="rd">' + esc(date) + '</b>' : '') + (date && label ? ' · ' : '') + (label ? esc(label) : ''); }
   function refsOf(r) {                                     // reference numbers already in the record; nothing invented
     var d = r.data || {}, s = [r.title, d.their_ref, d.reference].join(' '),
         m = s.match(/\b\d{2}\/\d{3,5}\/[A-Z]{2,4}\b|\b(?:ATISN|FOI|IR|SAR|TO|IC|RC|WA|CAN|NPRN|PRN)[- \/]?\d[\dA-Z\/-]{2,}\b|\b[A-Z]{1,3}\d{5,}[A-Z0-9]*\b/g) || [];
@@ -378,7 +444,7 @@
   function hasRecon(id, x) { return (x.recon || []).indexOf(id) >= 0 || RC.indexOf(id) >= 0; }
   function fromRecord(r, x) {
     var d = r.data || {}, ti = TI[r.id] || {}, priv = isPrivate(r);
-    var it = { tab: recTab(r, x), id: r.id, rt: r.title, t: r.id + ': ' + r.title, u: '?id=' + r.id, s: 'Records · ' + (KINDS[r.kind] || r.kind) + (d.type ? ' · ' + d.type : ''),
+    var it = { tab: recTab(r, x), id: r.id, rt: r.title, t: r.id + ': ' + r.title, u: '?id=' + r.id, lb: labelOf(r),
       d: r.summary || r.status || '', dt: r.updated || '', ic: r.kind, ty: d.type || KINDS[r.kind] || r.kind, priv: priv,
       h: [r.id, r.alias, r.title, r.holder, r.summary, r.status, r.date_display, d.type, d.label, d.their_ref, d.reference].concat(d.email ? [d.email.subject, d.email.from, (d.email.institutions || []).map(function (x) { return x.name; }).join(' ')] : []).join(' ').toLowerCase(), ds: r.date_sort || '', r: r, foot: isFootage(r) };
     if (r.kind === 'email') { it.dt = (d.email && d.email.datetime) || r.date_sort || ''; it.mail = 1; it.img = logoOf(r.id).src; it.lg = 1; return it; }
@@ -411,6 +477,7 @@
       it.ou = u.split(' (')[0]; it.key = k; it.unc = 1; it.u = '?src=' + k;
       it.ty = it.tab === 'pdf' ? 'PDF' : it.tab === 'books' ? 'Book' : it.tab === 'blog' ? 'Blog post' : 'Web page';
       it.s = 'Uncatalogued source · ' + (it.s || host(it.ou));
+      it.lb = it.tab === 'news' ? 'News page' : it.ty === 'PDF' ? 'PDF document' : it.ty;   // v0.15.0: short label shown on results
       it.h = [it.t, it.d, it.s, it.k].join(' ').toLowerCase(); it.ds = it.dt || ''; out.push(it);
     });
     out.forEach(function (it) { if (it.tab === 'blog' && it.r) { var bu = (it.r.data || {}).url; it.arc = bu ? (copyOf(bu) || 0) : null; } });
@@ -518,13 +585,14 @@
     h += '<div class="meta"><span>About ' + rows.length + ' result' + (rows.length === 1 ? '' : 's') + (q ? ' for <b>' + esc(q) + '</b>' : '') + '</span><select id="sort" aria-label="Sort"><option value="rel">Sort: relevance</option><option value="id">Sort: record number</option><option value="new">Sort: recently added</option><option value="date">Sort: date (oldest)</option><option value="date-desc">Sort: date (newest)</option></select></div></div>';
     if (!rows.length) h += '<p class="none">No results' + (q ? ' for <b>' + esc(q) + '</b>' : '') + (tab !== 'all' ? ' in ' + TABS.filter(function (t) { return t[0] === tab; })[0][1] + '. Try <a href="?' + esc(qs({ tab: '' })) + '">All</a>.' : '.') + '</p>';
     var page = rows.slice(0, shown);
+    function lead(it) { var l = leadLine(resDate(it), it.lb); return l ? '<span class="gd">' + l + '</span>' : ''; }
     function recLink(it) { return it.id ? '<a class="rl" href="?id=' + esc(it.id) + '">' + esc(it.id) + ' · record</a>' : (it.u ? '<a class="rl" href="' + esc(it.u) + '" rel="noopener">' + esc(host(it.u)) + '</a>' : ''); }
     if (tab === 'images') {
-      h += '<div class="gal">' + page.map(function (it) { return '<figure class="gi"><a href="' + esc(it.u || '#') + '"' + ext(it) + '>' + pic(it, 'gim') + '</a><figcaption><span class="gt">' + esc(it.rt || it.t) + '</span>' + recLink(it) + '</figcaption></figure>'; }).join('') + '</div>';
+      h += '<div class="gal">' + page.map(function (it) { return '<figure class="gi"><a href="' + esc(it.u || '#') + '"' + ext(it) + '>' + pic(it, 'gim') + '</a><figcaption>' + lead(it) + '<span class="gt">' + esc(it.rt || it.t) + '</span>' + recLink(it) + '</figcaption></figure>'; }).join('') + '</div>';
     } else if (tab === 'videos') {
       var vcard = function (it) {                            // catalogued footage only; no footage file is held here yet, so each shows its sketch frame
         return '<article class="vi"><a class="vth" href="?id=' + esc(it.id) + '" aria-label="' + esc(it.rt) + '"><span class="th vim vff">' + filmSketch(it.r) + '</span></a>' +
-          '<div class="vtx"><a class="vt" href="?id=' + esc(it.id) + '">' + esc(it.rt) + '</a><span class="vs">' + esc(it.id) + ' · ' + esc(KINDS[it.r.kind] || it.r.kind) + (recDate(it.r) ? ' · ' + esc(recDate(it.r)) : '') + '</span>' + recLink(it) + '</div></article>';
+          '<div class="vtx">' + lead(it) + '<a class="vt" href="?id=' + esc(it.id) + '">' + esc(it.rt) + '</a>' + recLink(it) + '</div></article>';
       };
       h += '<div class="vgal">' + page.map(vcard).join('') + '</div>';
       if (q) {
@@ -536,12 +604,12 @@
       h += '<div class="mres">' + page.map(emailRow).join('') + '</div>';
     } else if (tab === 'pdf') {
       h += '<div class="pgal">' + page.map(function (it) {
-        return '<figure class="pi"><a href="' + esc(it.u || '#') + '"' + ext(it) + '>' + pic(it, 'pim') + '<b class="pdfb">PDF</b></a><figcaption><span class="gt">' + esc(it.rt || it.t) + '</span>' + recLink(it) + '</figcaption></figure>';
+        return '<figure class="pi"><a href="' + esc(it.u || '#') + '"' + ext(it) + '>' + pic(it, 'pim') + '<b class="pdfb">PDF</b></a><figcaption>' + lead(it) + '<span class="gt">' + esc(it.rt || it.t) + '</span>' + recLink(it) + '</figcaption></figure>';
       }).join('') + '</div>';
     } else {
       h += '<div class="res">' + page.map(function (it) {
-        var src = it.s || host(it.u);
-        return '<article class="r"><div class="tx"><div class="src">' + esc(src) + (resDate(it) ? ' · ' + esc(resDate(it)) : '') + '</div>' +
+        var l1 = leadLine(resDate(it), it.lb);
+        return '<article class="r"><div class="tx">' + (l1 ? '<div class="src">' + l1 + '</div>' : '') +
           (it.u ? '<a class="tt" href="' + esc(it.u) + '"' + ext(it) + '>' + esc(it.t) + '</a>' : '<span class="tt">' + esc(it.t) + '</span>') +
           (it.d ? '<p class="sn">' + esc(it.d) + '</p>' : '') + (it.arc ? '<a class="arcl" href="?src=' + esc(it.arc.key) + '">Read our archived copy</a>' : it.arc === 0 ? '<span class="arcl muted">Our archived copy: pending</span>' : '') + '</div>' + (it.u ? '<a class="tl" href="' + esc(it.u) + '"' + ext(it) + ' tabindex="-1" aria-hidden="true">' + pic(it, 'lim') + '</a>' : pic(it, 'lim')) + '</article>';
       }).join('') + '</div>';

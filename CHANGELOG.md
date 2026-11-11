@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.15.0 — 2026-11-11
+- **Date first, then a short label.** Every search result (All, Web, Images, Videos, PDF and the tabs under More) now opens with the record's own date, followed by a plain description of what the item is in four words or fewer, e.g. "November 1891 · Newspaper report". The old "Records · kind · type" line (e.g. "Records · Media item · archive-catalogue") is gone. Labels come from a fixed display mapping over each record's kind, type and title (`labelOf()` in app.js); nothing is written into any record, and an item no rule fits shows no label. The record title stays the main link; the record page is unchanged. Issue #38.
+
 ## 0.14.0 — 2026-11-11
 - **Share buttons only on the open record.** Search results (All, Web, Images, Videos, PDF and the tabs under More) no longer carry the Instagram, Facebook, X, LinkedIn and email buttons. They stay on the record page (`?id=`) and the archived-copy page (`?src=`), directly under the preview or pencil-sketch placeholder.
 - **Results show the record's own date.** The date beside each record result is now the date of the record itself (its `date_display`, first clause, e.g. "November 1891" for an 1891 newspaper report), or the year and month of its `date_sort` when no display date is given. It is never the date the entry was added to the catalogue. Records stated as undated or "date not recorded" show no date rather than a catalogue date.
