@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.16.0 — 2026-11-11
+- **No more drawn placeholders.** The pencil-sketch "artist's impression" pictures are gone everywhere: from record pages, from result thumbnails, from the Videos tab and from shared-link previews. A record whose file is not held here now shows its own data (date, catalogue reference, where the original is, description, transcript, interpretation) with the plain line "File pending"; a result with no picture shows its typed card (type and record ID). The caption under the old sketch and the line beneath it ("The original is shown on its holder's or the archive's own page …") are removed with it.
+- **Generator removed.** The code that drew the sketches (`docSketch`, `filmSketch`, `placeholderFrame`, `reconFig`, `statusNote`) is deleted from app.js, and the drawn images under `recon/` and `sketch/` are deleted from the repository, so nothing can bring them back by accident. No record was changed: this is display code and display images only.
+
 ## 0.15.0 — 2026-11-11
 - **Date first, then a short label.** Every search result (All, Web, Images, Videos, PDF and the tabs under More) now opens with the record's own date, followed by a plain description of what the item is in four words or fewer, e.g. "November 1891 · Newspaper report". The old "Records · kind · type" line (e.g. "Records · Media item · archive-catalogue") is gone. Labels come from a fixed display mapping over each record's kind, type and title (`labelOf()` in app.js); nothing is written into any record, and an item no rule fits shows no label. The record title stays the main link; the record page is unchanged. Issue #38.
 

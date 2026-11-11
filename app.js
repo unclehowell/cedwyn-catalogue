@@ -8,6 +8,9 @@
    v0.5.0: the standard site header; a Google-style home (logo, search box, Search button; v0.6.0 drops "I'm feeling lucky" for a Trending row); tabs All · Web · Images · Videos · PDF · Books · Blog
    with galleries for Images, Videos and PDF front pages; real preview thumbnails (thumbs/index.json + thumbs/tN.json, derived WebP copies, never record data);
    a typed card wherever no picture exists. Records are still read live and never edited here. — Tab agent
+   v0.16.0 (11 Nov 2026): the pencil-sketch "artist's impression" placeholders are gone (record pages, result thumbnails, the Videos
+   tab and the recon/ and sketch/ images): a record with no file held here shows its own data and the line "File pending", and a
+   result with no picture shows its typed card. The generator code (docSketch, filmSketch, placeholderFrame, reconFig) is removed. — Sion's Tab agent
    v0.15.0 (11 Nov 2026, cedwyn-catalogue#38): every result's first line is the record's own date, then a short label of at most 4 words
    (labelOf(): a fixed display mapping over kind, type and title; nothing written into records); the old "Records · kind · type" line is gone. — Sion's Tab agent
    v0.14.0 (11 Nov 2026, cedwyn-catalogue#37): no share buttons on search results (only on an open record or source page, under its preview);
@@ -16,11 +19,11 @@
    (self-hosted, logos/map.json) or a neutral email picture. — Tab agent
    v0.10.0 (10 Nov 2026): an Emails tab beside Web, Images and Videos — every email in the case correspondence is its own record (kind email, ids in the EV series from EV-0906),
    read from the central catalogue like every other record; inbox-style rows; record page adds an Email block. — Tab agent
-   v0.8.0 (8 Nov 2026): every filler is a scene composed from the site's own photographs (the Great House, Mary Williams, the Williams plan),
+   v0.8.0 (8 Nov 2026, removed in v0.16.0): every filler is a scene composed from the site's own photographs (the Great House, Mary Williams, the Williams plan),
    drawn as one black-and-white graphite pencil sketch and labelled "Artist's impression — not the original"; the two footage records show TV-news
    frames (1974: a reporter interviewing Mary Williams in front of the Great House; 1988: the farmhouse as reported); real thumbnails carry the same
    pencil look through the SVG filter #pencil applied by CSS. Full-size originals and opened PDFs stay unfiltered.
-   v0.7.0 (8 Nov 2026): Videos shows catalogued footage records only (social clips removed), each with a 4:3 pencil-sketch TV frame
+   v0.7.0 (8 Nov 2026; its sketch frames removed in v0.16.0): Videos shows catalogued footage records only (social clips removed), each with a 4:3 pencil-sketch TV frame
    (scanlines, grain, a PLACEHOLDER tag, a lower third from the record's own title and date); a record with no file gets a graphite
    artist's impression whose words come only from its own fields, labelled as reconstructed; every result opens a page whose
    address carries its UID (?id=);
@@ -246,7 +249,7 @@
 
 
 
-  /* ---- v0.7.0 (8 Nov 2026): footage records, pencil-sketch artist's impressions, record UID pages, uncatalogued sources ---- */
+  /* ---- v0.7.0 (8 Nov 2026): footage records, record UID pages, uncatalogued sources (the sketch placeholders were removed in v0.16.0) ---- */
   // Footage = a catalogued record whose type or medium is film/video/broadcast, or whose title names a film or a broadcaster.
   // Secondary/analysis entries about footage are not footage. Social-media clips (sources.json tab 'videos') are not records and are not shown.
   var FOOT_T = /\b(film|films|footage|video|videocassette|broadcast|newsreel|television|cine)\b|\b(HTV|ITV|BBC|S4C|TWW)\b/i,
@@ -256,26 +259,6 @@
     if (/analysis|secondary/i.test(String(d.label || ''))) return false;
     return FOOT_D.test([d.type, d.medium].join(' ')) || FOOT_T.test(String(r.title || ''));
   }
-  // Records with no file get a greyscale graphite artist's impression in inline SVG. Every word drawn on it comes from the
-  // record's own fields (title, date, issuer named in the title, reference numbers, description); where those run out the
-  // sketch draws pencil strokes, never filler text. The record itself is never changed.
-  var SKN = 0, SKLAB = "Artist's impression \u2014 not the original",
-      SKLABF = "Artist's impression \u2014 not the original",
-      SKV = '?v=0.8.0', SKD = 'sketch/',
-      // the footage records: a TV-news frame composed from the site's photographs, pre-drawn as a pencil sketch (lower third from the record's title and date)
-      FOOTIMG = { 'MR-0081': { f: 'tv-1974.webp', from: 'the site\'s photographs of Mary Williams and of the Great House (the white-walls picture, AR-REC-0001)' },
-                  'EV-0083': { f: 'tv-1988.webp', from: 'Cadw\'s survey photograph of the farmhouse, 29 July 1988 (EV-0095)' } },
-      SCENES = { house: 'the Great House (AR-REC-0001)', plan: 'the Williams plan held on this site', side: 'the farmhouse from the side', mary: 'the photograph of Mary Williams' },
-      SKFONT = "'Segoe Print','Bradley Hand','Patrick Hand','Comic Neue','Chalkboard SE','Comic Sans MS',cursive";
-  var ISSUERS = /^(HM Land Registry|Ministry of Justice|Welsh Government(?:\/Cadw)?|Cadw(?: \/ Welsh Government)?|Wales Office(?: FOI Team)?|Department for Culture, Media and Sport|DCMS|Information Commissioner's Office|Post Office Limited|Glamorgan-Gwent Archaeological Trust|GGAT|RCAHMW|Amgueddfa Cymru(?: \u2013 Museum Wales)?|Museum Wales|Vale of Glamorgan(?: Council)?|Cardiff Corporation|Cardiff and Vale University Health Board|Llandough Community Council|South Wales Police|National Library of Wales|Glamorgan Archives|Companies House|Cotswold Archaeolog\w*(?: Trust)?|Ideal Homes Wales|South Wales Echo|London Gazette|Board of Trade Journal|Court of Appeal|BP)\b/;
-  function wrapT(s, n, max) {
-    var w = String(s || '').split(/\s+/), out = [], cur = '';
-    w.forEach(function (x) { if ((cur + ' ' + x).trim().length > n && cur) { out.push(cur); cur = x; } else cur = (cur + ' ' + x).trim(); });
-    if (cur) out.push(cur);
-    if (out.length > max) { out = out.slice(0, max); out[max - 1] = out[max - 1].replace(/\s*\S*$/, '') + ' \u2026'; }
-    return out;
-  }
-  function shortDate(r) { return String(r.date_display || '').split(/[;(]/)[0].trim().slice(0, 34); }
   // v0.14.0 (11 Nov 2026, cedwyn-catalogue#37): a result shows the RECORD's own date (date_display, else date_sort), never the date the
   // entry was added to the catalogue (updated); a record stated as undated / date not recorded shows no date. — Sion's Tab agent
   var MON3 = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -354,78 +337,6 @@
     return a;
   }
   function leadLine(date, label) { return (date ? '<b class="rd">' + esc(date) + '</b>' : '') + (date && label ? ' · ' : '') + (label ? esc(label) : ''); }
-  function refsOf(r) {                                     // reference numbers already in the record; nothing invented
-    var d = r.data || {}, s = [r.title, d.their_ref, d.reference].join(' '),
-        m = s.match(/\b\d{2}\/\d{3,5}\/[A-Z]{2,4}\b|\b(?:ATISN|FOI|IR|SAR|TO|IC|RC|WA|CAN|NPRN|PRN)[- \/]?\d[\dA-Z\/-]{2,}\b|\b[A-Z]{1,3}\d{5,}[A-Z0-9]*\b/g) || [];
-    return m.filter(function (x, i) { return m.indexOf(x) === i; }).slice(0, 2);
-  }
-  function issuerOf(r) { var m = ISSUERS.exec(String(r.title || '')); return m ? m[1] : ''; }
-  function skDefs(id) {
-    return '<defs><filter id="pn' + id + '" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency=".75" numOctaves="2" seed="' + (id % 9 + 1) + '"/><feDisplacementMap in="SourceGraphic" scale="1.6"/></filter>' +
-      '<filter id="pp' + id + '"><feTurbulence type="fractalNoise" baseFrequency="1.4" numOctaves="3" seed="4"/><feColorMatrix values="0 0 0 0 .3 0 0 0 0 .3 0 0 0 0 .29 0 0 0 .2 0"/></filter>' +
-      '<pattern id="ph' + id + '" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(35)"><path d="M0 0 V5" stroke="#888" stroke-width=".6" opacity=".5"/></pattern></defs>';
-  }
-  function tx(x, y, s, sz, anc, wt, fill) { return '<text x="' + x + '" y="' + y + '" font-size="' + sz + '"' + (anc ? ' text-anchor="' + anc + '"' : '') + (wt ? ' font-weight="' + wt + '"' : '') + (fill ? ' fill="' + fill + '"' : '') + '>' + esc(s) + '</text>'; }
-  function stroke(x, y, w, id) {                            // a pencil line standing for text that the record does not hold
-    var p = 'M' + x + ' ' + y, n = Math.max(3, Math.round(w / 8));
-    for (var i = 1; i <= n; i++) p += ' Q' + (x + (i - .5) * w / n).toFixed(1) + ' ' + (y - 2.2 + ((i * 5 + id) % 3) * 1.4).toFixed(1) + ' ' + (x + i * w / n).toFixed(1) + ' ' + y;
-    return '<path d="' + p + '" fill="none" stroke="#777" stroke-width=".85" stroke-linecap="round" opacity=".7"/>';
-  }
-  function sceneOf(r) {                                    // which real photograph the sheet is laid over
-    var d = r.data || {}, all = [r.title, d.type, d.description, r.summary].join(' ');
-    if (/Mary (Doreen )?Williams|Mrs\.? Williams|Nancy/i.test(all)) return 'mary';
-    if (/\b(deed|conveyance|plan|map|tithe|parcel|title|registr|boundary|survey|lease|indenture|tenancy|common)\b/i.test(all)) return 'plan';
-    if (/press|newspaper|gazette|journal|echo|western mail/i.test(all)) return 'side';
-    return 'house';
-  }
-  function docSketch(r) {                                   // portrait sheet, 300 x 400, laid over a pencil sketch of a real photograph
-    var id = ++SKN, d = r.data || {}, ty = String(d.type || ''), tall = ty + ' ' + String(r.title || ''), dt = shortDate(r), refs = refsOf(r), iss = issuerOf(r);
-    var letter = /letter|email|reply|response|correspondence|acknowledg|FOI|SAR/i.test(tall), deed = /\b(deed|conveyance|lease|indenture|tenancy|agreement)\b/i.test(tall),
-        press = /press|newspaper/i.test(ty), notice = /gazette|notice/i.test(ty);
-    var desc = r.kind === 'evidence' || r.kind === 'artifact' ? [r.summary, d.description].filter(Boolean)[0] || '' : '';   // a missing record's note is about the search, not the document's text
-    var h = '<svg class="sk" viewBox="0 0 300 400" role="img" aria-label="' + esc(SKLAB + ': ' + r.title) + '" xmlns="http://www.w3.org/2000/svg">' + skDefs(id) +
-      '<rect width="300" height="400" fill="#ecebe6"/><image href="' + SKD + 'bg-' + sceneOf(r) + '.webp' + SKV + '" width="300" height="400" preserveAspectRatio="xMidYMid slice"/>' +
-      '<g transform="translate(98 118) rotate(4 93 124) scale(.62)"><path d="M30 28 L290 26 L294 392 L28 396 Z" fill="#000" opacity=".28"/>' +
-      '<g filter="url(#pn' + id + ')" fill="#3b3b3b" font-family="' + SKFONT + '">' +
-      '<path d="M24 20 L278 17 L281 380 L21 383 Z" fill="#f7f6f2" stroke="#4d4d4d" stroke-width="1.1"/>' +
-      '<path d="M281 24 L289 29 L288 389 L28 391 L21 383 L281 380 Z" fill="url(#ph' + id + ')" stroke="#8a8a8a" stroke-width=".7"/>';
-    var y = 44;
-    if (press) { h += '<path d="M34 28 H268 M34 56 H268 M34 59 H268" stroke="#4d4d4d" stroke-width="1"/>' + tx(150, 49, iss || 'PRESS REPORT', 15, 'middle', 700); y = 74; }
-    else if (iss) { h += tx(36, y, iss, 13, '', 700) + '<path d="M36 ' + (y + 6) + ' H200" stroke="#555" stroke-width=".9"/>'; y += 22; }
-    if (dt) h += tx(266, y, dt, 10.5, 'end');
-    if (refs.length) { h += tx(36, y, (letter ? 'Our ref: ' : 'Ref: ') + refs.join(' \u00b7 '), 10.5); }
-    y += 24;
-    var tl = wrapT(r.title, 38, 3);
-    if (letter && !press) { h += tx(36, y, 'Dear Sir or Madam,', 11.5); y += 20; tl.forEach(function (l, i) { h += tx(36, y, (i ? '' : 'Re: ') + l, 11, '', 700); y += 15; }); }
-    else if (deed) { tl.forEach(function (l) { h += tx(150, y, l, 12, 'middle', 700); y += 16; }); y += 4; h += tx(36, y, 'THIS INDENTURE made' + (dt ? ' ' + dt : ''), 10.5); }
-    else if (notice) { h += tx(150, y, 'NOTICE', 14, 'middle', 700); y += 18; tl.forEach(function (l) { h += tx(150, y, l, 11, 'middle'); y += 15; }); }
-    else { tl.forEach(function (l) { h += tx(150, y, l, 12, 'middle', 700); y += 16; }); }
-    y += 14;
-    wrapT(desc, 46, 9).forEach(function (l) { if (y < 316) { h += tx(36, y, l, 10); y += 14; } });
-    var k = 0; if (desc) y += 6;
-    while (y < 320) { h += stroke(36 + (k % 5 === 0 ? 14 : 0), y, (k % 4 === 3 ? 140 : 226) - (k % 5 === 0 ? 14 : 0), id + k); y += 14; k++; if (k % 5 === 4) y += 7; }
-    if (letter && !press) h += tx(36, 342, 'Yours faithfully,', 10.5) + '<path d="M40 362 q10 -15 20 0 t18 -4 t24 2" fill="none" stroke="#444" stroke-width="1.1"/>' + (iss ? tx(36, 374, iss, 9) : '');
-    return h + '</g></g><rect x="0" y="388" width="300" height="12" fill="#262626" opacity=".85"/>' +
-      '<text x="150" y="397" font-size="7.4" fill="#fff" text-anchor="middle" font-family="system-ui,sans-serif">' + esc(SKLAB) + '</text></svg>';
-  }
-  function filmSketch(r) {                                  // 4:3 pencil-sketch TV frame, 320 x 240: scanlines, grain, a lower third from the record's title and date
-    var fi = FOOTIMG[r.id];
-    if (fi) return '<img class="skimg" src="' + SKD + fi.f + SKV + '" alt="' + esc(SKLABF + ': ' + r.title) + '" width="640" height="480" loading="lazy" decoding="async">';
-    var id = ++SKN, dt = shortDate(r), lines = wrapT(r.title, 44, 2), lh = lines.length > 1 ? 50 : 36, top = 222 - lh;
-    return '<svg class="sk skf" viewBox="0 0 320 240" role="img" aria-label="' + esc(SKLABF + ': ' + r.title) + '" xmlns="http://www.w3.org/2000/svg">' + skDefs(id) +
-      '<defs><pattern id="sl' + id + '" width="4" height="3" patternUnits="userSpaceOnUse"><path d="M0 .5 H4" stroke="#6d6d6d" stroke-width=".5" opacity=".5"/></pattern></defs>' +
-      '<rect width="320" height="240" fill="#e7e5df"/><rect width="320" height="240" filter="url(#pp' + id + ')"/>' +
-      '<g filter="url(#pn' + id + ')" fill="none" stroke="#444" stroke-linecap="round">' +
-      '<rect x="10" y="9" width="300" height="214" rx="20" stroke-width="1.5"/><rect x="10" y="9" width="300" height="214" rx="20" fill="url(#ph' + id + ')" stroke="none" opacity=".35"/>' +
-      '</g><image href="' + SKD + 'bg-house.webp' + SKV + '" x="11" y="10" width="298" height="212" preserveAspectRatio="xMidYMid slice"/>' +
-      '<rect x="10" y="9" width="300" height="214" rx="20" fill="url(#sl' + id + ')"/>' +
-      '<g filter="url(#pn' + id + ')" font-family="' + SKFONT + '"><path d="M18 ' + top + ' H302 V' + (top + lh) + ' H18 Z" fill="#3a3a3a" opacity=".82" stroke="#222"/>' +
-      lines.map(function (l, i) { return tx(26, top + 15 + i * 14, l, 11, '', 700, '#f2f0ea'); }).join('') +
-      (dt ? tx(26, top + lh - 7, dt, 9.5, '', '', '#d6d3cb') : '') + '</g>' +
-      '<g font-family="system-ui,sans-serif">' +
-      '<rect x="0" y="228" width="320" height="12" fill="#1f1f1f" opacity=".88"/><text x="160" y="237" font-size="7.6" fill="#fff" text-anchor="middle">' + esc(SKLABF) + '</text></g></svg>';
-  }
-  function sketchOf(r) { return isFootage(r) ? filmSketch(r) : docSketch(r); }
   function isPrivate(r) { var d = r.data || {}; return /privately|subject[- ]access|personal data|personal material|\bSAR\b/i.test([r.status, d.label, r.holder, d.type, r.title].join(' ').replace(/FOI\/EIR\/SAR/g, 'FOI')); }
   function recTab(r, x) {                                   // the mapping file first, then the same rules for records added since
     var t = String((r.data || {}).type || ''), ti = TI[r.id] || {};
@@ -436,12 +347,11 @@
     if (ti.k === 'pdf' || (PDFRE.test(t) && !/png|jpe?g|xlsx?|odt|docx?/i.test(t))) return 'pdf';
     if (ti.k === 'img') return 'images';
     if (x.cat && x.cat[r.id] && x.cat[r.id] !== 'all') return x.cat[r.id];
-    if ((x.recon || []).indexOf(r.id) >= 0 || r.kind === 'artifact' || IMGRE.test(t)) return 'images';
+    if (r.kind === 'artifact' || IMGRE.test(t)) return 'images';
     if (BOOKRE.test(t)) return 'books';
     if (WEBRE.test(t)) return 'web';
     return 'all';
   }
-  function hasRecon(id, x) { return (x.recon || []).indexOf(id) >= 0 || RC.indexOf(id) >= 0; }
   function fromRecord(r, x) {
     var d = r.data || {}, ti = TI[r.id] || {}, priv = isPrivate(r);
     var it = { tab: recTab(r, x), id: r.id, rt: r.title, t: r.id + ': ' + r.title, u: '?id=' + r.id, lb: labelOf(r),
@@ -449,7 +359,6 @@
       h: [r.id, r.alias, r.title, r.holder, r.summary, r.status, r.date_display, d.type, d.label, d.their_ref, d.reference].concat(d.email ? [d.email.subject, d.email.from, (d.email.institutions || []).map(function (x) { return x.name; }).join(' ')] : []).join(' ').toLowerCase(), ds: r.date_sort || '', r: r, foot: isFootage(r) };
     if (r.kind === 'email') { it.dt = (d.email && d.email.datetime) || r.date_sort || ''; it.mail = 1; it.img = logoOf(r.id).src; it.lg = 1; return it; }
     if (!priv && ti.s != null) it.tk = r.id;
-    else if (!priv && hasRecon(r.id, x)) { it.img = 'recon/' + r.id + '.webp'; it.sk = 1; }
     return it;
   }
   function bookImg(u) { var m = /archive\.org\/details\/([^\/\s?#]+)/.exec(u || ''); return m ? 'https://archive.org/services/img/' + m[1] : null; }
@@ -489,9 +398,8 @@
   }
   function pic(it, cls) {
     var c = card(it).replace(/"/g, '&quot;');
-    if (it.tk) return '<span class="th ' + cls + '"><img data-tk="' + esc(it.tk) + '" src="data:image/gif;base64,R0lGODlhAQABAAAAACw=" alt="" decoding="async">' + (it.sk ? '<b class="bdg">sketch</b>' : '') + '</span>';
-    if (it.img) return '<span class="th ' + cls + '"><img' + (it.sk ? ' class="skimg"' : it.lg ? ' class="lgimg"' : '') + ' src="' + esc(it.img) + '" alt="" loading="lazy" decoding="async" onerror="this.outerHTML=\'' + c + '\'">' + (it.sk ? '<b class="bdg">sketch</b>' : '') + '</span>';
-    if (it.r && !it.priv) return '<span class="th ' + cls + ' thsk">' + sketchOf(it.r) + '</span>';
+    if (it.tk) return '<span class="th ' + cls + '"><img data-tk="' + esc(it.tk) + '" src="data:image/gif;base64,R0lGODlhAQABAAAAACw=" alt="" decoding="async">' + '</span>';
+    if (it.img) return '<span class="th ' + cls + '"><img' + (it.lg ? ' class="lgimg"' : '') + ' src="' + esc(it.img) + '" alt="" loading="lazy" decoding="async" onerror="this.outerHTML=\'' + c + '\'">' + '</span>';
     return '<span class="th ' + cls + '">' + card(it) + '</span>';
   }
   function host(u) { try { return new URL(u, location.href).hostname.replace(/^www\./, ''); } catch (e) { return ''; } }
@@ -590,8 +498,8 @@
     if (tab === 'images') {
       h += '<div class="gal">' + page.map(function (it) { return '<figure class="gi"><a href="' + esc(it.u || '#') + '"' + ext(it) + '>' + pic(it, 'gim') + '</a><figcaption>' + lead(it) + '<span class="gt">' + esc(it.rt || it.t) + '</span>' + recLink(it) + '</figcaption></figure>'; }).join('') + '</div>';
     } else if (tab === 'videos') {
-      var vcard = function (it) {                            // catalogued footage only; no footage file is held here yet, so each shows its sketch frame
-        return '<article class="vi"><a class="vth" href="?id=' + esc(it.id) + '" aria-label="' + esc(it.rt) + '"><span class="th vim vff">' + filmSketch(it.r) + '</span></a>' +
+      var vcard = function (it) {                            // catalogued footage only; v0.16.0: no file held here, so the typed card (no drawn placeholder)
+        return '<article class="vi"><a class="vth" href="?id=' + esc(it.id) + '" aria-label="' + esc(it.rt) + '"><span class="th vim vff">' + card(it) + '</span></a>' +
           '<div class="vtx">' + lead(it) + '<a class="vt" href="?id=' + esc(it.id) + '">' + esc(it.rt) + '</a>' + recLink(it) + '</div></article>';
       };
       h += '<div class="vgal">' + page.map(vcard).join('') + '</div>';
@@ -694,8 +602,8 @@
 
 
   /* ---- v0.11.0 (10 Nov 2026, cedwyn-catalogue#32): each record that holds a file shows a preview cut from that file (the picture on the page
-     where there is one, else its first page; thumbs/rec-index.json + thumbs/trN.json, derived display images, never record data); pencil
-     sketches only where the file is pending; the file opens from this site (file/<ID>); share buttons under every preview; a News tab;
+     where there is one, else its first page; thumbs/rec-index.json + thumbs/trN.json, derived display images, never record data); a
+     record whose file is pending shows no picture (v0.16.0); the file opens from this site (file/<ID>); share buttons under every preview; a News tab;
      Blogs = external blogs about the case, each opening our archived copy; our own websites, webapps and blog posts are not evidence and are
      left out of the listing, search and counts (records are never edited, only not listed). — Sion's Tab agent */
   var OWNH = /(^|\.)bucklerfamily\.estate$|^greathousefarmwiki\.wordpress\.com$/i;
@@ -759,16 +667,6 @@
     var img = '<img data-tk="' + esc(k) + '" src="data:image/gif;base64,R0lGODlhAQABAAAAACw=" alt="Preview of ' + esc(r.title) + '">';
     return '<figure class="prev">' + (href ? '<a href="' + esc(href) + '">' + img + '</a>' : img) + '<figcaption>' + lab + ' · ' + (href ? '<a class="fopen" href="' + esc(href) + '">Open file</a>' : 'file pending') + '</figcaption></figure>';
   }
-  function placeholderFrame(r) {                           // no file is held here: a graphite artist's impression, labelled as such
-    var f = isFootage(r);
-    var fi = FOOTIMG[r.id], from = f ? (fi ? fi.from : SCENES.house) : SCENES[sceneOf(r)];
-    return '<figure class="skfig' + (f ? ' skfilm' : '') + '">' + (f ? filmSketch(r) : docSketch(r)) + '<figcaption>' + esc(f ? SKLABF : SKLAB) + '. A pencil sketch composed from ' + esc(from) + '; every word on it comes from this record\'s own title, date, references and description. No file of this item is held here yet.</figcaption></figure>';
-  }
-  function statusNote(r) {
-    var d = r.data || {}, st = String(r.status || '');
-    if (/not (yet )?(held|found|obtained)|requested|pending|blocked|sought/i.test(st)) return '<p class="muted stn">' + esc(st) + '. This entry records the item and where it should be; the original is not in the repository yet.</p>';
-    return '<p class="muted stn">' + esc(d.label || KINDS[r.kind] || r.kind) + (st ? ' · ' + esc(st) : '') + '. The original is shown on its holder\'s or the archive\'s own page; this page shows the record of it.</p>';
-  }
   function artifactCard(r) {
     return '<div class="artifact"><strong>Document held privately — personal data</strong><span class="muted">The original is kept privately in the evidence repository and is not published here. The description and extract below are the public record of it.</span></div>';
   }
@@ -784,9 +682,6 @@
     });
     if (it.updated) h += '<p class="muted">Interpretation written ' + esc(it.updated) + (it.version ? ' · v' + esc(it.version) : '') + '. It reads the record; it does not change it.</p>';
     return h + '</section>';
-  }
-  function reconFig(r) {
-    return '<figure class="recon"><img class="skimg" src="recon/' + encodeURIComponent(r.id) + '.webp" alt="Pencil sketch: an artist reconstruction of ' + esc(r.title) + '. It is not the document." loading="lazy"><figcaption>tab.bot artist reconstruction</figcaption></figure>';
   }
   function srcsFor(id, x) { var out = []; Object.keys((x && x.rec) || {}).forEach(function (u) { if (x.rec[u] === id) { var t = ((x.items || []).filter(function (i) { return i.u === u; })[0] || {}).t; out.push({ u: u.split(' (')[0], k: skey(u), t: t || u }); } }); return out; }
   function uidLine(id, lab) { var url = 'https://bucklerfamily.estate/catalogue/?' + (lab === 'src' ? 'src=' : 'id=') + id; return '<p class="uid">' + (lab === 'src' ? 'Source key' : 'Record UID') + ' <b>' + esc(id) + '</b> · <a href="' + esc(url) + '">' + esc(url.replace('https://', '')) + '</a></p>'; }
@@ -823,8 +718,6 @@
       else { h += '<h2>Preview</h2>';
       if (isPrivate(r)) h += artifactCard(r);
       else if (pv) h += pv;
-      else if (hasRecon(r.id, a[3] || {}) && !isFootage(r)) h += reconFig(r) + statusNote(r);
-      else h += placeholderFrame(r) + statusNote(r);
       if (!pv && !isPrivate(r)) h += '<p class="fpend">File pending</p>'; }
       h += shareRow('id', r.id, r.id + ': ' + r.title, 1);
       h += metaBlock(r, srcs);
