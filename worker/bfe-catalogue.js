@@ -3,14 +3,16 @@
 // subdomains, paths of bucklerfamily.estate. Files come from the repo (edge-cached 2 min), so a push is live within minutes.
 // 2.0.0 (10 Nov 2026, cedwyn-catalogue#32): a record address (?id=EV-…) carries its own link-preview tags (og:/twitter:
 // title, description, image) written here, so a shared link shows the record's own preview picture; og/<ID>.jpg serves
-// that picture (decoded from the repo's thumbs/trN.json shards; pending records get the pencil sketch); file/<ID>
+// that picture (decoded from the repo's thumbs/trN.json shards; since 2.2.0 pending records carry no picture); file/<ID>
 // opens the record's own file (its PDF or image, read from where the catalogue's thumbs/rec-index.json says it lives;
 // only files listed there). Nothing else on the zone is touched. Records are read, never written. — Sion's Tab agent
 // 2.1.0 (10 Nov 2026, cedwyn-catalogue#34): logos/<key>.png serves a self-hosted institution logo (decoded from the repo's
 // logos/logos.json; logos/map.json maps each email record to its logo). An email record's link preview (og:image, and
 // og/<ID>.jpg) is that logo, or the neutral email picture for personal, private or unlisted mail. No third-party logo service.
 // 2.1.1: og:image size for a logo is its real 192 x 192.
-const VERSION = '2.1.1';
+// 2.2.0 (11 Nov 2026): no pencil-sketch picture any more. A record whose file is pending gets no og:image at all (title and
+// description only, twitter:card summary); og/<ID>.jpg answers 404 for it. sketch/og-pending.jpg is no longer read. — Sion's Tab agent
+const VERSION = '2.2.0';
 const SRC = 'https://raw.githubusercontent.com/unclehowell/cedwyn-catalogue/main/';
 const APEX = 'https://bucklerfamily.estate';
 const BASE = '/catalogue/';
@@ -59,8 +61,7 @@ async function ogImage(id) {
       if (m) { const bin = Uint8Array.from(atob(m[2]), c => c.charCodeAt(0)); return new Response(bin, { status: 200, headers: hdrs(m[1], 3600) }); }
     }
   }
-  const p = await fetch(SRC + 'sketch/og-pending.jpg', { cf: { cacheTtl: 3600, cacheEverything: true } });
-  return new Response(p.body, { status: p.ok ? 200 : 404, headers: hdrs('image/jpeg', 3600) });
+  return notFound(BASE + 'og/' + id + '.jpg');   // 2.2.0: a pending record has no preview picture
 }
 async function openFile(id, method) {
   const R = await recIndex(), x = R[id];
@@ -84,7 +85,8 @@ async function recordMeta(id) {
   const desc = (e && e[1]) || 'A record in the Great House, Cedwyn Estate catalogue.';
   const real = !!(x && x.s != null && !priv);
   if (isEmailId(id)) { const k = await logoKey(id); return { title, desc, img: APEX + BASE + 'logos/' + k + '.png', w: 192, h: 192, real: k !== 'email', type: 'image/png', logo: true }; }
-  return { title, desc, img: APEX + BASE + 'og/' + encodeURIComponent(id) + '.jpg', w: real ? x.w : 1200, h: real ? x.h : 630, real };
+  if (!real) return { title, desc, img: '', real: false };   // 2.2.0: no placeholder picture for a pending record
+  return { title, desc, img: APEX + BASE + 'og/' + encodeURIComponent(id) + '.jpg', w: x.w, h: x.h, real };
 }
 class Attr { constructor(v) { this.v = v; } element(e) { e.setAttribute('content', this.v); } }
 class Txt { constructor(v) { this.v = v; } element(e) { e.setInnerContent(this.v); } }
@@ -95,11 +97,11 @@ async function withMeta(resp, id) {
   const tags = '\n<meta property="og:type" content="article"><meta property="og:site_name" content="' + q(SITE) + '">' +
     '<meta property="og:title" content="' + q(m.title) + '"><meta property="og:description" content="' + q(m.desc) + '">' +
     '<meta property="og:url" content="' + q(url) + '"><link rel="canonical" href="' + q(url) + '">' +
-    '<meta property="og:image" content="' + q(m.img) + '"><meta property="og:image:secure_url" content="' + q(m.img) + '"><meta property="og:image:type" content="' + (m.type || 'image/jpeg') + '">' +
+    (m.img ? '<meta property="og:image" content="' + q(m.img) + '"><meta property="og:image:secure_url" content="' + q(m.img) + '"><meta property="og:image:type" content="' + (m.type || 'image/jpeg') + '">' +
     (m.w ? '<meta property="og:image:width" content="' + m.w + '"><meta property="og:image:height" content="' + m.h + '">' : '') +
-    '<meta property="og:image:alt" content="' + q(m.logo ? (m.real ? 'Institution logo for ' : 'Email picture for ') + m.title : (m.real ? 'Preview of ' : 'Pencil sketch for ') + m.title) + '">' +
-    '<meta name="twitter:card" content="' + (m.logo ? 'summary' : 'summary_large_image') + '"><meta name="twitter:title" content="' + q(m.title) + '">' +
-    '<meta name="twitter:description" content="' + q(m.desc) + '"><meta name="twitter:image" content="' + q(m.img) + '">\n';
+    '<meta property="og:image:alt" content="' + q(m.logo ? (m.real ? 'Institution logo for ' : 'Email picture for ') + m.title : 'Preview of ' + m.title) + '">' : '') +
+    '<meta name="twitter:card" content="' + (m.logo || !m.img ? 'summary' : 'summary_large_image') + '"><meta name="twitter:title" content="' + q(m.title) + '">' +
+    '<meta name="twitter:description" content="' + q(m.desc) + '">' + (m.img ? '<meta name="twitter:image" content="' + q(m.img) + '">' : '') + '\n';
   return new HTMLRewriter().on('title', new Txt(m.title + ' · ' + SITE)).on('meta[name="description"]', new Attr(m.desc)).on('head', new Head(tags)).transform(resp);
 }
 export default {
