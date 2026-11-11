@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.13.0 — 2026-11-11
+- **Result tabs fold into "More".** The tab row no longer scrolls sideways. All, Web, Images, Videos and PDF always show; News, Emails, Books and Blog follow them while they fit on the row, and whatever does not fit goes into a **More ▾** menu, always the last item on the right of the same row. The wider the screen, the more tabs show inline; on a wide screen every tab shows and More is hidden. The row is measured with ResizeObserver and re-flows on resize. More is a button with a menu (arrow keys, Esc and an outside click close it); choosing an item is the same link as the tab, and when the chosen tab sits inside More the button reads "More: <tab>". UI only: no record was changed. (cedwyn-catalogue#36)
+
 ## 0.12.0 — 2026-11-10
 - **Transcripts collapsed.** Every transcript (and public-safe extract) on a record page now starts closed under a "Show transcript" control (`<details>`/`<summary>`, so it opens without script too); "Hide transcript" closes it again.
 - **Institution logos for emails.** Each email record (EV-0906 onwards) shows the logo of the institution on the other side of the exchange, worked out from its mail domain: in the Emails tab row, as the card picture in All, on the record page beside the header, and as the link-preview picture (`og:image`). Logos were fetched once from each institution's own website and are served from this site (`logos/logos.json`, `/catalogue/logos/<key>.png`); `logos/map.json` maps records to logos. Personal mail domains, private individuals and unlisted correspondents keep a neutral email picture. Display only: no record was changed. (cedwyn-catalogue#34)

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="app-version" content="0.11.0">
+<meta name="app-version" content="0.13.0">
 <title>Records · Great House, Cedwyn Estate</title>
 <meta name="description" content="Search the Great House, Cedwyn Estate records: the record catalogue, web archive, films, PDFs, blog and books in one place, with a preview for every result.">
 <script>window.__cedwynLP="/research/"</script><script src="/_cedwyn/ghf/ghf-boot.js?v=2.1.30"></script>
@@ -44,10 +44,21 @@ footer{max-width:52rem;margin:24px auto;padding:0 16px 24px;font-size:13px;color
 .sbox{position:relative;margin:0 auto}.sbox .mag{position:absolute;left:16px;top:50%;transform:translateY(-50%);color:var(--mut);font-size:20px;pointer-events:none}
 .sbox input[type=search]{padding:12px 18px 12px 44px;border-radius:999px;font-size:16px;box-shadow:0 1px 6px rgba(0,0,0,.08)}
 .sbox input[type=search]:focus{outline:none;border-color:var(--acc);box-shadow:0 1px 8px rgba(0,0,0,.16)}
-.tabs{display:flex;gap:2px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;border-bottom:1px solid var(--line);margin:12px 0 0;justify-content:flex-start}.tabs::-webkit-scrollbar{display:none}
+.tabs{display:flex;flex-wrap:nowrap;gap:2px;overflow:visible;position:relative;min-width:0;max-width:100%;border-bottom:1px solid var(--line);margin:12px 0 0;justify-content:flex-start}
+.tabs [hidden]{display:none!important}
 .sx.home .tabs{justify-content:center;border-bottom:0}
 .tabs a{flex:0 0 auto;padding:8px 12px;font-size:14px;color:var(--mut);text-decoration:none;border-bottom:3px solid transparent;white-space:nowrap}
 .tabs a.on{color:var(--acc);border-bottom-color:var(--acc);font-weight:600}.tabs small{font-size:11px;margin-left:5px;opacity:.75}
+.tmore{position:relative;flex:0 0 auto;margin-left:auto}
+.tmore>button{font:inherit;font-size:14px;line-height:inherit;padding:8px 12px;margin:0;background:none;border:0;border-bottom:3px solid transparent;border-radius:0;color:var(--mut);cursor:pointer;white-space:nowrap}
+.tmore>button.on{color:var(--acc);border-bottom-color:var(--acc);font-weight:600}.tmore>button .car{font-size:11px;margin-left:2px}
+.tmore>button:focus-visible{outline:2px solid var(--acc);outline-offset:-2px}
+.tmenu{position:absolute;right:0;top:100%;z-index:60;min-width:10rem;margin-top:2px;padding:4px 0;background:var(--card);color:var(--fg);border:1px solid var(--line);border-radius:10px;box-shadow:0 6px 18px rgba(0,0,0,.18)}
+.tabs .tmenu a{display:block;padding:10px 16px;border-bottom:0;color:var(--fg);font-size:14px;white-space:nowrap}
+.tabs .tmenu a.on{color:var(--acc);border-bottom:0;background:var(--th);font-weight:600}
+.tabs .tmenu a:hover,.tabs .tmenu a:focus{background:var(--th);outline:none}
+@media(max-width:430px){.tabs>a,.tmore>button{padding:8px 9px}}
+.tabs.tight>a,.tabs.tight .tmore>button{padding:8px 6px}
 .meta{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:8px 0 4px;font-size:13px;color:var(--mut)}
 .meta select{width:auto;padding:4px 8px;font-size:13px;border-radius:8px}
 .sx.home .meta{justify-content:center}
@@ -110,6 +121,6 @@ footer{max-width:52rem;margin:24px auto;padding:0 16px 24px;font-size:13px;color
 <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><filter id="pencil" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB"><feColorMatrix type="saturate" values="0" result="g"/><feComponentTransfer in="g" result="i"><feFuncR type="table" tableValues="1 0"/><feFuncG type="table" tableValues="1 0"/><feFuncB type="table" tableValues="1 0"/></feComponentTransfer><feGaussianBlur in="i" stdDeviation="1.8" result="b"/><feBlend in="b" in2="g" mode="color-dodge" result="d"/><feComponentTransfer in="d" result="k"><feFuncR type="gamma" exponent="2.1"/><feFuncG type="gamma" exponent="2.1"/><feFuncB type="gamma" exponent="2.1"/></feComponentTransfer><feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves="2" seed="4" result="n"/><feColorMatrix in="n" type="saturate" values="0" result="m"/><feComposite in="k" in2="m" operator="arithmetic" k1="0" k2="1" k3="-.16" k4=".05"/></filter></svg>
 <main id="app" data-cw-nolevels><p class="muted" style="text-align:center">Loading the records…</p><noscript><p>These records are read live from the central record, which needs JavaScript. The raw records are at <a href="https://bucklerfamily.estate/api/catalogue">/api/catalogue</a>.</p></noscript></main>
 <footer id="cfoot" hidden>Every record here is read live from the central Cedwyn records, so a record added there appears here with no extra step. Interpretation boxes are our reading of the evidence, not findings of any court or authority.</footer>
-<script src="app.js?v=0.11.0"></script>
+<script src="app.js?v=0.13.0"></script>
 </body>
 </html>

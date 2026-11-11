@@ -177,7 +177,8 @@
 
   /* ---- search (v0.5.0): Google-style home, tabs, galleries, real thumbnails ---- */
   var all = null, shown = 30;
-  var TABS = [['all', 'All'], ['web', 'Web'], ['images', 'Images'], ['news', 'News'], ['videos', 'Videos'], ['emails', 'Emails'], ['pdf', 'PDF'], ['books', 'Books'], ['blog', 'Blog']];
+  var TABS = [['all', 'All'], ['web', 'Web'], ['images', 'Images'], ['videos', 'Videos'], ['pdf', 'PDF'], ['news', 'News'], ['emails', 'Emails'], ['books', 'Books'], ['blog', 'Blog']];
+  var PIN = { all: 1, web: 1, images: 1, videos: 1, pdf: 1 };   // v0.13.0: always on the row; the tabs after them fold into "More" as width runs out
   var IMGRE = /image|photo|map|plan\b|drawing|aerial|postcard|sketch|png|jpe?g/i, BOOKRE = /book|trade directory|library item/i, WEBRE = /web page|press|website|newspaper/i, PDFRE = /\bpdf\b/i;
   var VQ = '?v=0.9.0-' + Math.floor(Date.now() / 300000);
   var extraP = Promise.all([getJSON('sources.json' + VQ).catch(function () { return { items: [], cat: {}, recon: [] }; }),
@@ -493,10 +494,11 @@
     });
     var h = '<div class="sx"><div class="sbar"><a class="logo" href="./" aria-label="' + T('home') + '">' + LOGOH() + '</a>';
     h += '<form class="sbox" role="search" id="sf"><span class="mag" aria-hidden="true">⌕</span><input type="search" id="q" placeholder="Search the records" value="' + esc(q) + '" aria-label="Search" autocomplete="off" enterkeyhint="search"><button type="submit" class="sbtn" aria-label="Search">Search</button></form></div>';
-    h += '<nav class="tabs" aria-label="Result type">' + TABS.map(function (t) {
+    h += '<nav class="tabs" id="tabs" aria-label="Result type">' + TABS.map(function (t) {
       var on = t[0] === tab, href = '?' + qs({ tab: t[0] === 'all' ? '' : t[0] });
-      return '<a href="' + esc(href) + '"' + (on ? ' aria-current="page" class="on"' : '') + '>' + t[1] + '</a>';
-    }).join('') + '</nav>';
+      return '<a href="' + esc(href) + '"' + (PIN[t[0]] ? '' : ' data-tm="1"') + (on ? ' aria-current="page" class="on"' : '') + '>' + t[1] + '</a>';
+    }).join('') + '<div class="tmore" hidden><button type="button" id="tabmore" aria-haspopup="true" aria-expanded="false" aria-controls="tabmenu">More</button>' +
+      '<div class="tmenu" id="tabmenu" role="menu" aria-label="More result types" hidden></div></div></nav>';
     h += '<div class="meta"><span>About ' + rows.length + ' result' + (rows.length === 1 ? '' : 's') + (q ? ' for <b>' + esc(q) + '</b>' : '') + '</span><select id="sort" aria-label="Sort"><option value="rel">Sort: relevance</option><option value="id">Sort: record number</option><option value="new">Sort: recently added</option><option value="date">Sort: date (oldest)</option><option value="date-desc">Sort: date (newest)</option></select></div></div>';
     if (!rows.length) h += '<p class="none">No results' + (q ? ' for <b>' + esc(q) + '</b>' : '') + (tab !== 'all' ? ' in ' + TABS.filter(function (t) { return t[0] === tab; })[0][1] + '. Try <a href="?' + esc(qs({ tab: '' })) + '">All</a>.' : '.') + '</p>';
     var page = rows.slice(0, shown);
@@ -529,13 +531,76 @@
       }).join('') + '</div>';
     }
     if (rows.length > shown) h += '<button class="more" id="more">More results (' + (rows.length - shown) + ')</button>';
-    app.innerHTML = h; hydrate(app);
+    app.innerHTML = h; hydrate(app); tabsFit();
     document.getElementById('sort').value = sort;
     var qi = document.getElementById('q');
     document.getElementById('sf').addEventListener('submit', function (e) { e.preventDefault(); setParam('q', qi.value.trim()); });
     document.getElementById('sort').addEventListener('change', function (e) { setParam('sort', e.target.value === 'rel' ? '' : e.target.value); });
     var m = document.getElementById('more'); if (m) m.addEventListener('click', function () { shown += 60; renderList(); });
   }
+  /* ---- v0.13.0 (11 Nov 2026, cedwyn-catalogue#36): the result tabs never scroll sideways. All, Web, Images, Videos and PDF always show;
+     the tabs after them show while they fit on the row and the rest go into a "More" menu, always the last item on the right (priority+,
+     measured with ResizeObserver). Choosing a menu item is the same link as the tab. — Sion's Tab agent */
+  var tabCur = null;
+  function tabsFit() {
+    if (tabCur) { tabCur.stop(); tabCur = null; }
+    var nav = document.getElementById('tabs'); if (!nav) return;
+    var wrap = nav.querySelector('.tmore'), btn = document.getElementById('tabmore'), menu = document.getElementById('tabmenu');
+    var mov = [].slice.call(nav.querySelectorAll('a[data-tm]')), lastW = -1, ro = null;
+    function items() { return [].slice.call(menu.querySelectorAll('a')); }
+    function label() {
+      var on = menu.querySelector('a.on');
+      btn.innerHTML = (on ? 'More: ' + esc(on.textContent) : 'More') + ' <span class="car" aria-hidden="true">\u25BE</span>';
+      btn.className = on ? 'on' : '';
+    }
+    function over() {
+      var kids = [].slice.call(nav.children).filter(function (k) { return !k.hidden; }), last = kids[kids.length - 1];
+      return nav.scrollWidth > nav.clientWidth + 1 || (!!last && last.getBoundingClientRect().right > nav.getBoundingClientRect().right + 1);
+    }
+    function open(first) {
+      menu.hidden = false; btn.setAttribute('aria-expanded', 'true');
+      if (first) { var f = menu.querySelector('a.on') || items()[0]; if (f) f.focus(); }
+    }
+    function close(refocus) {
+      if (menu.hidden) return; menu.hidden = true; btn.setAttribute('aria-expanded', 'false'); if (refocus) btn.focus();
+    }
+    function flow() {
+      var w = nav.clientWidth; if (w === lastW) return; lastW = w;
+      close(false); nav.classList.remove('tight');
+      mov.forEach(function (a) { a.removeAttribute('role'); a.removeAttribute('tabindex'); nav.insertBefore(a, wrap); });
+      wrap.hidden = true; label();
+      if (!over()) return;
+      wrap.hidden = false;
+      for (var i = mov.length - 1; i >= 0; i--) {
+        var a = mov[i]; a.setAttribute('role', 'menuitem'); a.setAttribute('tabindex', '-1');
+        menu.insertBefore(a, menu.firstChild); label();
+        if (!over()) break;
+      }
+      if (over()) nav.classList.add('tight');
+    }
+    btn.addEventListener('click', function () { if (menu.hidden) open(false); else close(false); });
+    btn.addEventListener('keydown', function (e) {
+      if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); open(true); }
+    });
+    menu.addEventListener('keydown', function (e) {
+      var l = items(), i = l.indexOf(document.activeElement);
+      if (e.key === 'ArrowDown') { e.preventDefault(); l[(i + 1) % l.length].focus(); }
+      else if (e.key === 'ArrowUp') { e.preventDefault(); l[(i - 1 + l.length) % l.length].focus(); }
+      else if (e.key === 'Home') { e.preventDefault(); l[0].focus(); }
+      else if (e.key === 'End') { e.preventDefault(); l[l.length - 1].focus(); }
+      else if (e.key === 'Tab') close(false);
+    });
+    function onResize() { flow(); }
+    if (window.ResizeObserver) { ro = new ResizeObserver(function () { flow(); }); ro.observe(nav); }
+    else window.addEventListener('resize', onResize);
+    flow();
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { if (tabCur && tabCur.nav === nav) { lastW = -1; flow(); } });
+    tabCur = { nav: nav, wrap: wrap, close: close, stop: function () { if (ro) ro.disconnect(); window.removeEventListener('resize', onResize); } };
+  }
+  document.addEventListener('click', function (e) { if (tabCur && !tabCur.wrap.contains(e.target)) tabCur.close(false); });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && tabCur && document.getElementById('tabmenu') && !document.getElementById('tabmenu').hidden) { e.preventDefault(); tabCur.close(true); }
+  });
   function ext(it) { return it.u && it.u.charAt(0) !== '?' ? ' rel="noopener"' : ''; }
   function qs(o) { var p = new URLSearchParams(P.toString()); p.delete('id'); Object.keys(o).forEach(function (k) { if (o[k]) p.set(k, o[k]); else p.delete(k); }); return p.toString(); }
   function setParam(k, v) {
