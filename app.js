@@ -8,6 +8,8 @@
    v0.5.0: the standard site header; a Google-style home (logo, search box, Search button; v0.6.0 drops "I'm feeling lucky" for a Trending row); tabs All · Web · Images · Videos · PDF · Books · Blog
    with galleries for Images, Videos and PDF front pages; real preview thumbnails (thumbs/index.json + thumbs/tN.json, derived WebP copies, never record data);
    a typed card wherever no picture exists. Records are still read live and never edited here. — Tab agent
+   v0.14.0 (11 Nov 2026, cedwyn-catalogue#37): no share buttons on search results (only on an open record or source page, under its preview);
+   each result shows the record's own date, never the catalogue entry date, which moves to the record page ("Added to catalogue"). — Sion's Tab agent
    v0.12.0 (10 Nov 2026, cedwyn-catalogue#34): transcripts start collapsed ("Show transcript", <details>); email records show the institution's logo
    (self-hosted, logos/map.json) or a neutral email picture. — Tab agent
    v0.10.0 (10 Nov 2026): an Emails tab beside Web, Images and Videos — every email in the case correspondence is its own record (kind email, ids in the EV series from EV-0906),
@@ -272,6 +274,20 @@
     return out;
   }
   function shortDate(r) { return String(r.date_display || '').split(/[;(]/)[0].trim().slice(0, 34); }
+  // v0.14.0 (11 Nov 2026, cedwyn-catalogue#37): a result shows the RECORD's own date (date_display, else date_sort), never the date the
+  // entry was added to the catalogue (updated); a record stated as undated / date not recorded shows no date. — Sion's Tab agent
+  var MON3 = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  function recDate(r) {
+    if (!r) return '';
+    var s = String(r.date_display || '').split(/[;(]/)[0].trim();
+    if (s.length > 48) s = s.slice(0, 48).replace(/\s+\S*$/, '') + '\u2026';
+    if (s) return /undated|not recorded|unknown|not known|not shown|not stated|not given|not yet found|no date/i.test(s) && !/\d{3,4}/.test(s) ? '' : s;
+    var m = /^(\d{4})(?:-(\d{2}))?/.exec(String(r.date_sort || ''));
+    if (!m || m[1] === '0000') return '';
+    return (m[2] && +m[2] >= 1 && +m[2] <= 12 ? MON3[+m[2] - 1] + ' ' : '') + m[1];
+  }
+  function resDate(it) { if (it.r) return recDate(it.r) || (it.mail ? String(it.dt || '').slice(0, 10) : ''); return it.dt ? String(it.dt).slice(0, 10) : ''; }
+  function addedOn(s) { var m = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(s || '')); return m ? (+m[3]) + ' ' + MON3[+m[2] - 1] + ' ' + m[1] : String(s || '').slice(0, 10); }
   function refsOf(r) {                                     // reference numbers already in the record; nothing invented
     var d = r.data || {}, s = [r.title, d.their_ref, d.reference].join(' '),
         m = s.match(/\b\d{2}\/\d{3,5}\/[A-Z]{2,4}\b|\b(?:ATISN|FOI|IR|SAR|TO|IC|RC|WA|CAN|NPRN|PRN)[- \/]?\d[\dA-Z\/-]{2,}\b|\b[A-Z]{1,3}\d{5,}[A-Z0-9]*\b/g) || [];
@@ -504,11 +520,11 @@
     var page = rows.slice(0, shown);
     function recLink(it) { return it.id ? '<a class="rl" href="?id=' + esc(it.id) + '">' + esc(it.id) + ' · record</a>' : (it.u ? '<a class="rl" href="' + esc(it.u) + '" rel="noopener">' + esc(host(it.u)) + '</a>' : ''); }
     if (tab === 'images') {
-      h += '<div class="gal">' + page.map(function (it) { return '<figure class="gi"><a href="' + esc(it.u || '#') + '"' + ext(it) + '>' + pic(it, 'gim') + '</a><figcaption><span class="gt">' + esc(it.rt || it.t) + '</span>' + recLink(it) + shr(it) + '</figcaption></figure>'; }).join('') + '</div>';
+      h += '<div class="gal">' + page.map(function (it) { return '<figure class="gi"><a href="' + esc(it.u || '#') + '"' + ext(it) + '>' + pic(it, 'gim') + '</a><figcaption><span class="gt">' + esc(it.rt || it.t) + '</span>' + recLink(it) + '</figcaption></figure>'; }).join('') + '</div>';
     } else if (tab === 'videos') {
       var vcard = function (it) {                            // catalogued footage only; no footage file is held here yet, so each shows its sketch frame
         return '<article class="vi"><a class="vth" href="?id=' + esc(it.id) + '" aria-label="' + esc(it.rt) + '"><span class="th vim vff">' + filmSketch(it.r) + '</span></a>' +
-          '<div class="vtx"><a class="vt" href="?id=' + esc(it.id) + '">' + esc(it.rt) + '</a><span class="vs">' + esc(it.id) + ' · ' + esc(KINDS[it.r.kind] || it.r.kind) + (it.r.date_display ? ' · ' + esc(shortDate(it.r)) : '') + '</span>' + recLink(it) + shr(it) + '</div></article>';
+          '<div class="vtx"><a class="vt" href="?id=' + esc(it.id) + '">' + esc(it.rt) + '</a><span class="vs">' + esc(it.id) + ' · ' + esc(KINDS[it.r.kind] || it.r.kind) + (recDate(it.r) ? ' · ' + esc(recDate(it.r)) : '') + '</span>' + recLink(it) + '</div></article>';
       };
       h += '<div class="vgal">' + page.map(vcard).join('') + '</div>';
       if (q) {
@@ -520,14 +536,14 @@
       h += '<div class="mres">' + page.map(emailRow).join('') + '</div>';
     } else if (tab === 'pdf') {
       h += '<div class="pgal">' + page.map(function (it) {
-        return '<figure class="pi"><a href="' + esc(it.u || '#') + '"' + ext(it) + '>' + pic(it, 'pim') + '<b class="pdfb">PDF</b></a><figcaption><span class="gt">' + esc(it.rt || it.t) + '</span>' + recLink(it) + shr(it) + '</figcaption></figure>';
+        return '<figure class="pi"><a href="' + esc(it.u || '#') + '"' + ext(it) + '>' + pic(it, 'pim') + '<b class="pdfb">PDF</b></a><figcaption><span class="gt">' + esc(it.rt || it.t) + '</span>' + recLink(it) + '</figcaption></figure>';
       }).join('') + '</div>';
     } else {
       h += '<div class="res">' + page.map(function (it) {
         var src = it.s || host(it.u);
-        return '<article class="r"><div class="tx"><div class="src">' + esc(src) + (it.dt ? ' · ' + esc(String(it.dt).slice(0, 10)) : '') + '</div>' +
+        return '<article class="r"><div class="tx"><div class="src">' + esc(src) + (resDate(it) ? ' · ' + esc(resDate(it)) : '') + '</div>' +
           (it.u ? '<a class="tt" href="' + esc(it.u) + '"' + ext(it) + '>' + esc(it.t) + '</a>' : '<span class="tt">' + esc(it.t) + '</span>') +
-          (it.d ? '<p class="sn">' + esc(it.d) + '</p>' : '') + (it.arc ? '<a class="arcl" href="?src=' + esc(it.arc.key) + '">Read our archived copy</a>' : it.arc === 0 ? '<span class="arcl muted">Our archived copy: pending</span>' : '') + shr(it) + '</div>' + (it.u ? '<a class="tl" href="' + esc(it.u) + '"' + ext(it) + ' tabindex="-1" aria-hidden="true">' + pic(it, 'lim') + '</a>' : pic(it, 'lim')) + '</article>';
+          (it.d ? '<p class="sn">' + esc(it.d) + '</p>' : '') + (it.arc ? '<a class="arcl" href="?src=' + esc(it.arc.key) + '">Read our archived copy</a>' : it.arc === 0 ? '<span class="arcl muted">Our archived copy: pending</span>' : '') + '</div>' + (it.u ? '<a class="tl" href="' + esc(it.u) + '"' + ext(it) + ' tabindex="-1" aria-hidden="true">' + pic(it, 'lim') + '</a>' : pic(it, 'lim')) + '</article>';
       }).join('') + '</div>';
     }
     if (rows.length > shown) h += '<button class="more" id="more">More results (' + (rows.length - shown) + ')</button>';
@@ -647,6 +663,7 @@
       a('https://www.facebook.com/sharer/sharer.php?u=' + e(u), 'fb', 'Facebook') + a('https://x.com/intent/post?url=' + e(u) + '&text=' + e(t), 'x', 'X') +
       a('https://www.linkedin.com/sharing/share-offsite/?url=' + e(u), 'li', 'LinkedIn') + a('mailto:?subject=' + e(t) + '&body=' + e(t + '\n\n' + u), 'em', 'Email').replace('Share on Email', 'Share by email') + '</div>';
   }
+  // v0.14.0 (cedwyn-catalogue#37): share buttons only on an open record (?id=) or source (?src=) page, under its preview; none on results
   function shr(it) { return it.id ? shareRow('id', it.id, it.t) : it.key ? shareRow('src', it.key, it.t) : ''; }
   document.addEventListener('click', function (ev) {
     var b = ev.target.closest && ev.target.closest('button[data-share="ig"]'); if (!b) return;
@@ -718,6 +735,7 @@
     if (d.url && !seen[nurl(d.url)] && !isPrivate(r)) { seen[nurl(d.url)] = 1; locs.push(locLink(d.url)); }   // v0.11.0: a blog or web record opens our archived copy
     var hold = r.holder || d.repository, ref = [r.id + (r.alias ? ' (' + r.alias + ')' : ''), d.their_ref || d.reference ? 'holder\'s reference ' + (d.their_ref || d.reference) : ''].filter(Boolean).join(' · ');
     return '<table class="ghf-ev-table recmeta"><tbody>' + row('Date of the record', r.date_display || 'not recorded') +
+      (r.updated ? '<tr><th>' + ((r.rev || 1) > 1 ? 'Catalogue entry updated' : 'Added to catalogue') + '</th><td>' + esc(addedOn(r.updated)) + ((r.rev || 1) > 1 ? ' (revision ' + esc(r.rev) + ')' : '') + '</td></tr>' : '') +   // v0.14.0: the catalogue date lives here, not on results
       '<tr><th>Catalogue reference</th><td>' + esc(ref) + '</td></tr>' +
       '<tr><th>Original record' + (locs.length > 1 ? 's' : '') + '</th><td>' + (hold ? txt(hold, r.id) + (locs.length ? '<br>' : '') : '') +
       (locs.length ? locs.join('<br>') : (hold ? '' : '<span class="muted">not recorded</span>')) + '</td></tr></tbody></table>';

@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.14.0 — 2026-11-11
+- **Share buttons only on the open record.** Search results (All, Web, Images, Videos, PDF and the tabs under More) no longer carry the Instagram, Facebook, X, LinkedIn and email buttons. They stay on the record page (`?id=`) and the archived-copy page (`?src=`), directly under the preview or pencil-sketch placeholder.
+- **Results show the record's own date.** The date beside each record result is now the date of the record itself (its `date_display`, first clause, e.g. "November 1891" for an 1891 newspaper report), or the year and month of its `date_sort` when no display date is given. It is never the date the entry was added to the catalogue. Records stated as undated or "date not recorded" show no date rather than a catalogue date.
+- **Catalogue date on the record page.** The record details table under the preview gains "Added to catalogue <d Mon yyyy>" (or "Catalogue entry updated … (revision N)" for a revised entry). The "Newest added" sort still uses that date. UI only: no record was changed. (cedwyn-catalogue#37)
+
 ## 0.13.0 — 2026-11-11
 - **Result tabs fold into "More".** The tab row no longer scrolls sideways. All, Web, Images, Videos and PDF always show; News, Emails, Books and Blog follow them while they fit on the row, and whatever does not fit goes into a **More ▾** menu, always the last item on the right of the same row. The wider the screen, the more tabs show inline; on a wide screen every tab shows and More is hidden. The row is measured with ResizeObserver and re-flows on resize. More is a button with a menu (arrow keys, Esc and an outside click close it); choosing an item is the same link as the tab, and when the chosen tab sits inside More the button reads "More: <tab>". UI only: no record was changed. (cedwyn-catalogue#36)
 
