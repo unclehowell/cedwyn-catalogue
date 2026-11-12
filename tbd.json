@@ -1,0 +1,243 @@
+{
+ "_about": "TBD (to be determined) entries for the records browser: page data only. For each TBD id: the short label its page markers carry, a plain note of what is not yet known, related record ids, and cited_by: every page statement carrying a TBD marker, with the marker's anchor (page#anchor). The TBD records themselves are proposed to the central catalogue as a catalogue-change; nothing here edits a record. Add-only. — Sion's Tab agent",
+ "version": "0.1.0",
+ "updated": "2026-11-12",
+ "anchor_format": "tbd-NNNN-n (NNNN = the TBD number, n = its marker count on that page)",
+ "entries": {
+  "TBD-0001": {
+   "label": "Contents of the 1970 village-green registration file (VG41), Civic Offices, Barry",
+   "date": "1970",
+   "date_sort": "1970-06-16",
+   "added": "2026-11-12",
+   "unknown": [
+    "The village green VG41 was registered on 16 June 1970 under the Commons Registration Act 1965. The registration file is kept by the Vale of Glamorgan Council, the registration authority, at the Civic Offices, Barry.",
+    "Contents not yet seen: the application and who made it, the statutory declaration, the map and its boundary, any objections, and the provisional and final registration notices.",
+    "Until the file is read, it is not known what evidence the registration rested on, or how the registered ground relates to Parcel A. Registration as a green does not by itself show who owns the land.",
+    "What would settle it: an inspection or copy of the whole VG41 file (requested; see MR-0017)."
+   ],
+   "related": [
+    "MR-0017",
+    "EV-0044",
+    "EV-0708"
+   ],
+   "cited_by": [
+    {
+     "page": "/wiki/",
+     "page_title": "Legal Wiki — The Great House Farm Wiki",
+     "anchor": "tbd-0001-1",
+     "text": "16 Jun 1970 · South-east ground registered as village green VG41: the application, map and ownership section of the VG41 file are not published here; registration as a green does not by itself show who owns it."
+    },
+    {
+     "page": "/wiki/",
+     "page_title": "Legal Wiki — The Great House Farm Wiki",
+     "anchor": "tbd-0001-2",
+     "text": "What would settle it: the Land Authority board papers (WA 9/49), the full Cardiff Bay Development Corporation response, and the VG41 file."
+    }
+   ]
+  },
+  "TBD-0002": {
+   "label": "Footage of the 1988 HTV/ITV Wales eviction news material not seen in the published clips",
+   "date": "1988",
+   "date_sort": "1988-11-30",
+   "added": "2026-11-12",
+   "unknown": [
+    "Two 1988 clips are published: the ITV Cymru Wales report (EV-0083) and a Wales at Six headline fragment broadcast on 5 December 1988. The National Library of Wales catalogues an HTV Wales videocassette, 'Eviction News Material, 30 November 1988' (item 507738), and a finding aid lists 11 ITV/HTV Wales news items from 1988–1989 (EV-0872).",
+    "The Legal Wiki's anomalies register records abrupt transitions and apparent omissions in an ITV clip (A-002).",
+    "Footage length not yet confirmed: it is not known how much material the archive copies hold beyond what the published clips show, whether the full news package of 5 December 1988 survives, or why the published fragment ends where it does.",
+    "Whether any footage was cut, withheld or never broadcast is an open question; nothing seen so far settles it.",
+    "What would settle it: viewing the archive copies with their timecodes and running times, and the broadcaster's own record of what was transmitted."
+   ],
+   "related": [
+    "EV-0083",
+    "EV-0872",
+    "EV-0082"
+   ],
+   "cited_by": [
+    {
+     "page": "/wiki/",
+     "page_title": "Legal Wiki — The Great House Farm Wiki",
+     "anchor": "tbd-0002-1",
+     "text": "Video 2, Wales at Six (HTV Wales, 5 December 1988): the associated full news package appears to be missing from this upload at this point: this is a headline fragment, not the complete report."
+    },
+    {
+     "page": "/wiki/anomalies-register/",
+     "page_title": "Anomalies Register — Legal Wiki",
+     "anchor": "tbd-0002-1",
+     "text": "A-002 · ITV footage — abrupt editing / omissions: a separate ITV clip contains abrupt transitions and apparent omissions. The issue is whether this is ordinary editorial selection, loss of source material, or something requiring explanation."
+    }
+   ]
+  },
+  "TBD-0003": {
+   "label": "Land conveyed by the 1938 sale to Western Ground Rents Ltd",
+   "date": "1938",
+   "date_sort": "1938-12-25",
+   "added": "2026-11-12",
+   "unknown": [
+    "The sale from the Mountjoy / Bute estate to Western Ground Rents Ltd was announced on 17 May 1938 and completed in December 1938; later deeds deduce title from “a Conveyance on sale dated 25th December 1938” (EV-0216).",
+    "Extent not yet established: which land the deed and its plan (EV-0019) conveyed, and whether Parcel A lay within it.",
+    "What would settle it: the conveyance of December 1938 with its plan and land schedule (MR-0005)."
+   ],
+   "related": [
+    "EV-0019",
+    "EV-0216",
+    "MR-0005"
+   ],
+   "cited_by": [
+    {
+     "page": "/wiki/",
+     "page_title": "Legal Wiki — The Great House Farm Wiki",
+     "anchor": "tbd-0003-1",
+     "text": "1938 · Mountjoy / Bute → Western Ground Rents Ltd: exactly which land the 1938 deed and plan (EV-0019) conveyed is the open question."
+    },
+    {
+     "page": "/wiki/anomalies-register/",
+     "page_title": "Anomalies Register — Legal Wiki",
+     "anchor": "tbd-0003-1",
+     "text": "A-031 · 1938 WGR conveyance: what exact land and estate was conveyed in 1938, and did it include the House Plot?"
+    }
+   ]
+  },
+  "TBD-0004": {
+   "label": "Terms and extent of the deed of 29 March 1961 (WGR, South Western Brick & Tile, Cardiff City Corporation)",
+   "date": "1961",
+   "date_sort": "1961-03-29",
+   "added": "2026-11-12",
+   "unknown": [
+    "The woodland register WA735527 lists a deed dated 29 March 1961 between Western Ground Rents Ltd, The South Western Brick & Tile Company Ltd and Cardiff City Corporation, with a copy filed under WA231076.",
+    "Terms not yet seen: the deed and its plan (EV-0040) have not been inspected, so the precise land, and what Cardiff City Corporation received, are not known.",
+    "What would settle it: a copy of the deed and plan."
+   ],
+   "related": [
+    "EV-0040"
+   ],
+   "cited_by": [
+    {
+     "page": "/wiki/",
+     "page_title": "Legal Wiki — The Great House Farm Wiki",
+     "anchor": "tbd-0004-1",
+     "text": "29 March 1961 deed: the deed and its plan (EV-0040) have not been inspected, so its terms and precise extent, and what Cardiff City Corporation received, are not known."
+    },
+    {
+     "page": "/wiki/qa/qa-open-questions/",
+     "page_title": "Q&A — Open Questions & Research Priorities — Legal Wiki",
+     "anchor": "tbd-0004-1",
+     "text": "What precise land do the 1905 conveyance, 15 May 1924 agreement and 29 March 1961 deed describe, and how do their operative clauses and plans affect the downstream title chain?"
+    }
+   ]
+  },
+  "TBD-0005": {
+   "label": "Land concerned in the Lands Tribunal case Western Ground Rents Ltd v City of Cardiff (1965–1967)",
+   "date": "1965–1967",
+   "date_sort": "1967",
+   "added": "2026-11-12",
+   "unknown": [
+    "A compulsory-purchase compensation case catalogued at The National Archives (LT 13/3048; EV-0262).",
+    "Not yet read: which land the case concerned, and whether any of it was at Great House Farm.",
+    "What would settle it: the case file at The National Archives."
+   ],
+   "related": [
+    "EV-0262"
+   ],
+   "cited_by": [
+    {
+     "page": "/wiki/",
+     "page_title": "Legal Wiki — The Great House Farm Wiki",
+     "anchor": "tbd-0005-1",
+     "text": "1967 · Lands Tribunal, WGR v City of Cardiff: a compulsory-purchase compensation case, catalogued at The National Archives. Which land it concerned has not been read."
+    }
+   ]
+  },
+  "TBD-0006": {
+   "label": "Whether a wider plan for the land existed in 1988",
+   "date": "1988",
+   "date_sort": "1988-10",
+   "added": "2026-11-12",
+   "unknown": [
+    "In October–November 1988 BP's pension fund sold about 1,300 acres of Welsh land (EV-0270), and the Land Authority for Wales board considered neighbouring land (EV-0269).",
+    "Not established: whether the land at Great House Farm formed part of any wider plan, and whether the Williams family were consulted.",
+    "Cuts against: on every record seen so far, the farm itself stayed with BP until its 1993 sale to Ideal Homes.",
+    "What would settle it: the Land Authority board papers (WA 9/49; MR-0033), the full Cardiff Bay Development Corporation response, and the VG41 file (TBD-0001)."
+   ],
+   "related": [
+    "EV-0270",
+    "EV-0269",
+    "MR-0033",
+    "EV-0690",
+    "TBD-0001"
+   ],
+   "cited_by": [
+    {
+     "page": "/wiki/",
+     "page_title": "Legal Wiki — The Great House Farm Wiki",
+     "anchor": "tbd-0006-1",
+     "text": "A wider plan? Was there a wider plan for the land on which the Williams family were not consulted? This is not established."
+    }
+   ]
+  },
+  "TBD-0007": {
+   "label": "Date of possession in November 1988 (29 or 30 November)",
+   "date": "Nov 1988",
+   "date_sort": "1988-11-29",
+   "added": "2026-11-12",
+   "unknown": [
+    "BP obtained possession at the end of November 1988, and the farmhouse was demolished on 6 December 1988.",
+    "Date not yet confirmed: the Legal Wiki has given 29 November; the South Wales Echo of 3 December 1988 (EV-0102) places the eviction on Wednesday, 30 November.",
+    "What would settle it: the enforcement record (the writ of possession and its execution return)."
+   ],
+   "related": [
+    "EV-0102",
+    "EV-0103"
+   ],
+   "cited_by": [
+    {
+     "page": "/wiki/demolition-1988/",
+     "page_title": "1988: Possession and Demolition — Legal Wiki",
+     "anchor": "tbd-0007-1",
+     "text": "1988: Possession and Demolition — this page has given 29 November for possession; the South Wales Echo of 3 December 1988 places the eviction on Wednesday, 30 November. The enforcement record should settle the date."
+    }
+   ]
+  },
+  "TBD-0008": {
+   "label": "Date of Jim Driscoll's first fight in the barn",
+   "date": "date TBD",
+   "date_sort": "",
+   "added": "2026-11-12",
+   "unknown": [
+    "Local history, not a title event: “Peerless” Jim Driscoll's first fight is reported to have taken place in the barn at Great House Farm.",
+    "Date not yet established: no dated source is held.",
+    "What would settle it: a dated press report or boxing record of the bout."
+   ],
+   "related": [],
+   "cited_by": [
+    {
+     "page": "/wiki/",
+     "page_title": "Legal Wiki — The Great House Farm Wiki",
+     "anchor": "tbd-0008-1",
+     "text": "Local history: Peerless Jim Driscoll’s first fight in the barn (reported · date unknown)."
+    }
+   ]
+  },
+  "TBD-0009": {
+   "label": "The complete ITV broadcast that holds the five-second Great House Farm clip",
+   "date": "date TBD",
+   "date_sort": "",
+   "added": "2026-11-12",
+   "unknown": [
+    "A five-second clip of Great House Farm has been obtained from ITV coverage broadcast between a sports programme (anomalies register A-001).",
+    "Not yet located: the rest of the broadcast, its date and programme, and what the unseen material contained.",
+    "What would settle it: the ITV archive's transmission records, production files and metadata for the broadcast."
+   ],
+   "related": [
+    "EV-0083"
+   ],
+   "cited_by": [
+    {
+     "page": "/wiki/anomalies-register/",
+     "page_title": "Anomalies Register — Legal Wiki",
+     "anchor": "tbd-0009-1",
+     "text": "A-001 · ITV footage — incomplete coverage: a five-second clip of Great House Farm has been obtained from ITV coverage broadcast between a sports programme. The remainder has not yet been located. What was the complete broadcast, and what did the unseen material contain?"
+    }
+   ]
+  }
+ }
+}

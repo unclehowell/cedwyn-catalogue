@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.17.0 — 2026-11-12
+- **TBD (to be determined).** A new result type, TBD, sits after PDF in the result tabs (on a phone it is the first item in the More menu). A TBD entry marks a record whose content, extent or date is not yet established. TBD results use the same gallery layout as Images, with a TBD card.
+- **TBD entry page** (`?id=TBD-0001`): mostly blank by design. It shows what is not yet known and what would settle it, related records, and **Cited by**: every page statement that carries a TBD marker, each linked to that marker's own anchor (`page#tbd-NNNN-n`), so a page with several TBD statements has several links.
+- Page data in `tbd.json` (labels, the not-yet-known note, related ids, cited-by anchors). The TBD records themselves are proposed to the central catalogue as a catalogue-change; until approved, an entry is shown as proposed. No record is edited (issue #39).
+
 ## 0.16.0 — 2026-11-11
 - **No more drawn placeholders.** The pencil-sketch "artist's impression" pictures are gone everywhere: from record pages, from result thumbnails, from the Videos tab and from shared-link previews. A record whose file is not held here now shows its own data (date, catalogue reference, where the original is, description, transcript, interpretation) with the plain line "File pending"; a result with no picture shows its typed card (type and record ID). The caption under the old sketch and the line beneath it ("The original is shown on its holder's or the archive's own page …") are removed with it.
 - **Generator removed.** The code that drew the sketches (`docSketch`, `filmSketch`, `placeholderFrame`, `reconFig`, `statusNote`) is deleted from app.js, and the drawn images under `recon/` and `sketch/` are deleted from the repository, so nothing can bring them back by accident. No record was changed: this is display code and display images only.

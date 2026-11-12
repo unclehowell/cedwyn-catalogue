@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="app-version" content="0.16.0">
+<meta name="app-version" content="0.17.0">
 <title>Records · Great House, Cedwyn Estate</title>
-<meta name="description" content="Search the Great House, Cedwyn Estate records: the record catalogue, web archive, films, PDFs, blog and books in one place, with a preview for every result.">
+<meta name="description" content="Search the Great House, Cedwyn Estate records: the record catalogue, web archive, films, PDFs, TBD entries, blog and books in one place, with a preview for every result.">
 <script>window.__cedwynLP="/research/"</script><script src="/_cedwyn/ghf/ghf-boot.js?v=2.1.30"></script>
 <meta name="theme-color" content="#f7f5ef" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#16161d" media="(prefers-color-scheme: dark)">
@@ -115,12 +115,20 @@ footer{max-width:52rem;margin:24px auto;padding:0 16px 24px;font-size:13px;color
 .th.vim.vff{aspect-ratio:4/3;background:#e7e5df;border:0}.th.thsk{background:#ecebe6}.th.thsk svg,.vff svg{display:block;width:100%;height:100%}.skfig{margin:8px auto;max-width:420px;text-align:center}.skfig.skfilm{max-width:560px}.skfig svg{display:block;width:100%;height:auto;border-radius:6px;border:1px solid var(--line);box-shadow:0 1px 6px rgba(0,0,0,.08)}.skfig figcaption{font-size:13px;color:var(--mut);margin-top:6px}.vo{font-size:15px;font-weight:600;margin:26px 0 4px;color:var(--mut)}.uid{font-size:13px;color:var(--mut);margin:6px 0 2px;word-break:break-all}.uid b{font-family:ui-monospace,Menlo,monospace;font-size:14px;color:inherit;letter-spacing:.02em}.nya{color:var(--mut);font-style:italic}.stn{font-size:13px;text-align:center}.unc{display:inline-block;font-size:12px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;border:1px solid var(--line);border-radius:999px;padding:2px 10px;margin:4px 0}
 /* v0.11.0: real previews show the file as it is (the v0.8.0 pencil filter is no longer applied). v0.16.0: no sketch placeholders at all; the .sk/.skfig/.recon rules below are unused */
 .th img:not(.skimg){background:#f4f2ec}.th.vff img.skimg{object-fit:cover}.skfig img.skimg{display:block;width:100%;height:auto;border-radius:6px;border:1px solid var(--line);box-shadow:0 1px 6px rgba(0,0,0,.08)}
+
+/* v0.17.0 TBD (to be determined) */
+.tbdp{display:inline-block;padding:0 .45em;border-radius:.6em;background:rgba(255,196,0,.30);border:1px solid rgba(190,140,0,.55);color:var(--fg);font-weight:700;font-size:.78em;line-height:1.45;letter-spacing:.05em;white-space:nowrap}
+.pc.tbdc{background:linear-gradient(160deg,rgba(255,196,0,.20),var(--card))}.tbdc .tbdp{font-size:16px;padding:2px 12px;margin-bottom:2px}
+h1 .tbdh{font-size:.55em;vertical-align:.25em}.tbdst{font-size:14px;color:var(--mut);border-left:3px solid rgba(190,140,0,.55);padding:4px 10px;margin:8px 0}
+.th.gim.tbdpv{display:block;max-width:340px}.tbdnote{font-size:13px;color:var(--mut);margin:10px 0 0}
+.cby{padding-left:1.3em}.cby li{margin:0 0 14px}.cbl{font-weight:600}.cba{font:12px ui-monospace,Menlo,monospace;color:var(--mut);font-weight:400}
+.cbt{margin:5px 0 0;padding:6px 10px;border-left:3px solid rgba(190,140,0,.55);background:var(--card);font-size:14px;line-height:1.45}
 </style>
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><filter id="pencil" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB"><feColorMatrix type="saturate" values="0" result="g"/><feComponentTransfer in="g" result="i"><feFuncR type="table" tableValues="1 0"/><feFuncG type="table" tableValues="1 0"/><feFuncB type="table" tableValues="1 0"/></feComponentTransfer><feGaussianBlur in="i" stdDeviation="1.8" result="b"/><feBlend in="b" in2="g" mode="color-dodge" result="d"/><feComponentTransfer in="d" result="k"><feFuncR type="gamma" exponent="2.1"/><feFuncG type="gamma" exponent="2.1"/><feFuncB type="gamma" exponent="2.1"/></feComponentTransfer><feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves="2" seed="4" result="n"/><feColorMatrix in="n" type="saturate" values="0" result="m"/><feComposite in="k" in2="m" operator="arithmetic" k1="0" k2="1" k3="-.16" k4=".05"/></filter></svg>
 <main id="app" data-cw-nolevels><p class="muted" style="text-align:center">Loading the records…</p><noscript><p>These records are read live from the central record, which needs JavaScript. The raw records are at <a href="https://bucklerfamily.estate/api/catalogue">/api/catalogue</a>.</p></noscript></main>
 <footer id="cfoot" hidden>Every record here is read live from the central Cedwyn records, so a record added there appears here with no extra step. Interpretation boxes are our reading of the evidence, not findings of any court or authority.</footer>
-<script src="app.js?v=0.16.0"></script>
+<script src="app.js?v=0.17.0"></script>
 </body>
 </html>

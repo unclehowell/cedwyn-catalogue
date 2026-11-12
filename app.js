@@ -28,7 +28,10 @@
    artist's impression whose words come only from its own fields, labelled as reconstructed; every result opens a page whose
    address carries its UID (?id=);
    a source file that a record describes folds into that record (sources.json 'rec' index); other sources are labelled
-   'Uncatalogued source' and open ?src=<key>. Record page: UID and title, preview, description, transcript, interpretation. — Tab agent */
+   'Uncatalogued source' and open ?src=<key>. Record page: UID and title, preview, description, transcript, interpretation. — Tab agent    v0.17.0 (12 Nov 2026, cedwyn-catalogue#39): a TBD (to be determined) result type after PDF (it folds into More on a phone).
+   TBD results use the Images gallery layout with a TBD card; a TBD entry page shows what is not yet known and "Cited by": every page
+   statement carrying a TBD marker, each linked to that marker's own anchor (page#tbd-NNNN-n). Page data in tbd.json; no record edited.
+*/
 (function () {
   'use strict';
   var CONFIG = {
@@ -39,11 +42,11 @@
   };
   var P = new URLSearchParams(location.search);
   if (P.get('source') === 'graphql' && P.get('endpoint')) { CONFIG.source = 'graphql'; CONFIG.graphql = P.get('endpoint'); }
-  var KINDS = { email: 'Email', evidence: 'Evidence', artifact: 'Artifact', missing_record: 'Missing record', person: 'Person', catalogue_candidate: 'Candidate', media: 'Media item' };
+  var KINDS = { tbd: 'TBD (to be determined)', email: 'Email', evidence: 'Evidence', artifact: 'Artifact', missing_record: 'Missing record', person: 'Person', catalogue_candidate: 'Candidate', media: 'Media item' };
   var app = document.getElementById('app');
 
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
-  var IDRE = /\b(EV|MR|MED|AR|PE|CC|EM)-\d{3,4}\b/g;
+  var IDRE = /\b(EV|MR|MED|AR|PE|CC|EM|TBD)-\d{3,4}\b/g;
   function linkIds(html, self) { return html.replace(IDRE, function (m) { return m === self ? m : '<a href="?id=' + m + '">' + m + '</a>'; }); }
   function txt(s, self) { return linkIds(esc(s), self); }
   function getJSON(u) { return fetch(u, { headers: { accept: 'application/json' } }).then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); }); }
@@ -181,10 +184,15 @@
   }
   var SRC = Sources[CONFIG.source] || Sources.rest;
   var pagesP = getJSON(CONFIG.pages + '?v=' + Math.floor(Date.now() / 300000)).catch(function () { return {}; });
+  /* v0.17.0 (12 Nov 2026, cedwyn-catalogue#39): TBD (to be determined) entries. tbd.json is page data only: for each TBD id, the short
+     label its page markers carry, a plain note of what is not yet known, related record ids, and "cited by": every page statement that
+     carries a TBD marker, with the marker's own anchor (page#tbd-NNNN-n). A TBD id that the catalogue does not serve yet is shown as a
+     proposed entry. Nothing here edits a record. — Sion's Tab agent */
+  var tbdP = getJSON('tbd.json?v=' + Math.floor(Date.now() / 300000)).catch(function () { return { entries: {} }; });
 
   /* ---- search (v0.5.0): Google-style home, tabs, galleries, real thumbnails ---- */
   var all = null, shown = 30;
-  var TABS = [['all', 'All'], ['web', 'Web'], ['images', 'Images'], ['videos', 'Videos'], ['pdf', 'PDF'], ['news', 'News'], ['emails', 'Emails'], ['books', 'Books'], ['blog', 'Blog']];
+  var TABS = [['all', 'All'], ['web', 'Web'], ['images', 'Images'], ['videos', 'Videos'], ['pdf', 'PDF'], ['tbd', 'TBD'], ['news', 'News'], ['emails', 'Emails'], ['books', 'Books'], ['blog', 'Blog']];
   var PIN = { all: 1, web: 1, images: 1, videos: 1, pdf: 1 };   // v0.13.0: always on the row; the tabs after them fold into "More" as width runs out
   var IMGRE = /image|photo|map|plan\b|drawing|aerial|postcard|sketch|png|jpe?g/i, BOOKRE = /book|trade directory|library item/i, WEBRE = /web page|press|website|newspaper/i, PDFRE = /\bpdf\b/i;
   var VQ = '?v=0.9.0-' + Math.floor(Date.now() / 300000);
@@ -340,6 +348,7 @@
   function isPrivate(r) { var d = r.data || {}; return /privately|subject[- ]access|personal data|personal material|\bSAR\b/i.test([r.status, d.label, r.holder, d.type, r.title].join(' ').replace(/FOI\/EIR\/SAR/g, 'FOI')); }
   function recTab(r, x) {                                   // the mapping file first, then the same rules for records added since
     var t = String((r.data || {}).type || ''), ti = TI[r.id] || {};
+    if (r.kind === 'tbd' || /^TBD-/.test(r.id || '')) return 'tbd';   // v0.17.0: TBD (to be determined) entries
     if (r.kind === 'email') return 'emails';
     if (isFootage(r)) return 'videos';
     if (isNews(r)) return 'news';                            // v0.11.0: press, newspaper reports, clippings and scans of them
@@ -362,6 +371,7 @@
     return it;
   }
   function bookImg(u) { var m = /archive\.org\/details\/([^\/\s?#]+)/.exec(u || ''); return m ? 'https://archive.org/services/img/' + m[1] : null; }
+  var TBDX = null;
   var SRCK = {};                                             // v0.9.0: every archived-copy entry by key, including those a record describes
   function build(recs, x) {
     var out = recs.filter(function (r) { return !isOwnSite(r); }).map(function (r) { return fromRecord(r, x); }), byId = {}, REC = x.rec || {};
@@ -391,9 +401,21 @@
     });
     out.forEach(function (it) { if (it.tab === 'blog' && it.r) { var bu = (it.r.data || {}).url; it.arc = bu ? (copyOf(bu) || 0) : null; } });
     out.forEach(function (it) { if (it.srcs) it.d = 'Source file: ' + it.srcs.map(function (s) { return s.t; }).join(' · ') + (it.d ? ' — ' + it.d : ''); });
+    var TE = (TBDX && TBDX.entries) || {};                   // v0.17.0: TBD entries, served or proposed, with their cited-by statements
+    Object.keys(TE).forEach(function (id) {
+      var e = TE[id] || {}, cb = e.cited_by || [], it = byId[id];
+      var hay = [id, 'tbd', 'to be determined', e.label, (e.unknown || []).join(' '), cb.map(function (c) { return c.text + ' ' + c.page_title; }).join(' ')].join(' ').toLowerCase();
+      if (it) { it.tab = 'tbd'; it.h += ' ' + hay; it.cb = cb.length; return; }
+      it = { tab: 'tbd', id: id, rt: e.label || id, t: id + ': ' + (e.label || ''), u: '?id=' + id, lb: 'TBD', ty: 'TBD', ic: 'tbd', tbd: 1, pend: 1, cb: cb.length,
+        d: 'To be determined. ' + ((e.unknown || [])[1] || (e.unknown || [])[0] || '') + ' Cited by ' + cb.length + ' statement' + (cb.length === 1 ? '' : 's') + '.',
+        dt: e.date || '', ds: e.date_sort || '', h: hay };
+      out.push(it); byId[id] = it;
+    });
+    out.forEach(function (it) { if (it.tab === 'tbd') { it.ty = 'TBD'; it.lb = 'TBD · cited by ' + (it.cb || 0); } });
     return out;
   }
   function card(it) {                                        // typed placeholder: never an empty box
+    if (it.tab === 'tbd') return '<span class="pc tbdc"><span class="tbdp">TBD</span><span class="pct">To be determined</span>' + (it.id ? '<span class="pcid">' + esc(it.id) + '</span>' : '') + '</span>';   // v0.17.0
     return '<span class="pc"><span class="pct">' + esc(String(it.priv ? 'Held privately' : it.ty || '').slice(0, 40)) + '</span>' + (it.id ? '<span class="pcid">' + esc(it.id) + '</span>' : '') + '</span>';
   }
   function pic(it, cls) {
@@ -508,6 +530,9 @@
         var other = all.filter(function (it) { return it.tab === 'videos' && it.r && !seen[it.id]; });
         if (other.length) h += '<h3 class="vo">Other catalogued footage</h3><div class="vgal">' + other.map(vcard).join('') + '</div>';
       }
+    } else if (tab === 'tbd') {                              // v0.17.0: TBD entries in the same gallery layout as Images
+      h += '<p class="tbdnote">TBD marks a record whose content, extent or date is not yet established. Each entry lists the statements that cite it.</p>';
+      h += '<div class="gal">' + page.map(function (it) { return '<figure class="gi"><a href="' + esc(it.u || '#') + '">' + pic(it, 'gim') + '</a><figcaption>' + lead(it) + '<span class="gt">' + esc(it.rt || it.t) + '</span>' + recLink(it) + '</figcaption></figure>'; }).join('') + '</div>';
     } else if (tab === 'emails') {
       h += '<div class="mres">' + page.map(emailRow).join('') + '</div>';
     } else if (tab === 'pdf') {
@@ -704,7 +729,35 @@
       (locs.length ? locs.join('<br>') : (hold ? '' : '<span class="muted">not recorded</span>')) + '</td></tr></tbody></table>';
   }
   function isText(r) { var t = String(((r.data || {}).type) || '') + ' ' + (KINDS[r.kind] || ''); return !isFootage(r) && r.kind !== 'artifact' && r.kind !== 'media' && !IMGRE.test(t); }
+  function renderTBD(id) {                                  // v0.17.0: a TBD entry: mostly blank by design; what is unknown, and every statement citing it
+    foot(true); app.innerHTML = '<p class="muted">Loading ' + esc(id) + '…</p>';
+    Promise.all([SRC.get(id).catch(function () { return { item: null, links: [] }; }), tbdP]).then(function (a) {
+      var r = a[0] && a[0].item, e = ((a[1] || {}).entries || {})[id];
+      if (!r && !e) throw new Error('not found');
+      e = e || {}; var d = (r && r.data) || {}, title = (r && r.title) || e.label || id, cb = e.cited_by || [];
+      ttl(id + ' · ');
+      var h = '<p class="muted"><a href="' + esc(window.__cs || './') + '">← Back to search</a></p>' + uidLine(id) +
+        '<h1>' + esc(id) + ': ' + esc(title) + ' <span class="tbdp tbdh">TBD</span></h1>';
+      h += '<p class="tbdst">' + (r ? 'Catalogue entry · to be determined' : 'Proposed catalogue entry · to be determined. The entry is waiting for approval to join the catalogue; until then this page shows what is not yet known and the statements that cite it.') + '</p>';
+      h += '<h2>Preview</h2><span class="th gim tbdpv">' + card({ tab: 'tbd', id: id }) + '</span><p class="fpend">No file: the record itself is to be determined</p>';
+      h += shareRow('id', id, id + ': ' + title, 1);
+      h += '<h2>What is not yet known</h2>';
+      var un = [].concat(r && r.summary ? [r.summary] : [], r && d.description && d.description !== r.summary ? [d.description] : [], r ? [] : (e.unknown || []));
+      if (!un.length) un = e.unknown || [];
+      h += un.length ? un.map(function (p) { return '<p>' + txt(p, id) + '</p>'; }).join('') : '<p class="nya">Not yet written.</p>';
+      var rel = (e.related || []).filter(function (x) { return x !== id; });
+      if (rel.length) h += '<h2>Related records</h2><p>' + rel.map(function (x) { return '<a href="?id=' + esc(x) + '">' + esc(x) + '</a>'; }).join(' · ') + '</p>';
+      h += '<h2 id="cited-by">Cited by (' + cb.length + ')</h2>';
+      h += cb.length ? '<ol class="cby">' + cb.map(function (c) {
+        var href = c.page + '#' + c.anchor;
+        return '<li><a class="cbl" href="' + esc(href) + '">' + esc(c.page_title || c.page) + ' <span class="cba">#' + esc(c.anchor) + '</span></a>' + (c.text ? '<blockquote class="cbt">' + esc(c.text) + ' <span class="tbdp">TBD</span></blockquote>' : '') + '</li>';
+      }).join('') + '</ol>' : '<p class="nya">No page cites this entry yet.</p>';
+      if (r) h += '<h2>Record details</h2><table class="ghf-ev-table"><tbody>' + row('ID', r.id) + row('Kind', KINDS[r.kind] || r.kind) + row('Title', r.title, r.id) + row('Date', r.date_display) + row('Status', r.status) + row('Holder', r.holder || d.repository, r.id) + '</tbody></table>';
+      app.innerHTML = h; window.scrollTo(0, 0);
+    }).catch(function (err) { app.innerHTML = '<p class="muted"><a href="' + esc(window.__cs || './') + '">← Back to search</a></p><div class="err">Entry ' + esc(id) + ' could not be read (' + esc(err.message) + ').</div>'; });
+  }
   function renderRecord(id) {
+    if (/^TBD-/.test(id)) return renderTBD(id);
     foot(true); app.innerHTML = '<p class="muted">Loading ' + esc(id) + '…</p>';
     Promise.all([SRC.get(id), pagesP, thumbsP, extraP, wbP, logosP]).then(function (a) {
       var r = a[0].item, links = a[0].links, extra = (a[1] || {})[id] || null, srcs = srcsFor(id, a[3]);
@@ -774,7 +827,7 @@
     if (id) return renderRecord(id);
     var sk = (P.get('src') || '').trim();
     if (all) return sk ? renderSource(sk) : renderList();
-    Promise.all([SRC.list(), extraP, thumbsP, wbP, logosP]).then(function (x) { all = build(x[0], x[1]); if (sk) renderSource(sk); else renderList(); }).catch(function (e) { app.innerHTML = '<div class="err">The records could not be read (' + esc(e.message) + '). Try again in a moment.</div>'; });
+    Promise.all([SRC.list(), extraP, thumbsP, wbP, logosP, tbdP]).then(function (x) { TBDX = x[5]; all = build(x[0], x[1]); if (sk) renderSource(sk); else renderList(); }).catch(function (e) { app.innerHTML = '<div class="err">The records could not be read (' + esc(e.message) + '). Try again in a moment.</div>'; });
   }
   document.addEventListener('click', function (e) {
     var a = e.target.closest && e.target.closest('a[href^="?"]'); if (!a || e.metaKey || e.ctrlKey) return;
