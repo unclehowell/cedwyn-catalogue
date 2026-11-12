@@ -1,6 +1,6 @@
 {
  "_about": "TBD (to be determined) entries for the records browser: page data only. For each TBD id: the short label its page markers carry, a plain note of what is not yet known, related record ids, and cited_by: every page statement carrying a TBD marker, with the marker's anchor (page#anchor). The TBD records themselves are proposed to the central catalogue as a catalogue-change; nothing here edits a record. Add-only. — Sion's Tab agent",
- "version": "0.1.0",
+ "version": "0.1.1",
  "updated": "2026-11-12",
  "anchor_format": "tbd-NNNN-n (NNNN = the TBD number, n = its marker count on that page)",
  "entries": {
@@ -32,6 +32,18 @@
      "page_title": "Legal Wiki — The Great House Farm Wiki",
      "anchor": "tbd-0001-2",
      "text": "What would settle it: the Land Authority board papers (WA 9/49), the full Cardiff Bay Development Corporation response, and the VG41 file."
+    },
+    {
+     "page": "/wiki/redevelopment/",
+     "page_title": "Redevelopment — Legal Wiki",
+     "anchor": "tbd-0001-1",
+     "text": "The Wiki records VG41 as registered on 16 June 1970. The complete VG41 file has not yet been obtained."
+    },
+    {
+     "page": "/wiki/the-two-parcels/three-parts-of-parcel-a-divergent-chronologies/",
+     "page_title": "Three parts of Parcel A: divergent chronologies — Legal Wiki",
+     "anchor": "tbd-0001-1",
+     "text": "Was VG41 merely registered as a green, or was a separate owner-entry and statutory vesting sequence actually completed? The owner column, objections, Commissioner referral/decision, notices and resulting register entry must answer that."
     }
    ]
   },
@@ -64,6 +76,12 @@
      "page_title": "Anomalies Register — Legal Wiki",
      "anchor": "tbd-0002-1",
      "text": "A-002 · ITV footage — abrupt editing / omissions: a separate ITV clip contains abrupt transitions and apparent omissions. The issue is whether this is ordinary editorial selection, loss of source material, or something requiring explanation."
+    },
+    {
+     "page": "/wiki/scrutiny-and-accountability/master-scrutiny-issue-register/",
+     "page_title": "Master Scrutiny Issue Register — Legal Wiki",
+     "anchor": "tbd-0002-1",
+     "text": "A-002 · ITV footage — abrupt editing / omissions: the issue is whether this is ordinary editorial selection, loss of source material, or something requiring explanation."
     }
    ]
   },
@@ -94,6 +112,12 @@
      "page_title": "Anomalies Register — Legal Wiki",
      "anchor": "tbd-0003-1",
      "text": "A-031 · 1938 WGR conveyance: what exact land and estate was conveyed in 1938, and did it include the House Plot?"
+    },
+    {
+     "page": "/wiki/scrutiny-and-accountability/master-scrutiny-issue-register/",
+     "page_title": "Master Scrutiny Issue Register — Legal Wiki",
+     "anchor": "tbd-0003-1",
+     "text": "A-031 · 1938 WGR conveyance: what exact land and estate was conveyed in 1938, and did it include the House Plot?"
     }
    ]
   },
@@ -122,6 +146,18 @@
      "page_title": "Q&A — Open Questions & Research Priorities — Legal Wiki",
      "anchor": "tbd-0004-1",
      "text": "What precise land do the 1905 conveyance, 15 May 1924 agreement and 29 March 1961 deed describe, and how do their operative clauses and plans affect the downstream title chain?"
+    },
+    {
+     "page": "/wiki/the-two-parcels/three-parts-of-parcel-a-divergent-chronologies/",
+     "page_title": "Three parts of Parcel A: divergent chronologies — Legal Wiki",
+     "anchor": "tbd-0004-1",
+     "text": "Obtain and inspect the complete 29 March 1961 deed and plan; identify the parties, parcels, operative provisions and any registration or later conveyancing consequences."
+    },
+    {
+     "page": "/wiki/williams-buckler-family/",
+     "page_title": "Williams–Buckler family — Legal Wiki",
+     "anchor": "tbd-0004-1",
+     "text": "Evidence description: a deed dated 29 March 1961, contents not yet known, is on the WA231076 first-registration file."
     }
    ]
   },
@@ -194,6 +230,12 @@
      "page_title": "1988: Possession and Demolition — Legal Wiki",
      "anchor": "tbd-0007-1",
      "text": "1988: Possession and Demolition — this page has given 29 November for possession; the South Wales Echo of 3 December 1988 places the eviction on Wednesday, 30 November. The enforcement record should settle the date."
+    },
+    {
+     "page": "/wiki/qa/",
+     "page_title": "Q&A — Legal Wiki",
+     "anchor": "tbd-0007-1",
+     "text": "Did the family have possession of the farmhouse? Yes, until BP obtained possession on 29 November 1988."
     }
    ]
   },
@@ -234,6 +276,12 @@
     {
      "page": "/wiki/anomalies-register/",
      "page_title": "Anomalies Register — Legal Wiki",
+     "anchor": "tbd-0009-1",
+     "text": "A-001 · ITV footage — incomplete coverage: a five-second clip of Great House Farm has been obtained from ITV coverage broadcast between a sports programme. The remainder has not yet been located. What was the complete broadcast, and what did the unseen material contain?"
+    },
+    {
+     "page": "/wiki/scrutiny-and-accountability/master-scrutiny-issue-register/",
+     "page_title": "Master Scrutiny Issue Register — Legal Wiki",
      "anchor": "tbd-0009-1",
      "text": "A-001 · ITV footage — incomplete coverage: a five-second clip of Great House Farm has been obtained from ITV coverage broadcast between a sports programme. The remainder has not yet been located. What was the complete broadcast, and what did the unseen material contain?"
     }
