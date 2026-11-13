@@ -82,7 +82,7 @@
   /* ---- v0.10.0 (10 Nov 2026): email records (kind email, ids in the EV series from EV-0906), one catalogue record per message (core schema 0.4.0).
      The central catalogue serves them through the REST API once loaded; until the API has kind=email rows, they are read from the
      catalogue's own record files (unclehowell/cedwyn data/core/records/emails/: index.json + emails-NN.json). Same row shape either way. */
-  var EMAILS = 'https://raw.githubusercontent.com/unclehowell/cedwyn/' + (/^\/catalogue-preview\//.test(location.pathname) || P.get('emails') === 'staged' ? 'catalogue-emails-v0.4.0' : 'main') + '/data/core/records/emails/';
+  var EMAILS = 'https://raw.githubusercontent.com/unclehowell/bucklerfamily-estate/' + (/^\/catalogue-preview\//.test(location.pathname) || P.get('emails') === 'staged' ? 'catalogue-emails-v0.4.0' : 'main') + '/data/core/records/emails/';
   var emIndexP = null, emPartP = {};
   function emIndex() { return emIndexP || (emIndexP = getJSON(EMAILS + 'index.json').catch(function () { return { records: [] }; })); }
   function emRowFromIndex(x) {                               // [id, datetime, s|r, institutions[], from, subject, thread, transcript_public, part, attachments]
