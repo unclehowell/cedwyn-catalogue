@@ -42,11 +42,11 @@
   };
   var P = new URLSearchParams(location.search);
   if (P.get('source') === 'graphql' && P.get('endpoint')) { CONFIG.source = 'graphql'; CONFIG.graphql = P.get('endpoint'); }
-  var KINDS = { tbd: 'TBD (to be determined)', email: 'Email', evidence: 'Evidence', artifact: 'Artifact', missing_record: 'Missing record', person: 'Person', catalogue_candidate: 'Candidate', media: 'Media item' };
+  var KINDS = { tbd: 'TBD (to be determined)', email: 'Email', evidence: 'Evidence', artifact: 'Artifact', missing_record: 'Missing record', person: 'Person', catalogue_candidate: 'Candidate', media: 'Media item', forensic_assessment: 'Forensic assessment' };
   var app = document.getElementById('app');
 
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
-  var IDRE = /\b(EV|MR|MED|AR|PE|CC|EM|TBD)-\d{3,4}\b/g;
+  var IDRE = /\b(FA|EV|MR|MED|AR|PE|CC|EM|TBD)-\d{3,4}\b/g;
   function linkIds(html, self) { return html.replace(IDRE, function (m) { return m === self ? m : '<a href="?id=' + m + '">' + m + '</a>'; }); }
   function txt(s, self) { return linkIds(esc(s), self); }
   function getJSON(u) { return fetch(u, { headers: { accept: 'application/json' } }).then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); }); }
@@ -334,6 +334,7 @@
     if (!r) return '';
     var t = String((r.data || {}).type || '').toLowerCase(), ti = String(r.title || '').toLowerCase();
     if (r.kind === 'email') return /^email from/.test(ti) ? 'Email received' : /^email to/.test(ti) ? 'Email sent' : 'Email';
+    if (r.kind === 'forensic_assessment') return 'Forensic assessment';
     if (r.kind === 'person') return 'Person';
     if (r.kind === 'missing_record') return 'Record not yet found';
     if (/archive.?catalogue|catalogue entr|estate record/.test(t)) return pick(LBA, ti) || 'Archive catalogue entry';
@@ -786,10 +787,10 @@
       h += '<h2>Record details</h2><table class="ghf-ev-table"><tbody>' + row('ID', r.id + (r.alias ? ' (' + r.alias + ')' : ''), r.id) + row('Kind', KINDS[r.kind] || r.kind) + row('Title', r.title, r.id) +
         row('Date', r.date_display) + row('Status', r.status) + row('Type', d.type) + row('Evidence label', d.label) + row('Holder', r.holder || d.repository, r.id) +
         row('Reference', d.their_ref || d.reference) + row('Artifact', d.artifact) + row('Evidence grade', d.evidence_grade ? d.evidence_grade + (d.grade_note ? ' — ' + d.grade_note : '') : '') +
-        row('Why we believe it exists', d.why_we_believe_it_exists, r.id) + row('How to obtain', d.obtain, r.id) + row('Source', typeof d.source === 'string' ? d.source : '', r.id) +
+        row('Why we believe it exists', d.why_we_believe_it_exists, r.id) + row('How to obtain', d.obtain, r.id) + row('Source', typeof d.source === 'string' ? d.source : '', r.id) + (r.kind === 'forensic_assessment' ? row('Semantic version', 'v' + d.version + ' (SemVer 2.0.0)') : '') +
         (Object.keys(rel).length ? '<tr><th>Linked records</th><td>' + Object.keys(rel).sort().map(function (x) { return '<a href="?id=' + x + '">' + x + '</a>'; }).join(' · ') + '</td></tr>' : '') +
         row('Record entry', 'revision ' + (r.rev || 1) + (r.updated ? ', updated ' + r.updated.slice(0, 10) : '')) + '</tbody></table>';
-      h += '<p class="muted">Raw record: <a href="' + esc(CONFIG.rest + '/' + r.id) + '">JSON</a>' + (r.page && r.page.charAt(0) === '/' ? ' · Earlier page: <a href="https://bucklerfamily.estate' + esc(r.page) + '">' + esc(r.page) + '</a>' : '') + '</p>';
+      h += '<p class="muted">Raw record: <a href="' + esc(CONFIG.rest + '/' + r.id) + '">JSON</a>' + (r.page && r.page.charAt(0) === '/' ? ' · ' + (r.kind === 'forensic_assessment' ? 'Assessment page: ' : 'Earlier page: ') + '<a href="https://bucklerfamily.estate' + esc(r.page) + '">' + esc(r.page) + '</a>' : '') + '</p>';
       app.innerHTML = rdx(h, r.id); hydrate(app); window.scrollTo(0, 0);
     }).catch(function (e) { app.innerHTML = '<p class="muted"><a href="' + esc(window.__cs || './') + '">← Back to search</a></p><div class="err">Record ' + esc(id) + ' could not be read (' + esc(e.message) + '). It may not be in the records yet.</div>'; });
   }
