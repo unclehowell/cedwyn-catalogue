@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.18.0 — 2026-11-17
+- **Books tab bibliography additions.** Added Louise Katherine Loe's University of Bristol PhD thesis with the repository's 2003 award metadata and an explicit note that Holbrook & Thomas (2005), p. 3, states 2004 in its narrative; both dates are preserved as a discrepancy, not silently reconciled.
+- Added the citation-only bibliographic lead for E. J. Beare, *Llandough, Penarth* (1963), using the exact citation in Holbrook & Thomas (2005), p. 3, n. 3. The note states that the manuscript itself has not been examined and that current custody is not established.
+- Display-only additions to `sources-books.json`; no existing central catalogue evidence record was modified, no EV ID was minted, and no claims were made about parcel identity.
+
 ## 0.17.0 — 2026-11-12
 - **TBD (to be determined).** A new result type, TBD, sits after PDF in the result tabs (on a phone it is the first item in the More menu). A TBD entry marks a record whose content, extent or date is not yet established. TBD results use the same gallery layout as Images, with a TBD card.
 - **TBD entry page** (`?id=TBD-0001`): mostly blank by design. It shows what is not yet known and what would settle it, related records, and **Cited by**: every page statement that carries a TBD marker, each linked to that marker's own anchor (`page#tbd-NNNN-n`), so a page with several TBD statements has several links.
