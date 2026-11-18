@@ -780,7 +780,7 @@
       else { h += '<h2>Preview</h2>';
       if (isPrivate(r)) h += artifactCard(r);
       else if (pv) h += pv;
-      if (!pv && !isPrivate(r)) h += '<p class="fpend">File pending</p>'; }
+      if (!pv && !isPrivate(r)) h += srcs && srcs.length ? '<p class="fopen"><a href="' + esc(srcs[0].u) + '" rel="noopener">Open archived file</a> · preview not generated</p>' : '<p class="fpend">File pending</p>'; }
       h += shareRow('id', r.id, r.id + ': ' + r.title, 1);
       h += metaBlock(r, srcs);
       h += '<h2>Description</h2>';
