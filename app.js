@@ -426,13 +426,21 @@
     return '<span class="th ' + cls + '">' + card(it) + '</span>';
   }
   function host(u) { try { return new URL(u, location.href).hostname.replace(/^www\./, ''); } catch (e) { return ''; } }
+  // v0.18.0 (18 Nov 2026, cedwyn-catalogue#41): Welsh names match with or without diacritics.
+  // Apply the same Unicode fold to the query, search haystack and relevance text; never alter displayed/source text.
+  function foldSearchText(value) {
+    var s = String(value == null ? '' : value);
+    if (typeof s.normalize === 'function') s = s.normalize('NFKD');
+    return s.replace(/[\u0300-\u036f]/g, '').toLowerCase();
+  }
   function search(q) {
-    var toks = q.toLowerCase().split(/\s+/).filter(Boolean), qq = q.toLowerCase();
+    var qq = foldSearchText(q), toks = qq.split(/\s+/).filter(Boolean);
     return all.map(function (it) {
-      if (!toks.every(function (t) { return it.h.indexOf(t) >= 0; })) return null;
-      var tt = (String(it.t || '') + ' ' + (it.srcs || []).map(function (s) { return s.t; }).join(' ')).toLowerCase(), sc = 0;
+      var hay = foldSearchText(it.h);
+      if (!toks.every(function (t) { return hay.indexOf(t) >= 0; })) return null;
+      var tt = foldSearchText(String(it.t || '') + ' ' + (it.srcs || []).map(function (s) { return s.t; }).join(' ')), sc = 0;
       toks.forEach(function (t) { sc += tt.indexOf(t) >= 0 ? 3 : 1; });
-      if (it.id && it.id.toLowerCase() === qq) sc += 50; if (qq && tt.indexOf(qq) >= 0) sc += 5; if (it.id) sc += 1; if (it.tk || it.img) sc += 0.5; if (it.mail) sc -= 2;   // emails rank below other records in All
+      if (it.id && foldSearchText(it.id) === qq) sc += 50; if (qq && tt.indexOf(qq) >= 0) sc += 5; if (it.id) sc += 1; if (it.tk || it.img) sc += 0.5; if (it.mail) sc -= 2;   // emails rank below other records in All
       it.sc = sc; return it;
     }).filter(Boolean);
   }
