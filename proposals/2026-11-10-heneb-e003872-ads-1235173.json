@@ -1,0 +1,72 @@
+{
+ "schema": "cedwyn-proposal/0.1.0",
+ "kind": "catalogue_change_proposal",
+ "change": "add-only",
+ "created": "2026-11-10",
+ "note": "Add-only: one NEW evidence record. No existing record is edited. Id to be assigned at insert (next free EV-nnnn). Opened as a catalogue-change PR; not inserted into the live catalogue.",
+ "records": [
+  {
+   "id": "(next free EV-nnnn)",
+   "kind": "evidence",
+   "title": "Heneb HER event GGATE003872 'Land at Great House Farm, Llandough' (Evaluation, 1990), with its Archaeology Data Service library listing (record 1235173): the 1990 GGAT trial-trench evaluation commissioned by BP Properties",
+   "date_display": "1990 (event and report); ADS listing created 3 Feb 2025; both read online 10 Nov 2026",
+   "date_sort": "1990-08",
+   "status": "HELD (online HER and library records read)",
+   "holder": "Heneb HER Charitable Trust, Historic Environment Record (Archwilio), PRN E003872 https://archwilio.org.uk/arch/query/page.php?watprn=GGATE003872&dbname=cpat&tbname=event ; Archaeology Data Service Library, record 1235173 https://archaeologydataservice.ac.uk/library/browse/issue.xhtml?recordId=1235173",
+   "data": {
+    "type": "historic environment record (event) and bibliographic listing",
+    "label": "PUBLIC RECORD READ (HER event + library listing)",
+    "event_type": "Evaluation",
+    "ngr": "ST1679073310 (HER event); ADS grid reference 316700, 173350",
+    "identifiers": {
+     "heneb_event_prn": "GGATE003872",
+     "heneb_core_record": "GGAT02038s",
+     "ads_record": "1235173",
+     "ads_site_code": "GGAT02038s",
+     "ads_project_number": "GGATE003872",
+     "wales_her_document": "docid 301361628"
+    },
+    "verbatim": [
+     "HER event summary: \"B P Properties commissioned GGAT to undertake fieldwork on the site of Great House Farm, Llandough on the possible archaeological implications of redevelopment.\"",
+     "HER event summary: \"Human remains were found in trench 3 and 4 and remains of the house were found in trench 7.\"",
+     "ADS listing: Title \"Land at Great House Farm, Llandough. An Archaeological Assessment\"; Series \"Glamorgan-Gwent Archaeological Trust unpublished report series\"; Publisher \"Glamorgan Gwent Archaeological Trust Ltd\"; Year 1990; Source \"Archwilio (Heneb: the Trust for Welsh Archaeology - Archwilio)\".",
+     "ADS listing: \"The ADS have no files for download on this page\"; Relations URI points to the Wales HER document docid 301361628."
+    ],
+    "locations": [
+     {
+      "holder": "Heneb HER (Archwilio), event GGATE003872",
+      "url": "https://archwilio.org.uk/arch/query/page.php?watprn=GGATE003872&dbname=cpat&tbname=event"
+     },
+     {
+      "holder": "Archaeology Data Service Library, record 1235173",
+      "url": "https://archaeologydataservice.ac.uk/library/browse/issue.xhtml?recordId=1235173"
+     },
+     {
+      "holder": "Wales HER document 301361628 (the report PDF, 16 pages, 6,504,003 bytes; byte-identical to the copy already held as EV-0751)",
+      "url": "https://www.archwilio.org.uk/her/app/php/herumd.php?group=GGAT&level=3&docid=301361628"
+     }
+    ],
+    "provenance": "Both pages read in a browser on 10 Nov 2026 (the ADS page sits behind a browser check; the walesher1974.org address answered 403, the same document opens at the archwilio.org.uk address). The pointer to these listings arrived in a professional-body knowledge-team reply of 10 Nov 2026. The PDF behind docid 301361628 was downloaded and its SHA-256 matched the file already held (EV-0751), so no new copy of the report is added. Heneb terms: information and research use; acknowledge 'Derived from information held by the Heneb HER Charitable Trust copyright.' No licence is stated for the ADS record itself (the page's CC-BY-SA link is for the map tiles).",
+    "report_lines_verbatim": [
+     "p.1 (PDF p.3): \"Following the demolition of Great House Farm, Llandough in December 1988 the Glamorgan-Gwent Archaeological Trust (GGAT) entered into discussion with Debenham Tewson, agents for the site owners B P Properties Ltd, on the possible archaeological implications of redevelopment.\"",
+     "p.1 (PDF p.3): \"B P Properties commissioned GGAT to undertake the fieldwork and the report of which this introduction forms a part. It will be evident therefore that GGAT has throughout played a dual role; on the one hand it has advised the Local Planning Authority, and on the other provided comparable advice to the applicant.\"",
+     "p.2 (PDF p.4): \"Owing to an ownership dispute and the subsequent sudden destruction of the property in 1988 the building was incompletely understood.\"",
+     "p.9 (PDF p.11): \"Any floor levels associated with the north - west part of Great House Farm must have been removed during demolition in 1988 or during the clearance of the demolition in 1989.\"",
+     "PDF p.15: \"If the presence of human bone is taken to denote the existence of a disused burial ground the provisions of the Disused Burial Grounds (Amendment) Act 1981 may apply.\" ... \"We therefore recommend that before any decision on the options given above is taken, advice should be sought by BP Properties Ltd on any legal requirements which may pertain to the human skeletal remains.\""
+    ],
+    "related": [
+     "EV-0126",
+     "EV-0751",
+     "EV-0849",
+     "EV-0113",
+     "EV-0114",
+     "EV-0124",
+     "EV-0874",
+     "EV-0093"
+    ],
+    "interpretation": "Our reading: the event record and the listing add no new document; they are the public index entries for the August 1990 GGAT report already held (EV-0126, EV-0751). They confirm on Heneb's own record that BP Properties commissioned the evaluation for redevelopment, and the report places Debenham Tewson as BP's agents from after the December 1988 demolition. That fits the outline application 89/01396/OUT (applicant BP Properties, agent Debenham Tewson; consent 13 Mar 1990) and the July 1988 trade-press report of Debenham Tewson acting on BP's Welsh sales (EV-0093). What cuts against reading more into it: the report dates the agency only from after the demolition and records no instruction or role for Debenham Tewson before it; the HER event text is a summary written later from the report; GGAT's earlier comments on the application (EV-0113) record that BP wanted to sell with outline permission, not develop itself.",
+    "report_lines_note": "Quoted from the scan by OCR, checked against the page image for the year on PDF p.4 (reads 1988); obvious OCR letter errors corrected (e.g. 'roie' -> 'role'). Printed page numbers run two behind the PDF pages."
+   }
+  }
+ ]
+}
