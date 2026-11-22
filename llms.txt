@@ -1,0 +1,53 @@
+# Great House, Cedwyn Estate records — central catalogue
+
+> The central catalogue of the records gathered on Great House Farm (Tŷ Mawr), Llandough-juxta-Penarth, Vale of Glamorgan, Wales, its land and its neighbouring manors (Llandough, Leckwith, Cogan), and on the family who farmed it. Every webapp on bucklerfamily.estate reads its records from this one catalogue.
+
+Browser: https://bucklerfamily.estate/catalogue/
+Machine index: https://bucklerfamily.estate/catalogue/agent-index.json
+
+## How to read a record
+
+- One record: https://bucklerfamily.estate/catalogue/?id=EV-0012 (replace the id)
+- Search: https://bucklerfamily.estate/catalogue/?q=leckwith
+- Filter by kind: https://bucklerfamily.estate/catalogue/?kind=evidence
+- Newest first: https://bucklerfamily.estate/catalogue/?sort=new
+- A record's own file (PDF or image), where one is held: https://bucklerfamily.estate/catalogue/file/EV-0012
+
+## JSON API (read-only)
+
+- List: https://cedwyn.bucklerfamily.estate/api/catalogue?limit=500&offset=0
+  Returns `db`, `kinds` (count per kind), `total`, `limit`, `offset` and `items`.
+- One record: https://cedwyn.bucklerfamily.estate/api/catalogue/EV-0012
+- Item fields: `id`, `kind`, `alias`, `title`, `date_display`, `date_sort`, `status`, `holder`, `body` (verbatim text, where held), `summary`, `page`, `data` (kind-specific detail), `updated`, `rev`.
+- The API caches for up to 5 minutes.
+
+## Record ids
+
+- `EV-` evidence (a record read or catalogued)
+- `MR-` missing record (a record known or believed to exist that is not held)
+- `MED-` media register item (display alias `MRG-`, same digits)
+- `AR-` artifact (for example reconstructions and reference images)
+- `CH-` catalogue candidate
+- Ids are never reused or renumbered. A duplicate is marked `WITHDRAWN: duplicate of <id>` and still resolves.
+
+## Reading the evidence responsibly
+
+- Each record states what kind of source it is. Keep these apart: a record that was read (with its reference); one document reporting another (for example a newspaper report of a will); family testimony; and a hypothesis. A catalogue entry that has only been seen in an archive's catalogue is not the same as the document itself.
+- A gap in the record is not, by itself, evidence of concealment. Records that cut against the family's account are catalogued as plainly as those that support it.
+- No record in this catalogue is a finding that any named person or body acted wrongly.
+
+## Place names: two Llandoughs
+
+- This catalogue concerns Llandough-juxta-Penarth (Llandochau; historically Landoche-juxta-Cardif), next to Leckwith (Lecwydd) and Cogan on the River Ely.
+- Llandough near Cowbridge (Llandough Castle, Llanfair community), Llandow, Aberthin and Bonvilston are different places. Great House in Llandow and Tŷ Mawr in Aberthin are different houses.
+- Name forms of the farm and its land met in the records: Great House, Great House Farm, Tŷ Mawr, Ty Mawr, Ty-mawr, Cedfin, Cydfin, Cedwyn, Cydwin, Cwm Cydfin (the wood, now a Site of Special Scientific Interest), Llandough Home Farm (1881 census). "Llandough Farm" opposite the hospital is a separate farm.
+
+## Rules for this catalogue
+
+- The source of truth is the central catalogue (unclehowell/cedwyn, data/core). This browser holds no copy of the records.
+- Catalogue content is add-only. Existing records are changed only through an owner-approved catalogue-change pull request.
+
+## Related
+
+- Site: https://bucklerfamily.estate/
+- Source: https://github.com/unclehowell/cedwyn-catalogue
