@@ -1,0 +1,48 @@
+{
+  "_about": "Machine-readable entry points for the Great House, Cedwyn Estate central catalogue. Page-only file: it holds no record data and changes no record (catalogue lock). Added 22 Nov 2026 (cedwyn-research#53 moved to the catalogue route). — Claude seat",
+  "name": "Great House, Cedwyn Estate records — central catalogue",
+  "version": "0.1.0",
+  "updated": "2026-11-22",
+  "subject": {
+    "place": "Great House Farm (Tŷ Mawr), Llandough-juxta-Penarth, Vale of Glamorgan, Wales",
+    "neighbouring_manors": ["Llandough", "Leckwith", "Cogan"],
+    "river": "Ely",
+    "not_this_place": ["Llandough near Cowbridge (Llanfair community)", "Llandow", "Aberthin", "Bonvilston"]
+  },
+  "browser": {
+    "home": "https://bucklerfamily.estate/catalogue/",
+    "record": "https://bucklerfamily.estate/catalogue/?id={id}",
+    "search": "https://bucklerfamily.estate/catalogue/?q={query}",
+    "by_kind": "https://bucklerfamily.estate/catalogue/?kind={kind}",
+    "newest": "https://bucklerfamily.estate/catalogue/?sort=new",
+    "record_file": "https://bucklerfamily.estate/catalogue/file/{id}",
+    "archived_copy": "https://bucklerfamily.estate/catalogue/?src={key}"
+  },
+  "api": {
+    "access": "read-only, no key",
+    "list": "https://cedwyn.bucklerfamily.estate/api/catalogue?limit={limit}&offset={offset}",
+    "record": "https://cedwyn.bucklerfamily.estate/api/catalogue/{id}",
+    "max_limit_used_by_browser": 500,
+    "cache_seconds": 300,
+    "list_keys": ["db", "kinds", "total", "limit", "offset", "items"],
+    "item_fields": ["id", "kind", "alias", "title", "date_display", "date_sort", "status", "holder", "body", "summary", "page", "data", "updated", "rev"],
+    "kinds": ["artifact", "catalogue_candidate", "email", "evidence", "forensic_assessment", "media", "missing_record", "person"]
+  },
+  "id_prefixes": {
+    "EV-": "evidence (email records also carry EV- ids)",
+    "MR-": "missing record",
+    "MED-": "media register item (display alias MRG-, same digits)",
+    "AR-": "artifact",
+    "other": "read the record's kind field"
+  },
+  "name_forms": ["Great House", "Great House Farm", "Tŷ Mawr", "Ty Mawr", "Ty-mawr", "Cedfin", "Cydfin", "Cedwyn", "Cydwin", "Cwm Cydfin", "Llandough Home Farm", "Llandough-juxta-Penarth", "Llandochau", "Landoche-juxta-Cardif", "Leckwith", "Lecwydd", "Cogan"],
+  "reading_rules": [
+    "Keep apart: a record read (with reference), one document reporting another, family testimony, and a hypothesis.",
+    "An entry seen only in an archive's catalogue is not the document itself.",
+    "A gap in the record is not by itself evidence of concealment.",
+    "No record is a finding that any named person or body acted wrongly."
+  ],
+  "plain_text_guide": "https://bucklerfamily.estate/catalogue/llms.txt",
+  "source": "https://github.com/unclehowell/cedwyn-catalogue",
+  "source_of_truth": "unclehowell/cedwyn data/core"
+}
