@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.20.0 — 2026-11-24
+- **Llandaff Records PDF in the EV-0833 record page.** The catalogue now maps EV-0833 to the same-origin, repository-hosted complete 1908 PDF while retaining the existing page-53 thumbnail as the passage preview. The page labels the preview accurately, embeds the full volume in a responsive accessible PDF viewer, and provides a separate-tab fallback.
+- Added a separate whole-volume result under Books with the printed Volume II / Book I title. The existing 24 May 1665 passage result remains separately scoped; no central evidence record was edited. The viewer depends on the PDF being merged into `unclehowell/bucklerfamily-estate` under the path tracked by parent PR #49.
+
 ## 0.18.0 — 2026-11-17
 - **Books tab bibliography additions.** Added Louise Katherine Loe's University of Bristol PhD thesis with the repository's 2003 award metadata and an explicit note that Holbrook & Thomas (2005), p. 3, states 2004 in its narrative; both dates are preserved as a discrepancy, not silently reconciled.
 - Added the citation-only bibliographic lead for E. J. Beare, *Llandough, Penarth* (1963), using the exact citation in Holbrook & Thomas (2005), p. 3, n. 3. The note states that the manuscript itself has not been examined and that current custody is not established.
