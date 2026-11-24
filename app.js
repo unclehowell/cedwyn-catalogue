@@ -203,7 +203,7 @@
   var thumbsP = Promise.all([getJSON('thumbs/index.json' + VQ).catch(function () { return {}; }), getJSON('thumbs/rec-index.json' + VQ).catch(function () { return {}; })]).then(function (a) {
     var d = a[0] || {}; TI = d.items || {}; RC = d.recon || [];
     var R = (a[1] || {}).items || {};                         // v0.11.0: each record's own preview, cut from its file
-    Object.keys(R).forEach(function (id) { var o = TI[id] || {}, x = R[id]; TI[id] = { k: x.k || o.k, u: x.u || o.u, s: x.s, c: x.how }; });
+    Object.keys(R).forEach(function (id) { var o = TI[id] || {}, x = R[id]; TI[id] = { k: x.k || o.k, u: x.u || o.u, s: x.s, c: x.how, previewLabel: x.previewLabel || '', openLabel: x.openLabel || '', embedPdf: x.embedPdf === true, pdfTitle: x.pdfTitle || '' }; });
     return TI;
   });
   function shard(n) { if (!shardP[n]) shardP[n] = getJSON('thumbs/t' + n + '.json' + VQ).catch(function () { return {}; }); return shardP[n]; }
@@ -697,9 +697,20 @@
     if (!ti || ti.s == null) { ti = null; (srcs || []).some(function (s) { var t = TI[s.k]; if (t && t.s != null) { ti = t; k = s.k; ou = s.u; return true; } return false; }); }
     if (!ti) return '';
     var c = copyOf(ou), href = fileHref(r) || (c ? (ours(ou) && !WB.byCopy[nurl(ou)] ? c.copy : '?src=' + c.key) : '');
-    var lab = ti.c === 'cropped-picture' ? 'Picture from the file' : ti.k === 'pdf' || /\.pdf/i.test(ou || '') ? 'First page' : ti.k === 'page' ? 'Picture from the record\'s page' : 'Preview';
+    var lab = ti.previewLabel || (ti.c === 'cropped-picture' ? 'Picture from the file' : ti.k === 'pdf' || /\.pdf/i.test(ou || '') ? 'First page' : ti.k === 'page' ? 'Picture from the record\'s page' : 'Preview'), openLabel = ti.openLabel || 'Open file';
     var img = '<img data-tk="' + esc(k) + '" src="data:image/gif;base64,R0lGODlhAQABAAAAACw=" alt="Preview of ' + esc(r.title) + '">';
-    return '<figure class="prev">' + (href ? '<a href="' + esc(href) + '">' + img + '</a>' : img) + '<figcaption>' + lab + ' · ' + (href ? '<a class="fopen" href="' + esc(href) + '">Open file</a>' : 'file pending') + '</figcaption></figure>';
+    return '<figure class="prev">' + (href ? '<a href="' + esc(href) + '">' + img + '</a>' : img) + '<figcaption>' + esc(lab) + ' · ' + (href ? '<a class="fopen" href="' + esc(href) + '">' + esc(openLabel) + '</a>' : 'file pending') + '</figcaption></figure>';
+  }
+  function recordPdf(r) {
+    var ti = TI[r.id], href = ti && ti.embedPdf && ti.k === 'pdf' ? fileHref(r) : null;
+    if (!href) return '';
+    var title = ti.pdfTitle || 'Complete 1908 volume', hid = 'pdf-viewer-' + r.id;
+    return '<section class="pdf-viewer" aria-labelledby="' + esc(hid) + '">' +
+      '<h2 id="' + esc(hid) + '">Complete 1908 volume</h2>' +
+      '<p class="muted">This catalogue record identifies the specific 24 May 1665 passage (printed p. 53). The PDF below is the complete 1908 volume, listed separately.</p>' +
+      '<iframe src="' + esc(href) + '" title="PDF viewer for ' + esc(title) + '" loading="lazy"></iframe>' +
+      '<p class="pdf-fallback"><a href="' + esc(href) + '" target="_blank" rel="noopener">Open the complete PDF in a new tab</a>. You can also use the PDF viewer’s download control.</p>' +
+      '</section>';
   }
   function artifactCard(r) {
     return '<div class="artifact"><strong>Document held privately — personal data</strong><span class="muted">The original is kept privately in the evidence repository and is not published here. The description and extract below are the public record of it.</span></div>';
@@ -781,6 +792,7 @@
       if (isPrivate(r)) h += artifactCard(r);
       else if (pv) h += pv;
       if (!pv && !isPrivate(r)) h += srcs && srcs.length ? '<p class="fopen"><a href="' + esc(srcs[0].u) + '" rel="noopener">Open archived file</a> · preview not generated</p>' : '<p class="fpend">File pending</p>'; }
+      h += recordPdf(r);
       h += shareRow('id', r.id, r.id + ': ' + r.title, 1);
       h += metaBlock(r, srcs);
       h += '<h2>Description</h2>';
