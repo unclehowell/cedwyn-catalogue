@@ -2481,11 +2481,20 @@
     },
     {
       "tab": "books",
-      "t": "Llandaff Records, vol. 1 (institutions and acts of the diocese), entry for 24 May 1665 (1908)",
+      "t": "Llandaff Records, Volume II: Acts of the Bishops of Llandaff, Book I — 24 May 1665 entry (printed p. 53) (1908)",
       "u": "https://archive.org/details/llandaffrecords01diogoog (open full text, p. 53)",
       "ic": "book",
       "d": "“[James Corey to the rectory of Leckwith, Llandough and Cogan.] … Vicesimo quarto die mensis Maij, anno domini millesimo sexcentesimo sexagesimo quinto, admissus fuit per…",
       "s": "Diocese of Llandaff (records edition)",
+      "k": "context"
+    },
+    {
+      "tab": "books",
+      "t": "Llandaff Records, Volume II: Acts of the Bishops of Llandaff, Book I (1908)",
+      "u": "https://bucklerfamily.estate/research/sources/llandaff-records-vol-ii-1908.pdf",
+      "ic": "book",
+      "d": "Complete 133-page scan of the 1908 printed volume, transcribed by Joseph Alfred Bradney and printed by Wm. Lewis, Cardiff, for the committee appointed under the authority of the Llandaff Diocesan Conference. The repository copy is the Google scan of a New York Public Library copy. This is the whole-volume bibliographic item; it is distinct from EV-0833, which describes only the 24 May 1665 passage on printed page 53.",
+      "s": "Joseph Alfred Bradney (transcriber); Diocese of Llandaff (records edition)",
       "k": "context"
     },
     {
@@ -2944,5 +2953,5 @@
       "k": "context"
     }
   ],
-  "built": "2026-11-17T22:00:00Z"
+  "built": "2026-11-24T03:32:00Z"
 }
