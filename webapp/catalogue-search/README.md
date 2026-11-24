@@ -3,7 +3,10 @@
 A lightweight catalogue-styled front door for legacy BucklerFamily estate hostnames. It does not copy or fabricate catalogue records.
 
 - Search requests go to the live canonical catalogue: https://bucklerfamily.estate/catalogue/
-- Query parameters `q`, `kind`, `sort`, `id`, `src` and `tab` are preserved.
+- Search query: `?q=...`
+- Catalogue tabs: `?tab=all`, `web`, `images`, `videos`, `pdf`, `tbd`, `news`, `emails`, `books`, `blog`
+- Sort values: `?sort=new` (newest added), `date-desc` (newest record date), `date` (oldest record date) and `id` (catalogue reference).
+- Record pages use `?id=...`; archived source pages use `?src=...`.
 - Actual results are rendered by the existing catalogue application from the live record service.
 - `worker.js` is the source for Cloudflare Worker `bfe-catalogue-frontdoor`.
 - The apex `@`, `www` and every `*-datro` hostname are excluded from front-door behaviour.
