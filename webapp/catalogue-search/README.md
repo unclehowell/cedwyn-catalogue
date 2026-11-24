@@ -1,12 +1,11 @@
 # Catalogue Search Gateway
 
-A lightweight, deliberately catalogue-styled front door for legacy BucklerFamily estate hostnames. It does not copy or fabricate catalogue records. It passes a submitted query to the canonical, live catalogue:
+A lightweight catalogue-styled front door for legacy BucklerFamily estate hostnames. It does not copy or fabricate catalogue records.
 
-- Canonical search: https://bucklerfamily.estate/catalogue/
-- Query: `?q=...`
-- Filters: `?kind=evidence`, `?kind=email`, `?sort=new`
-- Record pages: `?id=EV-...`
+- Search requests go to the live canonical catalogue: https://bucklerfamily.estate/catalogue/
+- Query parameters `q`, `kind`, `sort`, `id`, `src` and `tab` are preserved.
+- Actual results are rendered by the existing catalogue application from the live record service.
+- `worker.js` is the source for Cloudflare Worker `bfe-catalogue-frontdoor`.
+- The apex `@`, `www` and every `*-datro` hostname are excluded from front-door behaviour.
 
-The front-door Worker serves this Pages deployment on legacy hostnames, while preserving `www.bucklerfamily.estate` and all `*-datro.bucklerfamily.estate` hosts. Any submitted query redirects to the real catalogue with its query parameters intact.
-
-This app is kept in `webapp/catalogue-search/` within `unclehowell/cedwyn-catalogue` because the connected GitHub tools do not provide repository creation. It is a separate Pages project / deploy target, not a separately-created GitHub repository.
+Cloudflare refused a new Pages project because the account has reached its Pages-project quota. The connected GitHub integration also does not expose repository creation. This app is a dedicated `webapp/catalogue-search/` directory in `unclehowell/cedwyn-catalogue`, served by its own Worker rather than a separate Pages project/repository.
